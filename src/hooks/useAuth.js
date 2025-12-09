@@ -12,6 +12,11 @@ const signIn = async (credentials) => {
   const formData = new FormData();
   formData.append("email", credentials.email);
   formData.append("password", credentials.password);
+  // Pass rememberMe option (default true if not specified)
+  formData.append(
+    "rememberMe",
+    credentials.rememberMe !== false ? "true" : "false"
+  );
 
   const response = await fetch(`${API_BASE_URL}/api/auth/custom/sign-in`, {
     credentials: "include",
@@ -102,6 +107,71 @@ export const useSignOut = () => {
     mutationFn: () => authClient.signOut(),
     mutationKey: ["auth", "sign-out"],
   });
+};
+
+// Forgot Password Hook - request password reset email
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: async ({ email, redirectTo }) => {
+      const result = await authClient.forgetPassword({
+        email,
+        redirectTo: redirectTo || `${window.location.origin}/reset-password`,
+      });
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to send reset email");
+      }
+      return result;
+    },
+    mutationKey: ["auth", "forgot-password"],
+  });
+};
+
+// Reset Password Hook - set new password with token
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: async ({ newPassword, token }) => {
+      const result = await authClient.resetPassword({
+        newPassword,
+        token,
+      });
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to reset password");
+      }
+      return result;
+    },
+    mutationKey: ["auth", "reset-password"],
+  });
+};
+
+// Google Sign In - uses better-auth social sign in
+// This function triggers a redirect to Google OAuth
+export const signInWithGoogle = async (callbackURL = "/dashboard") => {
+  console.log("[Google Sign In] Starting...");
+
+  const result = await authClient.signIn.social({
+    provider: "google",
+    callbackURL,
+    errorCallbackURL: "/Login?error=google_auth_failed",
+  });
+
+  console.log("[Google Sign In] Result:", result);
+
+  // Check if there's an error in the response
+  if (result?.error) {
+    console.error("[Google Sign In] Error:", result.error);
+    throw new Error(result.error.message || "Google sign in failed");
+  }
+
+  // If the client didn't auto-redirect and returned a URL, redirect manually
+  if (result?.data?.url) {
+    console.log("[Google Sign In] Redirecting to:", result.data.url);
+    window.location.href = result.data.url;
+  } else if (result?.url) {
+    console.log("[Google Sign In] Redirecting to:", result.url);
+    window.location.href = result.url;
+  }
+
+  return result;
 };
 
 // Helper hook to check if user is authenticated

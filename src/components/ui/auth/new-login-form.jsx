@@ -1,6 +1,5 @@
 import { DialogTitle } from "@headlessui/react";
 import { Checkbox } from "../checkbox";
-import { Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa6";
 import { useState } from "react";
@@ -8,12 +7,15 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signInSchema } from "@/schema/authSchema";
-import { useSignIn } from "@/hooks/useAuth";
+import { useSignIn, signInWithGoogle } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
+import ForgotPasswordForm from "./forgot-password-form";
 
 const NewLoginForm = ({ onSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true); // Default to true
 
   const {
     register,
@@ -24,38 +26,53 @@ const NewLoginForm = ({ onSuccess }) => {
   });
 
   const signInMutation = useSignIn();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle("/dashboard");
+    } catch (error) {
+      toast.error(error.message || "Google sign in failed");
+      setIsGoogleLoading(false);
+    }
+  };
 
   const onSubmit = (data) => {
-    signInMutation.mutate(data, {
-      onSuccess: (response) => {
-        // Use confirmedUser from session polling, fallback to response.user
-        const user = response?.confirmedUser || response?.user;
+    // Include rememberMe in the credentials
+    signInMutation.mutate(
+      { ...data, rememberMe },
+      {
+        onSuccess: (response) => {
+          // Use confirmedUser from session polling, fallback to response.user
+          const user = response?.confirmedUser || response?.user;
 
-        if (user) {
-          toast.success("Login successful! Redirecting...");
-          setIsRedirecting(true);
+          if (user) {
+            toast.success("Login successful! Redirecting...");
+            setIsRedirecting(true);
 
-          // Close modal if callback provided
-          if (onSuccess) onSuccess();
+            // Close modal if callback provided
+            if (onSuccess) onSuccess();
 
-          // Determine redirect path based on confirmed user role
-          const redirectPath =
-            user.role === "admin" || user.role === "super"
-              ? "/admin"
-              : "/dashboard";
+            // Determine redirect path based on confirmed user role
+            const redirectPath =
+              user.role === "admin" || user.role === "super"
+                ? "/admin"
+                : "/dashboard";
 
-          // Small delay to ensure UI updates, then redirect
-          setTimeout(() => {
-            window.location.href = redirectPath;
-          }, 100);
-        } else {
-          toast.error("Login failed. Please try again.");
-        }
-      },
-      onError: (error) => {
-        toast.error(error.message || "Login failed. Please try again.");
-      },
-    });
+            // Small delay to ensure UI updates, then redirect
+            setTimeout(() => {
+              window.location.href = redirectPath;
+            }, 100);
+          } else {
+            toast.error("Login failed. Please try again.");
+          }
+        },
+        onError: (error) => {
+          toast.error(error.message || "Login failed. Please try again.");
+        },
+      }
+    );
   };
 
   const isLoading = isSubmitting || signInMutation.isPending || isRedirecting;
@@ -70,6 +87,11 @@ const NewLoginForm = ({ onSuccess }) => {
         </p>
       </div>
     );
+  }
+
+  // Show forgot password form
+  if (showForgotPassword) {
+    return <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />;
   }
 
   return (
@@ -126,14 +148,23 @@ const NewLoginForm = ({ onSuccess }) => {
 
           <div className="tw:flex tw:items-center tw:gap-2 tw:justify-between">
             <div className="tw:flex tw:gap-2 tw:items-center">
-              <Checkbox className="tw:!mb-0.5" id="rememberMe" />
+              <Checkbox
+                className="tw:!mb-0.5"
+                id="rememberMe"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked)}
+              />
               <label className="tw:text-sm tw:!mb-0" htmlFor="rememberMe">
                 Remember Me
               </label>
             </div>
-            <Link className="tw:text-sm tw:!text-inherit tw:!no-underline tw:hover:!underline">
-              Forgot Password
-            </Link>
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="tw:text-sm tw:text-primary tw:hover:underline tw:bg-transparent tw:border-none tw:cursor-pointer"
+            >
+              Forgot Password?
+            </button>
           </div>
 
           <button
@@ -160,11 +191,23 @@ const NewLoginForm = ({ onSuccess }) => {
           </div>
 
           <div className="tw:grid tw:grid-cols-2 tw:gap-4">
-            <button className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted">
-              <FcGoogle size={20} />
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+              className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted tw:disabled:opacity-50 tw:disabled:cursor-not-allowed"
+            >
+              {isGoogleLoading ? (
+                <Loader2 className="tw:w-5 tw:h-5 tw:animate-spin" />
+              ) : (
+                <FcGoogle size={20} />
+              )}
               <span>Google</span>
             </button>
-            <button className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted">
+            <button
+              type="button"
+              className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted"
+            >
               <FaApple size={20} />
               <span>Apple</span>
             </button>

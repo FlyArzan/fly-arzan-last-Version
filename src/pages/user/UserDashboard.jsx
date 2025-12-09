@@ -15,6 +15,14 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Switch,
+  FormControlLabel,
+  FormGroup,
 } from "@mui/material";
 import {
   Person as PersonIcon,
@@ -23,19 +31,25 @@ import {
   VisibilityOff,
   Logout as LogoutIcon,
   Home as HomeIcon,
+  Notifications as NotificationsIcon,
+  Warning as WarningIcon,
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useSession, useSignOut } from "@/hooks/useAuth";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Validation schemas
 const profileSchema = yup.object({
-  name: yup.string().required("Name is required").min(2, "Name must be at least 2 characters"),
+  name: yup
+    .string()
+    .required("Name is required")
+    .min(2, "Name must be at least 2 characters"),
   email: yup.string().email("Invalid email").required("Email is required"),
 });
 
@@ -83,15 +97,18 @@ const updateProfile = async (data) => {
 
 // Change password API
 const changePassword = async (data) => {
-  const response = await fetch(`${API_BASE_URL}/api/auth/custom/change-password`, {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      currentPassword: data.currentPassword,
-      newPassword: data.newPassword,
-    }),
-  });
+  const response = await fetch(
+    `${API_BASE_URL}/api/auth/custom/change-password`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      }),
+    }
+  );
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || "Failed to change password");
@@ -101,21 +118,38 @@ const changePassword = async (data) => {
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState(0);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Delete account state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+
+  // Notification preferences state
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    emailMarketing: true,
+    emailBookingUpdates: true,
+    emailPriceAlerts: true,
+    emailNewsletter: false,
+    pushNotifications: true,
+    smsAlerts: false,
+  });
+
   const { data: session, isLoading: sessionLoading } = useSession();
   const signOutMutation = useSignOut();
 
   const user = session?.user;
-  const userInitials = user?.name
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "U";
+  const userInitials =
+    user?.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U";
 
   // Profile form
   const {
@@ -162,6 +196,55 @@ const UserDashboard = () => {
     },
   });
 
+  // Delete account mutation
+  const deleteAccountMutation = useMutation({
+    mutationFn: async (password) => {
+      const result = await authClient.deleteUser({
+        password,
+      });
+      if (result.error) {
+        throw new Error(result.error.message || "Failed to delete account");
+      }
+      return result;
+    },
+    onSuccess: () => {
+      toast.success("Account deleted successfully");
+      queryClient.clear();
+      navigate("/");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete account");
+    },
+  });
+
+  // Notification preferences mutation (placeholder - would need backend API)
+  const notificationPrefsMutation = useMutation({
+    mutationFn: async (prefs) => {
+      const response = await fetch(
+        `${API_BASE_URL}/api/user/notification-preferences`,
+        {
+          method: "PUT",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(prefs),
+        }
+      );
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(
+          error.message || "Failed to update notification preferences"
+        );
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast.success("Notification preferences updated");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
   const handleLogout = () => {
     signOutMutation.mutate(undefined, {
       onSuccess: () => {
@@ -176,6 +259,24 @@ const UserDashboard = () => {
 
   const onPasswordSubmit = (data) => {
     passwordMutation.mutate(data);
+  };
+
+  const handleDeleteAccount = () => {
+    if (deleteConfirmText !== "DELETE") {
+      toast.error("Please type DELETE to confirm");
+      return;
+    }
+    if (!deletePassword) {
+      toast.error("Please enter your password");
+      return;
+    }
+    deleteAccountMutation.mutate(deletePassword);
+  };
+
+  const handleNotificationChange = (key) => (event) => {
+    const newPrefs = { ...notificationPrefs, [key]: event.target.checked };
+    setNotificationPrefs(newPrefs);
+    notificationPrefsMutation.mutate(newPrefs);
   };
 
   if (sessionLoading) {
@@ -272,16 +373,6 @@ const UserDashboard = () => {
             <Typography sx={{ color: "rgba(255,255,255,0.8)", fontSize: 14 }}>
               {user?.email}
             </Typography>
-            <Typography
-              sx={{
-                color: "rgba(255,255,255,0.6)",
-                fontSize: 12,
-                mt: 0.5,
-                textTransform: "capitalize",
-              }}
-            >
-              Role: {user?.role || "user"}
-            </Typography>
           </Box>
         </Box>
 
@@ -290,6 +381,8 @@ const UserDashboard = () => {
           <Tabs
             value={activeTab}
             onChange={(_, newValue) => setActiveTab(newValue)}
+            variant="scrollable"
+            scrollButtons="auto"
             sx={{
               "& .MuiTab-root": {
                 textTransform: "none",
@@ -307,6 +400,11 @@ const UserDashboard = () => {
               icon={<LockIcon sx={{ fontSize: 20 }} />}
               iconPosition="start"
               label="Security"
+            />
+            <Tab
+              icon={<NotificationsIcon sx={{ fontSize: 20 }} />}
+              iconPosition="start"
+              label="Notifications"
             />
           </Tabs>
         </Box>
@@ -464,9 +562,257 @@ const UserDashboard = () => {
             <Alert severity="info" sx={{ mt: 3 }}>
               Password must be at least 8 characters long.
             </Alert>
+
+            {/* Delete Account Section */}
+            <Divider sx={{ my: 4 }} />
+            <Box
+              sx={{
+                p: 3,
+                border: "1px solid #ffcdd2",
+                borderRadius: 2,
+                bgcolor: "#ffebee",
+              }}
+            >
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
+                <WarningIcon sx={{ color: "#d32f2f" }} />
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 600, color: "#d32f2f" }}
+                >
+                  Delete Account
+                </Typography>
+              </Box>
+              <Typography sx={{ color: "#666", mb: 2, fontSize: 14 }}>
+                Once you delete your account, there is no going back. All your
+                data will be permanently removed.
+              </Typography>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                Delete My Account
+              </Button>
+            </Box>
+          </TabPanel>
+
+          {/* Notifications Tab */}
+          <TabPanel value={activeTab} index={2}>
+            <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+              Notification Preferences
+            </Typography>
+            <Typography sx={{ color: "#666", mb: 3, fontSize: 14 }}>
+              Manage how you receive notifications and updates
+            </Typography>
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              {/* Email Notifications */}
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                  Email Notifications
+                </Typography>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={notificationPrefs.emailBookingUpdates}
+                        onChange={handleNotificationChange(
+                          "emailBookingUpdates"
+                        )}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography sx={{ fontWeight: 500 }}>
+                          Booking Updates
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "#666" }}>
+                          Receive updates about your flight bookings, changes,
+                          and confirmations
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={notificationPrefs.emailPriceAlerts}
+                        onChange={handleNotificationChange("emailPriceAlerts")}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography sx={{ fontWeight: 500 }}>
+                          Price Alerts
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "#666" }}>
+                          Get notified when prices drop for your saved searches
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={notificationPrefs.emailMarketing}
+                        onChange={handleNotificationChange("emailMarketing")}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography sx={{ fontWeight: 500 }}>
+                          Marketing & Promotions
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "#666" }}>
+                          Receive special offers, deals, and promotional content
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={notificationPrefs.emailNewsletter}
+                        onChange={handleNotificationChange("emailNewsletter")}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography sx={{ fontWeight: 500 }}>
+                          Newsletter
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "#666" }}>
+                          Weekly travel tips, destination guides, and
+                          inspiration
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </FormGroup>
+              </Box>
+
+              <Divider />
+
+              {/* Other Notifications */}
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+                  Other Notifications
+                </Typography>
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={notificationPrefs.pushNotifications}
+                        onChange={handleNotificationChange("pushNotifications")}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography sx={{ fontWeight: 500 }}>
+                          Push Notifications
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "#666" }}>
+                          Receive browser push notifications for important
+                          updates
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={notificationPrefs.smsAlerts}
+                        onChange={handleNotificationChange("smsAlerts")}
+                        color="primary"
+                      />
+                    }
+                    label={
+                      <Box>
+                        <Typography sx={{ fontWeight: 500 }}>
+                          SMS Alerts
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: "#666" }}>
+                          Receive text messages for urgent booking updates
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                </FormGroup>
+              </Box>
+            </Box>
+
+            <Alert severity="info" sx={{ mt: 3 }}>
+              You can unsubscribe from marketing emails at any time using the
+              link in the email footer.
+            </Alert>
           </TabPanel>
         </CardContent>
       </Card>
+
+      {/* Delete Account Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <WarningIcon sx={{ color: "#d32f2f" }} />
+          Delete Account
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 3 }}>
+            This action is <strong>permanent and cannot be undone</strong>. All
+            your data, including bookings, saved searches, and preferences will
+            be permanently deleted.
+          </DialogContentText>
+          <TextField
+            label="Enter your password"
+            type="password"
+            fullWidth
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label='Type "DELETE" to confirm'
+            fullWidth
+            value={deleteConfirmText}
+            onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+            helperText="This action cannot be undone"
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button
+            onClick={() => {
+              setDeleteDialogOpen(false);
+              setDeletePassword("");
+              setDeleteConfirmText("");
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteAccount}
+            disabled={
+              deleteAccountMutation.isPending ||
+              deleteConfirmText !== "DELETE" ||
+              !deletePassword
+            }
+          >
+            {deleteAccountMutation.isPending ? "Deleting..." : "Delete Account"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

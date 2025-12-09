@@ -1,4 +1,4 @@
-import { object, string } from "yup";
+import { object, string, boolean } from "yup";
 
 // Sign In Schema
 export const signInSchema = object({
@@ -20,5 +20,8 @@ export const signUpSchema = object({
     .required("Email is required"),
   password: string()
     .required("Password is required")
-    .min(8, "Password must be at least 6 characters"),
+    .min(8, "Password must be at least 8 characters"),
+  terms: boolean()
+    .oneOf([true], "You must agree to the Terms of Service and Privacy Policy")
+    .required("You must agree to the Terms of Service and Privacy Policy"),
 });

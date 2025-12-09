@@ -7,15 +7,27 @@ import { useTranslation } from "react-i18next";
 import { loginSchema, registrationSchema } from "../Schemas/Schemas";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useSignIn, useSignUp } from "@/hooks/useAuth";
+import { useSignIn, useSignUp, signInWithGoogle } from "@/hooks/useAuth";
 import { toast } from "react-toastify";
 
 const Login = ({ setShowPopup }) => {
   const [isSignup, setIsSignup] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true); // Default to true
 
   const signInMutation = useSignIn();
   const signUpMutation = useSignUp();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle("/dashboard");
+    } catch (error) {
+      toast.error(error.message || "Google sign in failed");
+      setIsGoogleLoading(false);
+    }
+  };
 
   const loading =
     signInMutation.isPending || signUpMutation.isPending || isRedirecting;
@@ -46,6 +58,7 @@ const Login = ({ setShowPopup }) => {
         const response = await signInMutation.mutateAsync({
           email: data.email,
           password: data.password,
+          rememberMe, // Pass rememberMe option
         });
         console.log("Login response:", response);
 
@@ -343,6 +356,8 @@ const Login = ({ setShowPopup }) => {
               >
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   style={{ width: "16px", height: "16px", cursor: "pointer" }}
                 />
                 {t(`Logsec.label3`)}
@@ -471,6 +486,8 @@ const Login = ({ setShowPopup }) => {
           >
             <button
               type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
               style={{
                 flex: 1,
                 display: "flex",
@@ -481,14 +498,15 @@ const Login = ({ setShowPopup }) => {
                 border: "1px solid #e5e7eb",
                 borderRadius: "8px",
                 background: "#ffffff",
-                cursor: "pointer",
+                cursor: isGoogleLoading ? "not-allowed" : "pointer",
                 fontSize: "14px",
                 fontFamily: "Rubik, sans-serif",
                 color: "#374151",
+                opacity: isGoogleLoading ? 0.5 : 1,
               }}
             >
               <FcGoogle size={20} />
-              Google
+              {isGoogleLoading ? "Signing in..." : "Google"}
             </button>
             <button
               type="button"

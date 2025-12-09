@@ -58,6 +58,10 @@ import Sessions from "../pages/admin/auth/sessions";
 import UserDashboard from "../pages/user/UserDashboard";
 import UserAuthGuard from "../components/auth/UserAuthGuard";
 
+// Auth Pages
+import ResetPassword from "../pages/ResetPassword";
+import AdminLogin from "../pages/AdminLogin";
+
 const Routes = () => {
   return useRoutes([
     { path: "", element: <LandingFlights /> },
@@ -147,6 +151,10 @@ const Routes = () => {
     { path: "/Login", element: <Login /> },
 
     { path: "/Singup", element: <Singup /> },
+
+    { path: "/reset-password", element: <ResetPassword /> },
+
+    { path: "/admin-login", element: <AdminLogin /> },
 
     { path: "/loader", element: <WeDirecting /> },
 

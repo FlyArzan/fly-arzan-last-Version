@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -38,7 +38,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useSession, useSignOut } from "@/hooks/useAuth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
@@ -131,18 +131,42 @@ const UserDashboard = () => {
 
   // Notification preferences state
   const [notificationPrefs, setNotificationPrefs] = useState({
-    emailMarketing: true,
-    emailBookingUpdates: true,
-    emailPriceAlerts: true,
-    emailNewsletter: false,
-    pushNotifications: true,
-    smsAlerts: false,
+    wantsNotifications: true,
+    wantsNewsletter: false,
   });
 
   const { data: session, isLoading: sessionLoading } = useSession();
   const signOutMutation = useSignOut();
 
   const user = session?.user;
+
+  // Fetch notification preferences from backend
+  const { data: prefsData } = useQuery({
+    queryKey: ["notification-preferences"],
+    queryFn: async () => {
+      const response = await fetch(
+        `${API_BASE_URL}/api/user/notification-preferences`,
+        {
+          credentials: "include",
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch notification preferences");
+      }
+      return response.json();
+    },
+    enabled: !!user,
+  });
+
+  // Sync local state with fetched data
+  useEffect(() => {
+    if (prefsData) {
+      setNotificationPrefs({
+        wantsNotifications: prefsData.wantsNotifications ?? true,
+        wantsNewsletter: prefsData.wantsNewsletter ?? false,
+      });
+    }
+  }, [prefsData]);
   const userInitials =
     user?.name
       ?.split(" ")
@@ -217,7 +241,7 @@ const UserDashboard = () => {
     },
   });
 
-  // Notification preferences mutation (placeholder - would need backend API)
+  // Notification preferences mutation
   const notificationPrefsMutation = useMutation({
     mutationFn: async (prefs) => {
       const response = await fetch(
@@ -239,6 +263,7 @@ const UserDashboard = () => {
     },
     onSuccess: () => {
       toast.success("Notification preferences updated");
+      queryClient.invalidateQueries({ queryKey: ["notification-preferences"] });
     },
     onError: (error) => {
       toast.error(error.message);
@@ -604,92 +629,35 @@ const UserDashboard = () => {
               Notification Preferences
             </Typography>
             <Typography sx={{ color: "#666", mb: 3, fontSize: 14 }}>
-              Manage how you receive notifications and updates
+              Manage how you receive notifications and updates from Fly Arzan
             </Typography>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              {/* Email Notifications */}
+              {/* In-App Notifications */}
               <Box>
                 <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                  Email Notifications
+                  In-App Notifications
                 </Typography>
                 <FormGroup>
                   <FormControlLabel
                     control={
                       <Switch
-                        checked={notificationPrefs.emailBookingUpdates}
+                        checked={notificationPrefs.wantsNotifications}
                         onChange={handleNotificationChange(
-                          "emailBookingUpdates"
+                          "wantsNotifications"
                         )}
                         color="primary"
+                        disabled={notificationPrefsMutation.isPending}
                       />
                     }
                     label={
                       <Box>
                         <Typography sx={{ fontWeight: 500 }}>
-                          Booking Updates
+                          Receive Notifications
                         </Typography>
                         <Typography variant="body2" sx={{ color: "#666" }}>
-                          Receive updates about your flight bookings, changes,
-                          and confirmations
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={notificationPrefs.emailPriceAlerts}
-                        onChange={handleNotificationChange("emailPriceAlerts")}
-                        color="primary"
-                      />
-                    }
-                    label={
-                      <Box>
-                        <Typography sx={{ fontWeight: 500 }}>
-                          Price Alerts
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#666" }}>
-                          Get notified when prices drop for your saved searches
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={notificationPrefs.emailMarketing}
-                        onChange={handleNotificationChange("emailMarketing")}
-                        color="primary"
-                      />
-                    }
-                    label={
-                      <Box>
-                        <Typography sx={{ fontWeight: 500 }}>
-                          Marketing & Promotions
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#666" }}>
-                          Receive special offers, deals, and promotional content
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={notificationPrefs.emailNewsletter}
-                        onChange={handleNotificationChange("emailNewsletter")}
-                        color="primary"
-                      />
-                    }
-                    label={
-                      <Box>
-                        <Typography sx={{ fontWeight: 500 }}>
-                          Newsletter
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#666" }}>
-                          Weekly travel tips, destination guides, and
-                          inspiration
+                          Get notified about important updates, promotions, and
+                          system announcements within the app
                         </Typography>
                       </Box>
                     }
@@ -699,47 +667,29 @@ const UserDashboard = () => {
 
               <Divider />
 
-              {/* Other Notifications */}
+              {/* Email Notifications */}
               <Box>
                 <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
-                  Other Notifications
+                  Email Communications
                 </Typography>
                 <FormGroup>
                   <FormControlLabel
                     control={
                       <Switch
-                        checked={notificationPrefs.pushNotifications}
-                        onChange={handleNotificationChange("pushNotifications")}
+                        checked={notificationPrefs.wantsNewsletter}
+                        onChange={handleNotificationChange("wantsNewsletter")}
                         color="primary"
+                        disabled={notificationPrefsMutation.isPending}
                       />
                     }
                     label={
                       <Box>
                         <Typography sx={{ fontWeight: 500 }}>
-                          Push Notifications
+                          Newsletter & Marketing Emails
                         </Typography>
                         <Typography variant="body2" sx={{ color: "#666" }}>
-                          Receive browser push notifications for important
-                          updates
-                        </Typography>
-                      </Box>
-                    }
-                  />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={notificationPrefs.smsAlerts}
-                        onChange={handleNotificationChange("smsAlerts")}
-                        color="primary"
-                      />
-                    }
-                    label={
-                      <Box>
-                        <Typography sx={{ fontWeight: 500 }}>
-                          SMS Alerts
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: "#666" }}>
-                          Receive text messages for urgent booking updates
+                          Receive promotional emails, special offers, travel
+                          tips, and newsletter updates from Fly Arzan
                         </Typography>
                       </Box>
                     }
@@ -749,8 +699,8 @@ const UserDashboard = () => {
             </Box>
 
             <Alert severity="info" sx={{ mt: 3 }}>
-              You can unsubscribe from marketing emails at any time using the
-              link in the email footer.
+              Your preferences are saved automatically. You can change them at
+              any time.
             </Alert>
           </TabPanel>
         </CardContent>

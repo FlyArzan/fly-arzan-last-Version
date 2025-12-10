@@ -7,7 +7,15 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Modal } from "@/components/ui/modal";
-import { LucideX, X, User, LogOut, Settings, ChevronDown } from "lucide-react";
+import {
+  LucideX,
+  X,
+  User,
+  LogOut,
+  Settings,
+  ChevronDown,
+  Bell,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { TfiWorld } from "react-icons/tfi";
@@ -21,6 +29,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RiLoginCircleLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { useSession, useSignOut } from "@/hooks/useAuth";
+import { useUnreadCount } from "@/hooks/useNotifications";
 
 const Header = () => {
   const [openAuthModal, setAuthModal] = useState(false);
@@ -43,6 +52,9 @@ const Header = () => {
 
   // Sign out mutation
   const signOutMutation = useSignOut();
+
+  // Get unread notification count (only when authenticated)
+  const { data: unreadCount = 0 } = useUnreadCount();
 
   const handleSignOut = () => {
     signOutMutation.mutate(undefined, {
@@ -242,82 +254,98 @@ const Header = () => {
                   // Loading state
                   <div className="tw:w-[100px] tw:h-[40px] tw:bg-gray-200 tw:animate-pulse tw:rounded-md" />
                 ) : isAuthenticated ? (
-                  // Logged in - Show user menu
-                  <div className="tw:relative" ref={userMenuRef}>
-                    <button
-                      onClick={() => setOpenUserMenu(!openUserMenu)}
-                      className="tw:inline-flex tw:items-center tw:gap-2 tw:py-1.5 tw:px-2 tw:md:px-3 tw:rounded-full tw:hover:bg-gray-100 tw:transition-colors"
+                  // Logged in - Show notification bell and user menu
+                  <>
+                    {/* Notification Bell */}
+                    <Link
+                      to="/notifications"
+                      className="tw:relative tw:p-2 tw:rounded-full tw:hover:bg-gray-100 tw:transition-colors"
                     >
-                      {/* Avatar */}
-                      {user?.image ? (
-                        <img
-                          src={user.image}
-                          alt={user.name}
-                          className="tw:w-8 tw:h-8 tw:rounded-full tw:object-cover"
+                      <Bell size={20} className="tw:text-gray-600" />
+                      {unreadCount > 0 && (
+                        <span className="tw:absolute tw:top-0 tw:right-0 tw:w-5 tw:h-5 tw:bg-red-500 tw:text-white tw:text-xs tw:font-medium tw:rounded-full tw:flex tw:items-center tw:justify-center">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
+                    </Link>
+
+                    {/* User Menu */}
+                    <div className="tw:relative" ref={userMenuRef}>
+                      <button
+                        onClick={() => setOpenUserMenu(!openUserMenu)}
+                        className="tw:inline-flex tw:items-center tw:gap-2 tw:py-1.5 tw:px-2 tw:md:px-3 tw:rounded-full tw:hover:bg-gray-100 tw:transition-colors"
+                      >
+                        {/* Avatar */}
+                        {user?.image ? (
+                          <img
+                            src={user.image}
+                            alt={user.name}
+                            className="tw:w-8 tw:h-8 tw:rounded-full tw:object-cover"
+                          />
+                        ) : (
+                          <div className="tw:w-8 tw:h-8 tw:rounded-full tw:bg-primary tw:flex tw:items-center tw:justify-center tw:text-white tw:text-sm tw:font-medium">
+                            {getUserInitials(user?.name)}
+                          </div>
+                        )}
+                        <span className="tw:hidden tw:md:block tw:text-sm tw:font-medium tw:text-gray-700 tw:max-w-[100px] tw:truncate">
+                          {user?.name?.split(" ")[0] || "User"}
+                        </span>
+                        <ChevronDown
+                          size={16}
+                          className="tw:hidden tw:md:block tw:text-gray-500"
                         />
-                      ) : (
-                        <div className="tw:w-8 tw:h-8 tw:rounded-full tw:bg-primary tw:flex tw:items-center tw:justify-center tw:text-white tw:text-sm tw:font-medium">
-                          {getUserInitials(user?.name)}
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {openUserMenu && (
+                        <div className="tw:absolute tw:right-0 tw:top-full tw:mt-2 tw:w-56 tw:bg-white tw:rounded-lg tw:shadow-lg tw:border tw:border-gray-200 tw:py-2 tw:z-50">
+                          {/* User Info */}
+                          <div className="tw:px-4 tw:py-2 tw:border-b tw:border-gray-100">
+                            <p className="tw:text-sm tw:font-medium tw:text-gray-900 tw:truncate">
+                              {user?.name || "User"}
+                            </p>
+                            <p className="tw:text-xs tw:text-gray-500 tw:truncate">
+                              {user?.email}
+                            </p>
+                          </div>
+
+                          {/* Menu Items */}
+                          <div className="tw:py-1">
+                            <Link
+                              to="/dashboard"
+                              onClick={() => setOpenUserMenu(false)}
+                              className="tw:flex tw:items-center tw:gap-3 tw:px-4 tw:py-2 tw:text-sm tw:text-gray-700 tw:hover:bg-gray-50 tw:!no-underline"
+                            >
+                              <User size={16} />
+                              My Dashboard
+                            </Link>
+                            <Link
+                              to="/dashboard/settings"
+                              onClick={() => setOpenUserMenu(false)}
+                              className="tw:flex tw:items-center tw:gap-3 tw:px-4 tw:py-2 tw:text-sm tw:text-gray-700 tw:hover:bg-gray-50 tw:!no-underline"
+                            >
+                              <Settings size={16} />
+                              Settings
+                            </Link>
+                          </div>
+
+                          {/* Sign Out */}
+                          <div className="tw:border-t tw:border-gray-100 tw:pt-1">
+                            <button
+                              onClick={handleSignOut}
+                              disabled={signOutMutation.isPending}
+                              className="tw:flex tw:items-center tw:gap-3 tw:w-full tw:px-4 tw:py-2 tw:text-sm tw:text-red-600 tw:hover:bg-red-50 tw:disabled:opacity-50"
+                            >
+                              <LogOut size={16} />
+                              {signOutMutation.isPending
+                                ? "Signing out..."
+                                : "Sign Out"}
+                            </button>
+                          </div>
                         </div>
                       )}
-                      <span className="tw:hidden tw:md:block tw:text-sm tw:font-medium tw:text-gray-700 tw:max-w-[100px] tw:truncate">
-                        {user?.name?.split(" ")[0] || "User"}
-                      </span>
-                      <ChevronDown
-                        size={16}
-                        className="tw:hidden tw:md:block tw:text-gray-500"
-                      />
-                    </button>
-
-                    {/* Dropdown Menu */}
-                    {openUserMenu && (
-                      <div className="tw:absolute tw:right-0 tw:top-full tw:mt-2 tw:w-56 tw:bg-white tw:rounded-lg tw:shadow-lg tw:border tw:border-gray-200 tw:py-2 tw:z-50">
-                        {/* User Info */}
-                        <div className="tw:px-4 tw:py-2 tw:border-b tw:border-gray-100">
-                          <p className="tw:text-sm tw:font-medium tw:text-gray-900 tw:truncate">
-                            {user?.name || "User"}
-                          </p>
-                          <p className="tw:text-xs tw:text-gray-500 tw:truncate">
-                            {user?.email}
-                          </p>
-                        </div>
-
-                        {/* Menu Items */}
-                        <div className="tw:py-1">
-                          <Link
-                            to="/dashboard"
-                            onClick={() => setOpenUserMenu(false)}
-                            className="tw:flex tw:items-center tw:gap-3 tw:px-4 tw:py-2 tw:text-sm tw:text-gray-700 tw:hover:bg-gray-50 tw:!no-underline"
-                          >
-                            <User size={16} />
-                            My Dashboard
-                          </Link>
-                          <Link
-                            to="/dashboard/settings"
-                            onClick={() => setOpenUserMenu(false)}
-                            className="tw:flex tw:items-center tw:gap-3 tw:px-4 tw:py-2 tw:text-sm tw:text-gray-700 tw:hover:bg-gray-50 tw:!no-underline"
-                          >
-                            <Settings size={16} />
-                            Settings
-                          </Link>
-                        </div>
-
-                        {/* Sign Out */}
-                        <div className="tw:border-t tw:border-gray-100 tw:pt-1">
-                          <button
-                            onClick={handleSignOut}
-                            disabled={signOutMutation.isPending}
-                            className="tw:flex tw:items-center tw:gap-3 tw:w-full tw:px-4 tw:py-2 tw:text-sm tw:text-red-600 tw:hover:bg-red-50 tw:disabled:opacity-50"
-                          >
-                            <LogOut size={16} />
-                            {signOutMutation.isPending
-                              ? "Signing out..."
-                              : "Sign Out"}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  </>
                 ) : (
                   // Not logged in - Show login button
                   <button

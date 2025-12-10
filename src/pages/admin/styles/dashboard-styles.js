@@ -174,6 +174,51 @@ export const inputStyles = {
       },
     },
   },
+  // Dark input style for modals and forms
+  dark: {
+    "& .MuiOutlinedInput-root": {
+      bgcolor: "#0B0F16",
+      borderRadius: 2,
+      fontSize: 14,
+      fontFamily: "Inter",
+      "& fieldset": {
+        borderColor: "rgba(255, 255, 255, 0.15)",
+      },
+      "&:hover fieldset": {
+        borderColor: "rgba(255, 255, 255, 0.25)",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#3B82F6",
+        borderWidth: 1,
+      },
+      "& input, & textarea": {
+        color: "#FFFFFF",
+        border: "none",
+        outline: "none",
+        boxShadow: "none",
+      },
+      "& input:focus, & textarea:focus": {
+        border: "none",
+        outline: "none",
+        boxShadow: "none",
+      },
+      "& input::placeholder, & textarea::placeholder": {
+        color: "#71717A",
+        opacity: 1,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: "#9ca3af",
+      fontFamily: "Inter",
+      "&.Mui-focused": {
+        color: "#3B82F6",
+      },
+    },
+    "& .MuiFormHelperText-root": {
+      color: "#71717A",
+      fontFamily: "Inter",
+    },
+  },
 };
 
 // Select styles
@@ -233,6 +278,8 @@ export const buttonStyles = {
     fontWeight: 500,
     textTransform: "none",
     borderRadius: 2,
+    px: 2,
+    py: 1,
     "&:hover": {
       bgcolor: "#2563EB",
     },
@@ -244,6 +291,8 @@ export const buttonStyles = {
     fontWeight: 500,
     textTransform: "none",
     borderRadius: 2,
+    px: 2,
+    py: 1,
     border: "1px solid rgba(59, 130, 246, 0.3)",
     "&:hover": {
       bgcolor: "rgba(59, 130, 246, 0.1)",
@@ -257,6 +306,8 @@ export const buttonStyles = {
     fontWeight: 500,
     textTransform: "none",
     borderRadius: 2,
+    px: 2,
+    py: 1,
     border: "1px solid rgba(239, 68, 68, 0.3)",
     "&:hover": {
       bgcolor: "rgba(239, 68, 68, 0.2)",

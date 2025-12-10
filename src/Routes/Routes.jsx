@@ -40,6 +40,10 @@ import AdminCmsPrivacy from "../pages/admin/cms/privacy-policy";
 import AdminCmsContact from "../pages/admin/cms/contact";
 import AdminCmsVisa from "../pages/admin/cms/visa-requirements";
 import Roles from "../pages/admin/roles";
+import Customers from "../pages/admin/customers";
+import CustomerDetails from "../pages/admin/customer-details";
+import EmailCampaigns from "../pages/admin/email-campaigns";
+import AdminProfile from "../pages/admin/profile";
 
 // Analytics Pages
 import EngagementMetrics from "../pages/admin/analytics/engagement";
@@ -56,6 +60,7 @@ import Sessions from "../pages/admin/auth/sessions";
 
 // User Pages
 import UserDashboard from "../pages/user/UserDashboard";
+import NotificationsPage from "../pages/user/NotificationsPage";
 import UserAuthGuard from "../components/auth/UserAuthGuard";
 
 // Auth Pages
@@ -72,6 +77,16 @@ const Routes = () => {
       element: (
         <UserAuthGuard>
           <UserDashboard />
+        </UserAuthGuard>
+      ),
+    },
+
+    // User Notifications page
+    {
+      path: "/notifications",
+      element: (
+        <UserAuthGuard>
+          <NotificationsPage />
         </UserAuthGuard>
       ),
     },
@@ -112,8 +127,16 @@ const Routes = () => {
         { path: "users/:id", element: <UserDetails /> },
         { path: "roles", element: <Roles /> },
 
-        // Settings & Feedback
+        // Customer Management
+        { path: "customers", element: <Customers /> },
+        { path: "customers/:id", element: <CustomerDetails /> },
+
+        // Email Campaigns
+        { path: "email-campaigns", element: <EmailCampaigns /> },
+
+        // Settings & Profile
         { path: "settings", element: <Settings /> },
+        { path: "profile", element: <AdminProfile /> },
         { path: "feedback", element: <Feedback /> },
       ],
     },

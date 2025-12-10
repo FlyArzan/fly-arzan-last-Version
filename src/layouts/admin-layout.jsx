@@ -30,6 +30,8 @@ import {
   WarningAmber as WarningAmberIcon,
   BugReport as BugReportIcon,
   People as PeopleIcon,
+  PersonOutline as PersonOutlineIcon,
+  Email as EmailIcon,
   Security as SecurityIcon,
   Settings as SettingsIcon,
   Feedback as FeedbackIcon,
@@ -125,6 +127,16 @@ const navSections = [
         path: "/admin/users",
       },
       {
+        label: "Customers",
+        icon: PersonOutlineIcon,
+        path: "/admin/customers",
+      },
+      {
+        label: "Email Campaigns",
+        icon: EmailIcon,
+        path: "/admin/email-campaigns",
+      },
+      {
         label: "Roles & Permissions",
         icon: SecurityIcon,
         path: "/admin/roles",
@@ -152,11 +164,11 @@ const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const navigate = useNavigate();
-  
+
   // Get session and sign out mutation
   const { data: session } = useSession();
   const signOutMutation = useSignOut();
-  
+
   const user = session?.user;
   const userName = user?.name || "Admin User";
   const userEmail = user?.email || "admin@flyarzan.com";
@@ -303,8 +315,22 @@ const AdminLayout = () => {
                 },
               }}
             >
-              <MenuItem onClick={handleProfileMenuClose}>Profile</MenuItem>
-              <MenuItem onClick={handleProfileMenuClose}>Settings</MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleProfileMenuClose();
+                  navigate("/admin/profile");
+                }}
+              >
+                Profile
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleProfileMenuClose();
+                  navigate("/admin/settings");
+                }}
+              >
+                Settings
+              </MenuItem>
               <Divider sx={{ borderColor: "rgba(31,41,55,0.9)" }} />
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </Menu>

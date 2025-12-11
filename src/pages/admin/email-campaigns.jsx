@@ -184,7 +184,7 @@ export default function EmailCampaigns() {
         <Grid item xs={12} sm={6} md={3}>
           <StatsCard
             title="Total Emails Sent"
-            value={stats?.totalEmailsSent ?? 0}
+            value={stats?.totalRecipients ?? 0}
             icon={SendIcon}
             color="#22C55E"
           />
@@ -192,7 +192,7 @@ export default function EmailCampaigns() {
         <Grid item xs={12} sm={6} md={3}>
           <StatsCard
             title="Newsletter Subscribers"
-            value={stats?.totalSubscribers ?? 0}
+            value={stats?.subscriberCount ?? 0}
             icon={PeopleIcon}
             color="#A855F7"
           />
@@ -200,7 +200,7 @@ export default function EmailCampaigns() {
         <Grid item xs={12} sm={6} md={3}>
           <StatsCard
             title="Blocked (Unsubscribed)"
-            value={stats?.totalBlocked ?? 0}
+            value={stats?.unsubscribedCount ?? 0}
             icon={BlockIcon}
             color="#EF4444"
           />
@@ -427,7 +427,7 @@ export default function EmailCampaigns() {
         <DialogContent>
           <Typography sx={{ color: "#71717A", fontFamily: "Inter", mb: 2 }}>
             This will send an email to all customers who have subscribed to the
-            newsletter ({stats?.totalSubscribers ?? 0} subscribers).
+            newsletter ({stats?.subscriberCount ?? 0} subscribers).
           </Typography>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField

@@ -7,15 +7,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Modal } from "@/components/ui/modal";
-import {
-  LucideX,
-  X,
-  User,
-  LogOut,
-  Settings,
-  ChevronDown,
-  Bell,
-} from "lucide-react";
+import { LucideX, X, User, LogOut, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { TfiWorld } from "react-icons/tfi";
@@ -29,7 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { RiLoginCircleLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { useSession, useSignOut } from "@/hooks/useAuth";
-import { useUnreadCount } from "@/hooks/useNotifications";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const Header = () => {
   const [openAuthModal, setAuthModal] = useState(false);
@@ -52,9 +44,6 @@ const Header = () => {
 
   // Sign out mutation
   const signOutMutation = useSignOut();
-
-  // Get unread notification count (only when authenticated)
-  const { data: unreadCount = 0 } = useUnreadCount();
 
   const handleSignOut = () => {
     signOutMutation.mutate(undefined, {
@@ -256,18 +245,8 @@ const Header = () => {
                 ) : isAuthenticated ? (
                   // Logged in - Show notification bell and user menu
                   <>
-                    {/* Notification Bell */}
-                    <Link
-                      to="/notifications"
-                      className="tw:relative tw:p-2 tw:rounded-full tw:hover:bg-gray-100 tw:transition-colors"
-                    >
-                      <Bell size={20} className="tw:text-gray-600" />
-                      {unreadCount > 0 && (
-                        <span className="tw:absolute tw:top-0 tw:right-0 tw:w-5 tw:h-5 tw:bg-red-500 tw:text-white tw:text-xs tw:font-medium tw:rounded-full tw:flex tw:items-center tw:justify-center">
-                          {unreadCount > 9 ? "9+" : unreadCount}
-                        </span>
-                      )}
-                    </Link>
+                    {/* Notification Bell with Popover */}
+                    <NotificationBell />
 
                     {/* User Menu */}
                     <div className="tw:relative" ref={userMenuRef}>
@@ -318,14 +297,6 @@ const Header = () => {
                             >
                               <User size={16} />
                               My Dashboard
-                            </Link>
-                            <Link
-                              to="/dashboard/settings"
-                              onClick={() => setOpenUserMenu(false)}
-                              className="tw:flex tw:items-center tw:gap-3 tw:px-4 tw:py-2 tw:text-sm tw:text-gray-700 tw:hover:bg-gray-50 tw:!no-underline"
-                            >
-                              <Settings size={16} />
-                              Settings
                             </Link>
                           </div>
 

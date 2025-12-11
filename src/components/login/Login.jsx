@@ -66,22 +66,21 @@ const Login = ({ setShowPopup }) => {
         const user = response?.confirmedUser || response?.user;
 
         if (user) {
+          // Block admin/super users from logging in via user login
+          if (user.role === "admin" || user.role === "super") {
+            return;
+          }
+
           toast.success("Login successful! Redirecting...");
           setIsRedirecting(true);
-
-          // Determine redirect path based on confirmed user role
-          const redirectPath =
-            user.role === "admin" || user.role === "super"
-              ? "/admin"
-              : "/dashboard";
 
           if (setShowPopup) {
             setShowPopup(false);
           }
 
-          // Small delay to ensure UI updates, then redirect
+          // Users always go to dashboard
           setTimeout(() => {
-            window.location.href = redirectPath;
+            window.location.href = "/dashboard";
           }, 100);
         } else {
           toast.error("Login failed - no user in response");

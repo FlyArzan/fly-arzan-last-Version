@@ -3,17 +3,9 @@ import Scroll from "./ScrollToTop/Scroll";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import { FlightProvider } from "./context/FlightContext";
-// import { HotelProvider } from "./context/HotelContext";
-// import { CarProvider } from "./context/CarContext";
-// import { useContext, useEffect } from "react";
-// import axios from "axios";
-// import { useLocationContext } from "./context/userLocationContext";
-// import { useGet } from "./utils/ApiMethod";
-// import { LOCATION_API_KEY } from "./baseUrl";
-// import getSymbolFromCurrency from "currency-symbol-map";
 import TanstackQueryProvider from "./providers/tanstack-query-prover";
 import { RegionalSettingsProvider } from "./context/RegionalSettingsContext";
+import { WebSocketProvider } from "./providers/WebSocketProvider";
 
 function App() {
   // const { setUserLocation } = useLocationContext();
@@ -49,9 +41,11 @@ function App() {
     <TanstackQueryProvider>
       <RegionalSettingsProvider>
         <BrowserRouter>
-          <Scroll />
-          <Routes />
-          <ToastContainer />
+          <WebSocketProvider>
+            <Scroll />
+            <Routes />
+            <ToastContainer />
+          </WebSocketProvider>
         </BrowserRouter>
       </RegionalSettingsProvider>
     </TanstackQueryProvider>

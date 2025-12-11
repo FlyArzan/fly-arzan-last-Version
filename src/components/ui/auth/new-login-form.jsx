@@ -48,21 +48,20 @@ const NewLoginForm = ({ onSuccess }) => {
           const user = response?.confirmedUser || response?.user;
 
           if (user) {
+            // Block admin/super users from logging in via user login
+            if (user.role === "admin" || user.role === "super") {
+              return;
+            }
+
             toast.success("Login successful! Redirecting...");
             setIsRedirecting(true);
 
             // Close modal if callback provided
             if (onSuccess) onSuccess();
 
-            // Determine redirect path based on confirmed user role
-            const redirectPath =
-              user.role === "admin" || user.role === "super"
-                ? "/admin"
-                : "/dashboard";
-
-            // Small delay to ensure UI updates, then redirect
+            // Users always go to dashboard
             setTimeout(() => {
-              window.location.href = redirectPath;
+              window.location.href = "/dashboard";
             }, 100);
           } else {
             toast.error("Login failed. Please try again.");
@@ -97,7 +96,7 @@ const NewLoginForm = ({ onSuccess }) => {
   return (
     <>
       <div className="tw:mb-4">
-        <DialogTitle className="tw:md:text-lg tw:!text-dark-purple tw:font-medium tw:!mb-2">
+        <DialogTitle className="tw:md:text-lg tw:text-dark-purple! tw:font-medium tw:mb-2!">
           Sign in
         </DialogTitle>
         <p className="tw:text-secondary">Enter your information</p>

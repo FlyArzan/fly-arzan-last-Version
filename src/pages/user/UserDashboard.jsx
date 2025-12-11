@@ -34,6 +34,7 @@ import {
   Notifications as NotificationsIcon,
   Warning as WarningIcon,
 } from "@mui/icons-material";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -347,14 +348,17 @@ const UserDashboard = () => {
         >
           Back to Home
         </Button>
-        <Button
-          startIcon={<LogoutIcon />}
-          onClick={handleLogout}
-          color="error"
-          variant="outlined"
-        >
-          Logout
-        </Button>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <NotificationBell />
+          <Button
+            startIcon={<LogoutIcon />}
+            onClick={handleLogout}
+            color="error"
+            variant="outlined"
+          >
+            Logout
+          </Button>
+        </Box>
       </Box>
 
       {/* Main Card */}

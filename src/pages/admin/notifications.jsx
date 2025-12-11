@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
+  CardHeader,
   CardContent,
   Typography,
   Button,
@@ -14,7 +14,6 @@ import {
   Stack,
 } from "@mui/material";
 import {
-  Home as HomeIcon,
   Notifications as NotificationsIcon,
   CheckCircle as CheckCircleIcon,
   Delete as DeleteIcon,
@@ -23,6 +22,7 @@ import {
   LocalOffer as PromoIcon,
   Settings as SystemIcon,
   DoneAll as DoneAllIcon,
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 import {
   useNotifications,
@@ -30,17 +30,15 @@ import {
   useMarkAllAsRead,
   useDeleteNotification,
 } from "@/hooks/useNotifications";
-import { useSession } from "@/hooks/useAuth";
 
-const NotificationsPage = () => {
-  const navigate = useNavigate();
+const AdminNotificationsPage = () => {
   const [page, setPage] = useState(1);
 
-  const { data: session, isLoading: sessionLoading } = useSession();
-  const user = session?.user;
-
   // Fetch notifications
-  const { data, isLoading, error } = useNotifications({ page, limit: 10 });
+  const { data, isLoading, error, refetch } = useNotifications({
+    page,
+    limit: 15,
+  });
   const notifications = data?.notifications ?? [];
   const totalPages = data?.totalPages ?? 1;
   const unreadCount = data?.unreadCount ?? 0;
@@ -104,115 +102,98 @@ const NotificationsPage = () => {
     return date.toLocaleDateString();
   };
 
-  if (sessionLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          bgcolor: "#f5f5f5",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!user) {
-    navigate("/Login");
-    return null;
-  }
-
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "#f5f5f5",
-        py: 4,
-        px: 2,
-      }}
-    >
+    <Box>
       {/* Header */}
-      <Box
-        sx={{
-          maxWidth: 800,
-          mx: "auto",
-          mb: 3,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 3 }}
       >
-        <Button
-          startIcon={<HomeIcon />}
-          onClick={() => navigate("/dashboard")}
-          sx={{ color: "#666" }}
-        >
-          Back to Dashboard
-        </Button>
-      </Box>
-
-      {/* Main Card */}
-      <Card
-        sx={{
-          maxWidth: 800,
-          mx: "auto",
-          borderRadius: 3,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-        }}
-      >
-        {/* Header */}
-        <Box
-          sx={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            p: 3,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <NotificationsIcon sx={{ color: "#fff", fontSize: 32 }} />
-            <Box>
-              <Typography variant="h5" sx={{ color: "#fff", fontWeight: 600 }}>
-                Notifications
-              </Typography>
-              <Typography sx={{ color: "rgba(255,255,255,0.8)", fontSize: 14 }}>
-                {unreadCount > 0
-                  ? `${unreadCount} unread notification${
-                      unreadCount > 1 ? "s" : ""
-                    }`
-                  : "All caught up!"}
-              </Typography>
-            </Box>
-          </Box>
+        <Box>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 600, color: "#FFFFFF", fontFamily: "Inter" }}
+          >
+            Notifications
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ color: "#71717A", fontFamily: "Inter" }}
+          >
+            {unreadCount > 0
+              ? `${unreadCount} unread notification${
+                  unreadCount > 1 ? "s" : ""
+                }`
+              : "All caught up!"}
+          </Typography>
+        </Box>
+        <Stack direction="row" spacing={1}>
+          <Button
+            startIcon={<RefreshIcon />}
+            onClick={() => refetch()}
+            sx={{
+              color: "#A1A1AA",
+              borderColor: "rgba(255,255,255,0.1)",
+              "&:hover": { borderColor: "rgba(255,255,255,0.2)" },
+            }}
+            variant="outlined"
+            size="small"
+          >
+            Refresh
+          </Button>
           {unreadCount > 0 && (
             <Button
               startIcon={<DoneAllIcon />}
               onClick={handleMarkAllAsRead}
               disabled={markAllAsReadMutation.isPending}
               sx={{
+                bgcolor: "#3B82F6",
                 color: "#fff",
-                borderColor: "rgba(255,255,255,0.5)",
-                "&:hover": {
-                  borderColor: "#fff",
-                  bgcolor: "rgba(255,255,255,0.1)",
-                },
+                "&:hover": { bgcolor: "#2563EB" },
               }}
-              variant="outlined"
+              variant="contained"
               size="small"
             >
               Mark all read
             </Button>
           )}
-        </Box>
+        </Stack>
+      </Stack>
+
+      {/* Main Card */}
+      <Card
+        sx={{
+          bgcolor: "#1A1D23",
+          borderRadius: 2,
+          border: "1px solid rgba(255,255,255,0.08)",
+        }}
+      >
+        <CardHeader
+          avatar={<NotificationsIcon sx={{ color: "#3B82F6" }} />}
+          title={
+            <Typography
+              sx={{ fontWeight: 600, color: "#FFFFFF", fontFamily: "Inter" }}
+            >
+              All Notifications
+            </Typography>
+          }
+          subheader={
+            <Typography
+              variant="caption"
+              sx={{ color: "#71717A", fontFamily: "Inter" }}
+            >
+              Click on a notification to mark it as read
+            </Typography>
+          }
+          sx={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+        />
 
         <CardContent sx={{ p: 0 }}>
           {isLoading ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-              <CircularProgress />
+              <CircularProgress size={32} sx={{ color: "#3B82F6" }} />
             </Box>
           ) : error ? (
             <Box sx={{ textAlign: "center", py: 6 }}>
@@ -222,8 +203,10 @@ const NotificationsPage = () => {
             </Box>
           ) : notifications.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 6 }}>
-              <NotificationsIcon sx={{ fontSize: 48, color: "#ccc", mb: 2 }} />
-              <Typography sx={{ color: "#666" }}>
+              <NotificationsIcon
+                sx={{ fontSize: 48, color: "#3f3f46", mb: 2 }}
+              />
+              <Typography sx={{ color: "#71717A", fontFamily: "Inter" }}>
                 No notifications yet
               </Typography>
             </Box>
@@ -238,9 +221,9 @@ const NotificationsPage = () => {
                       gap: 2,
                       bgcolor: notification.read
                         ? "transparent"
-                        : "rgba(102, 126, 234, 0.05)",
+                        : "rgba(59, 130, 246, 0.05)",
                       "&:hover": {
-                        bgcolor: "rgba(0,0,0,0.02)",
+                        bgcolor: "rgba(255,255,255,0.02)",
                       },
                       cursor: "pointer",
                     }}
@@ -278,7 +261,8 @@ const NotificationsPage = () => {
                           sx={{
                             fontWeight: notification.read ? 500 : 600,
                             fontSize: 15,
-                            color: "#1f2937",
+                            color: "#FFFFFF",
+                            fontFamily: "Inter",
                           }}
                         >
                           {notification.title}
@@ -289,17 +273,18 @@ const NotificationsPage = () => {
                               width: 8,
                               height: 8,
                               borderRadius: "50%",
-                              bgcolor: "#667eea",
+                              bgcolor: "#3B82F6",
                             }}
                           />
                         )}
                       </Stack>
                       <Typography
                         sx={{
-                          color: "#666",
+                          color: "#A1A1AA",
                           fontSize: 14,
                           mb: 1,
                           lineHeight: 1.5,
+                          fontFamily: "Inter",
                         }}
                       >
                         {notification.message}
@@ -316,9 +301,16 @@ const NotificationsPage = () => {
                             fontSize: 11,
                             height: 22,
                             textTransform: "capitalize",
+                            fontFamily: "Inter",
                           }}
                         />
-                        <Typography sx={{ color: "#999", fontSize: 12 }}>
+                        <Typography
+                          sx={{
+                            color: "#71717A",
+                            fontSize: 12,
+                            fontFamily: "Inter",
+                          }}
+                        >
                           {formatDate(notification.createdAt)}
                         </Typography>
                       </Stack>
@@ -350,18 +342,35 @@ const NotificationsPage = () => {
                       </IconButton>
                     </Stack>
                   </Box>
-                  {index < notifications.length - 1 && <Divider />}
+                  {index < notifications.length - 1 && (
+                    <Divider sx={{ borderColor: "rgba(255,255,255,0.05)" }} />
+                  )}
                 </Box>
               ))}
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    py: 3,
+                    borderTop: "1px solid rgba(255,255,255,0.05)",
+                  }}
+                >
                   <Pagination
                     count={totalPages}
                     page={page}
                     onChange={(e, newPage) => setPage(newPage)}
-                    color="primary"
+                    sx={{
+                      "& .MuiPaginationItem-root": {
+                        color: "#A1A1AA",
+                        "&.Mui-selected": {
+                          bgcolor: "#3B82F6",
+                          color: "#fff",
+                        },
+                      },
+                    }}
                   />
                 </Box>
               )}
@@ -373,4 +382,4 @@ const NotificationsPage = () => {
   );
 };
 
-export default NotificationsPage;
+export default AdminNotificationsPage;

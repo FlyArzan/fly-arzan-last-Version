@@ -44,6 +44,7 @@ import Customers from "../pages/admin/customers";
 import CustomerDetails from "../pages/admin/customer-details";
 import EmailCampaigns from "../pages/admin/email-campaigns";
 import AdminProfile from "../pages/admin/profile";
+import AdminNotifications from "../pages/admin/notifications";
 
 // Analytics Pages
 import EngagementMetrics from "../pages/admin/analytics/engagement";
@@ -83,7 +84,7 @@ const Routes = () => {
 
     // User Notifications page
     {
-      path: "/notifications",
+      path: "/dashboard/notifications",
       element: (
         <UserAuthGuard>
           <NotificationsPage />
@@ -137,6 +138,7 @@ const Routes = () => {
         // Settings & Profile
         { path: "settings", element: <Settings /> },
         { path: "profile", element: <AdminProfile /> },
+        { path: "notifications", element: <AdminNotifications /> },
         { path: "feedback", element: <Feedback /> },
       ],
     },

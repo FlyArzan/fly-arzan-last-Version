@@ -445,14 +445,11 @@ export default function Customers() {
           sx={{ px: 3, pt: 3, pb: 2 }}
         />
         <CardContent sx={{ px: 3, pb: 3 }}>
-          <Box
-            sx={{
-              mb: 2,
-              display: "flex",
-              gap: 2,
-              alignItems: "center",
-              flexWrap: "wrap",
-            }}
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            sx={{ mb: 2, minHeight: 40 }}
           >
             <TextField
               size="small"
@@ -469,40 +466,52 @@ export default function Customers() {
                   </InputAdornment>
                 ),
               }}
-              sx={{ ...inputStyles.search, flex: 1, minWidth: 200 }}
+              sx={{ ...inputStyles.search, maxWidth: 400 }}
             />
-            {/* Bulk Action Buttons */}
-            {selectedIds.length > 0 && (
-              <Stack direction="row" spacing={1}>
-                <Chip
-                  size="small"
-                  label={`${selectedIds.length} selected`}
-                  onDelete={() => setSelectedIds([])}
-                  sx={{
-                    bgcolor: "rgba(59, 130, 246, 0.1)",
-                    color: "#3B82F6",
-                    fontFamily: "Inter",
-                  }}
-                />
-                <Button
-                  size="small"
-                  startIcon={<NotificationsIcon />}
-                  onClick={() => setNotificationModalOpen(true)}
-                  sx={buttonStyles.secondary}
-                >
-                  Send Notification
-                </Button>
-                <Button
-                  size="small"
-                  startIcon={<EmailIcon />}
-                  onClick={() => setEmailModalOpen(true)}
-                  sx={buttonStyles.secondary}
-                >
-                  Send Email
-                </Button>
-              </Stack>
-            )}
-          </Box>
+            {/* Bulk Action Buttons - always reserve space */}
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{
+                visibility: selectedIds.length > 0 ? "visible" : "hidden",
+                opacity: selectedIds.length > 0 ? 1 : 0,
+                transition: "opacity 0.15s ease",
+              }}
+            >
+              <Chip
+                size="small"
+                label={`${selectedIds.length} selected`}
+                onDelete={
+                  selectedIds.length > 0 ? () => setSelectedIds([]) : undefined
+                }
+                sx={{
+                  bgcolor: "rgba(59, 130, 246, 0.1)",
+                  color: "#3B82F6",
+                  fontFamily: "Inter",
+                  height: 32,
+                }}
+              />
+              <Button
+                size="small"
+                startIcon={<NotificationsIcon />}
+                onClick={() => setNotificationModalOpen(true)}
+                sx={buttonStyles.secondary}
+                disabled={selectedIds.length === 0}
+              >
+                Send Notification
+              </Button>
+              <Button
+                size="small"
+                startIcon={<EmailIcon />}
+                onClick={() => setEmailModalOpen(true)}
+                sx={buttonStyles.secondary}
+                disabled={selectedIds.length === 0}
+              >
+                Send Email
+              </Button>
+            </Stack>
+          </Stack>
 
           {isLoading ? (
             <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>

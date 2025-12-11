@@ -40,7 +40,9 @@ import {
   PrivacyTip as PrivacyTipIcon,
   ContactPage as ContactPageIcon,
   Public as PublicIcon,
+  Notifications as NotificationsIcon,
 } from "@mui/icons-material";
+import { useUnreadCount } from "@/hooks/useNotifications";
 
 const drawerWidth = 280;
 
@@ -168,6 +170,7 @@ const AdminLayout = () => {
   // Get session and sign out mutation
   const { data: session } = useSession();
   const signOutMutation = useSignOut();
+  const { data: unreadCount = 0 } = useUnreadCount();
 
   const user = session?.user;
   const userName = user?.name || "Admin User";
@@ -260,6 +263,36 @@ const AdminLayout = () => {
           </Stack>
 
           <Stack direction="row" spacing={2} alignItems="center">
+            {/* Notification Bell */}
+            <IconButton
+              color="inherit"
+              onClick={() => navigate("/admin/notifications")}
+              sx={{ position: "relative" }}
+            >
+              <NotificationsIcon sx={{ color: "#A1A1AA" }} />
+              {unreadCount > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    width: 18,
+                    height: 18,
+                    bgcolor: "#EF4444",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 10,
+                    fontWeight: 600,
+                    color: "#fff",
+                  }}
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </Box>
+              )}
+            </IconButton>
+
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Box sx={{ textAlign: "right" }}>
                 <Typography

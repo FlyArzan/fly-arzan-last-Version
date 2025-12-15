@@ -346,7 +346,7 @@ button.swich svg {
 
 section.hero-sec {
   width: 100%;
-  background-image: url(../src/assets/Images/hero_bg.png);
+  /* background-image is set dynamically via useTimeBasedBackground hook */
   padding: 60px 0;
   background-position: center;
   background-repeat: no-repeat;
@@ -1386,10 +1386,14 @@ footer {
 .more-with-input-group input {
   width: 100%;
   border: none;
-  border-bottom: 0.5px solid #fff;
   background: transparent;
   padding: 15px 20px;
   outline: none;
+  color: #fff;
+}
+
+.more-with-input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .more-with-input-group button {

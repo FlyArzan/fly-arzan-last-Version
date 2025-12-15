@@ -213,8 +213,11 @@ export async function detectAndBuildRegionalSettings() {
 }
 
 /**
- * Initialize regional settings with smart setBy logic
+ * Initialize regional settings with smart setBy logic and timestamp-based caching
+ * Cache duration: 1 hour for IP-detected settings
  */
+const REGIONAL_SETTINGS_CACHE_DURATION = 3600000; // 1 hour in milliseconds
+
 export async function initializeRegionalSettings() {
   try {
     // Check if we already have regional settings
@@ -223,16 +226,118 @@ export async function initializeRegionalSettings() {
     if (existingSettings) {
       const parsed = JSON.parse(existingSettings);
 
-      // Check setBy flag
+      // If user manually set preferences, always respect that
       if (parsed.setBy === "user") {
         return parsed;
-      } else {
-        return await detectAndBuildRegionalSettings();
       }
+
+      // For IP-detected settings, check if cache is still valid
+      if (parsed.setBy === "ip" && parsed.detectedAt) {
+        const cacheAge = Date.now() - new Date(parsed.detectedAt).getTime();
+        if (cacheAge < REGIONAL_SETTINGS_CACHE_DURATION) {
+          // Cache is still valid, return immediately without API call
+          return parsed;
+        }
+      }
+
+      // Cache expired or no timestamp, re-fetch
+      return await detectAndBuildRegionalSettings();
     } else {
       return await detectAndBuildRegionalSettings();
     }
   } catch {
     return getFallbackRegionalSettings();
+  }
+}
+
+/**
+ * Get the nearest airport based on user's IP location
+ * Uses the backend API which calculates distance using Haversine formula
+ */
+export async function getNearestAirport() {
+  try {
+    // First get user's location from IP
+    const locationData = await getUserLocationFromIP();
+
+    if (!locationData || !locationData.lat || !locationData.lon) {
+      console.warn("Could not get user location for nearest airport");
+      return null;
+    }
+
+    const API_BASE_URL = import.meta.env.VITE_API_URL;
+    const response = await fetch(
+      `${API_BASE_URL}/api/airports/nearest?lat=${locationData.lat}&lon=${locationData.lon}`
+    );
+
+    if (!response.ok) {
+      console.warn("Failed to fetch nearest airport");
+      return null;
+    }
+
+    const data = await response.json();
+    return data.airport;
+  } catch (error) {
+    console.error("Error getting nearest airport:", error);
+    return null;
+  }
+}
+
+/**
+ * Get prefetched nearest airport from localStorage (set by rootLoader)
+ * This provides instant access without any API call
+ */
+export function getPrefetchedNearestAirport() {
+  try {
+    const cached = localStorage.getItem("prefetchedGeoData");
+    if (cached) {
+      const { data } = JSON.parse(cached);
+      if (data?.nearestAirport) {
+        return data.nearestAirport;
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to get prefetched airport:", e);
+  }
+  return null;
+}
+
+/**
+ * Get nearest airport with caching (stores in sessionStorage)
+ * First checks for prefetched data from rootLoader for instant access
+ */
+export async function getNearestAirportCached() {
+  try {
+    // First check for prefetched data (instant, no API call)
+    const prefetched = getPrefetchedNearestAirport();
+    if (prefetched) {
+      return prefetched;
+    }
+
+    // Check session cache
+    const cached = sessionStorage.getItem("nearestAirport");
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      // Cache for 1 hour
+      if (Date.now() - parsed.timestamp < 3600000) {
+        return parsed.airport;
+      }
+    }
+
+    // Fetch fresh data as fallback
+    const airport = await getNearestAirport();
+
+    if (airport) {
+      sessionStorage.setItem(
+        "nearestAirport",
+        JSON.stringify({
+          airport,
+          timestamp: Date.now(),
+        })
+      );
+    }
+
+    return airport;
+  } catch {
+    return null;
   }
 }

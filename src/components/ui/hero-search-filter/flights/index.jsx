@@ -9,9 +9,11 @@ import { useTranslation } from "react-i18next";
 import { Modal } from "../../modal";
 import { BsClockHistory } from "react-icons/bs";
 import { X } from "lucide-react";
+import { useTimeBasedBackground } from "@/hooks/useTimeBasedBackground";
 
 const HeroSearchFilter = () => {
   const { t } = useTranslation();
+  const { backgroundImage } = useTimeBasedBackground();
   const [flightType, setFlightType] = useState("oneWay");
   const [modalOpen, setModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("flights");
@@ -51,10 +53,15 @@ const HeroSearchFilter = () => {
         </div>
       </Modal>
       <div
-        className={`tw:bg-cover top-margin tw:bg-center tw:bg-no-repeat tw:bg-[url(/images/hero_bg.png)] tw:!py-[60px]`}
+        className="tw:bg-cover top-margin tw:bg-center tw:bg-no-repeat tw:!py-[60px]"
+        style={{
+          backgroundImage: `url(${encodeURI(
+            backgroundImage || "/Pics/Airline wing/Air line wings 8.jpg"
+          )})`,
+        }}
       >
         <div className="container">
-          <div className="hero-tital tw:hidden tw:md:block">
+          <div className="hero-tital tw:hidden tw:md:block tw:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">
             <h2> {t("upperSection.Cheap_flights_para")}</h2>
             <p> {t("upperSection.Our_search")}</p>
           </div>
@@ -78,7 +85,10 @@ const HeroSearchFilter = () => {
                   <span>Cars</span>
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="flights" className="tw:rounded-xl tw:bg-white tw:shadow-lg">
+              <TabsContent
+                value="flights"
+                className="tw:rounded-xl tw:bg-white tw:shadow-lg"
+              >
                 {/* Flight Type Radio Selectors */}
                 <div className="tw:flex tw:flex-row tw:gap-3 tw:md:gap-5 tw:md:items-center tw:mb-5 tw:scrollbar-hide tw:overflow-x-auto">
                   <div className="tw:inline-flex tw:items-center tw:gap-1.5 md:tw:gap-2">

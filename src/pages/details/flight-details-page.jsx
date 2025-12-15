@@ -290,7 +290,7 @@ const FlightDetailsPage = () => {
       <Header />
       <div className="tw:flex tw:flex-col tw:min-h-screen tw:mt-16 tw:md:mt-[92px] tw:animate-in tw:fade-in tw:duration-300">
         <div className="tw:py-6 tw:bg-[#F2FAFF]">
-          <div className="container tw:flex tw:flex-col tw:gap-5">
+          <div className="container tw:flex tw:flex-col tw:gap-2 tw:lg:gap-6">
             <Link
               to="/search/flight"
               className="tw:flex tw:!text-secondary tw:gap-1 tw:!no-underline"
@@ -298,7 +298,7 @@ const FlightDetailsPage = () => {
               <ChevronLeft />
               <span>Back to Search Results</span>
             </Link>
-            <h1 className="tw:!text-[32px] tw:font-semibold tw:text-[#00000B]">
+            <h1 className="tw:text-base! tw:lg:text-[32px]! tw:font-semibold tw:text-[#00000B]">
               {getRouteDisplay()}
             </h1>
             <div className="tw:flex tw:items-center tw:text-[#5D586C] tw:flex-wrap">
@@ -317,13 +317,12 @@ const FlightDetailsPage = () => {
                 </h2>
 
                 {/* FAQ */}
-                <FaqCollapsible title="How can I find the best flight deals?">
+                <FaqCollapsible title="Pre-Booking Notice">
                   <p>
-                    For the best flight deals, book in advance and be flexible
-                    with your travel dates and destinations. Use our flexible
-                    search tools to compare prices across different airlines and
-                    find deals by searching for an entire month rather than
-                    specific days.
+                    Please note that flight prices, schedules, and durations may
+                    change at any time. When you proceed to book, you will be
+                    redirected to our partner’s website, where the final price
+                    and flight information will be confirmed.
                   </p>
                 </FaqCollapsible>
 
@@ -343,45 +342,32 @@ const FlightDetailsPage = () => {
                   </button>
                 </div> */}
 
-                {/* Ticket List */}
-                <div className="tw:flex tw:flex-col tw:gap-6">
+                {/* Ticket List - Trip.com Redirect Section */}
+                <div className="tw:flex tw:flex-col tw:gap-4">
                   {ticketList.map((data) => (
                     <div
                       key={data.id}
-                      className="tw:flex tw:gap-4 tw:items-center tw:justify-between tw:px-4 tw:py-2 tw:bg-white tw:shadow tw:rounded-md"
+                      className="tw:flex tw:gap-3 tw:sm:gap-4 tw:items-center tw:justify-between tw:px-3 tw:sm:px-4 tw:py-3 tw:bg-white tw:shadow tw:rounded-lg"
                     >
-                      <div className="tw:flex tw:gap-4">
+                      {/* Partner Logo & Info */}
+                      <div className="tw:flex tw:items-center tw:gap-3">
                         <img
                           src={data.icon}
-                          className="tw:h-[30px] tw:rounded"
+                          alt={data.airline}
+                          className="tw:h-6 tw:sm:h-8 tw:w-auto tw:rounded"
                         />
-                        {/* <div className="tw:w-full tw:flex tw:flex-col tw:gap-[11px]">
-                          <h4 className="tw:text-xl">{data.airline}</h4>
-                          <div className="tw:flex tw:items-center tw:gap-2">
-                            {renderStars(data.avgRating)}
-                            <span className="tw:border tw:border-muted tw:px-1.5 tw:rounded-md tw:bg-[#F2F2F2] tw:text-sm">
-                              {data.totalRating}
-                            </span>
-                          </div>
-                        </div> */}
+                        <span className="tw:text-sm tw:sm:text-base tw:font-medium tw:text-gray-700">
+                          {data.airline}
+                        </span>
                       </div>
 
-                      <div className="tw:justify-between tw:px-6 tw:py-3 tw:bg-[#F2FAFF] tw:flex tw:items-center tw:rounded-xl tw:gap-3">
-                        {/* <div className="tw:flex tw:flex-col tw:items-center tw:gap-1">
-                          <span className="tw:font-medium tw:text-xl tw:text-primary">
-                            {data.price}
-                          </span>
-                          <span className="tw:text-sm tw:text-secondary">
-                            {data.totalPrice}
-                          </span>
-                        </div> */}
-                        <button
-                          onClick={() => navigate("/loader")}
-                          className="tw:!bg-[#50ADD8] tw:!no-underline tw:!text-white tw:!rounded-full tw:!px-[30px] tw:py-2 tw:text-sm hover:tw:!bg-[#4A9BC4] tw:!transition-colors tw:duration-200 tw:border-0 tw:cursor-pointer"
-                        >
-                          Select
-                        </button>
-                      </div>
+                      {/* Select Button */}
+                      <button
+                        onClick={() => navigate("/loader")}
+                        className="tw:w-auto tw:!bg-[#50ADD8] tw:!no-underline tw:!text-white tw:!rounded-full tw:!px-5 tw:sm:!px-6 tw:py-2 tw:text-sm hover:tw:!bg-[#4A9BC4] tw:!transition-colors tw:duration-200 tw:border-0 tw:cursor-pointer"
+                      >
+                        Select
+                      </button>
                     </div>
                   ))}
                 </div>

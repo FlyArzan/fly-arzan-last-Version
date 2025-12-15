@@ -67,6 +67,11 @@ const navSections = [
         icon: PrivacyTipIcon,
         path: "/admin/cms/privacy-policy",
       },
+      {
+        label: "Terms & Conditions",
+        icon: DescriptionIcon,
+        path: "/admin/cms/terms-conditions",
+      },
       { label: "Contact", icon: ContactPageIcon, path: "/admin/cms/contact" },
       {
         label: "Visa Requirements",

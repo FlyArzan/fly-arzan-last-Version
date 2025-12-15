@@ -1,4 +1,4 @@
-import { useRoutes } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Login from "../components/login/Login";
 import Singup from "../components/login/Singup";
 import LandingFlights from "../pages/LandingFlights";
@@ -13,6 +13,7 @@ import About from "../pages/About";
 import Contact from "../pages/Contact";
 import Booking_StepFormmain from "../components/Flights_Bookings_Page_components/Booking_StepFormmain";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
+import TermsAndConditions from "../pages/TermsAndConditions";
 import FlightsInner2 from "../pages/FlightsInner2";
 import BookYourTicket from "../pages/BookYourTicket";
 import WeDirecting from "../pages/WeDirecting";
@@ -37,6 +38,7 @@ import AdminAuthGuard from "../components/auth/AdminAuthGuard";
 import AdminCmsAbout from "../pages/admin/cms/about-us";
 import AdminCmsFaq from "../pages/admin/cms/faq";
 import AdminCmsPrivacy from "../pages/admin/cms/privacy-policy";
+import AdminCmsTerms from "../pages/admin/cms/terms-conditions";
 import AdminCmsContact from "../pages/admin/cms/contact";
 import AdminCmsVisa from "../pages/admin/cms/visa-requirements";
 import Roles from "../pages/admin/roles";
@@ -68,130 +70,152 @@ import UserAuthGuard from "../components/auth/UserAuthGuard";
 import ResetPassword from "../pages/ResetPassword";
 import AdminLogin from "../pages/AdminLogin";
 
-const Routes = () => {
-  return useRoutes([
-    { path: "", element: <LandingFlights /> },
+// Root Layout and Loader for prefetching geo data
+import RootLayout from "../layouts/RootLayout";
+import { rootLoader } from "../loaders/rootLoader";
 
-    // User Dashboard (for authenticated non-admin users)
+// Create router with data loaders for prefetching
+// Future flags to silence React Router v7 deprecation warnings
+export const router = createBrowserRouter(
+  [
     {
-      path: "/dashboard",
-      element: (
-        <UserAuthGuard>
-          <UserDashboard />
-        </UserAuthGuard>
-      ),
-    },
-
-    // User Notifications page
-    {
-      path: "/dashboard/notifications",
-      element: (
-        <UserAuthGuard>
-          <NotificationsPage />
-        </UserAuthGuard>
-      ),
-    },
-
-    {
-      path: "/admin",
-      element: (
-        <AdminAuthGuard>
-          <AdminLayout />
-        </AdminAuthGuard>
-      ),
+      // Root layout with loader - prefetches geo data before any route renders
+      element: <RootLayout />,
+      loader: rootLoader,
       children: [
-        { index: true, element: <AdminDashboard /> },
-        { path: "dashboard", element: <AdminDashboard /> },
+        { path: "/", element: <LandingFlights /> },
 
-        // Analytics Routes
-        { path: "logs", element: <AnalyticsLogs /> },
-        { path: "analytics/engagement", element: <EngagementMetrics /> },
-        { path: "analytics/routes", element: <SearchRoutes /> },
-        { path: "analytics/trends", element: <TrendCharts /> },
-        // CMS routes
-        { path: "cms/about-us", element: <AdminCmsAbout /> },
-        { path: "cms/faq", element: <AdminCmsFaq /> },
-        { path: "cms/privacy-policy", element: <AdminCmsPrivacy /> },
-        { path: "cms/contact", element: <AdminCmsContact /> },
-        { path: "cms/visa-requirements", element: <AdminCmsVisa /> },
+        // User Dashboard (for authenticated non-admin users)
+        {
+          path: "/dashboard",
+          element: (
+            <UserAuthGuard>
+              <UserDashboard />
+            </UserAuthGuard>
+          ),
+        },
 
-        // Monitoring Routes
-        { path: "monitoring/health", element: <APIHealth /> },
-        { path: "monitoring/alerts", element: <SystemAlerts /> },
-        { path: "monitoring/logs", element: <SystemLogs /> },
+        // User Notifications page
+        {
+          path: "/dashboard/notifications",
+          element: (
+            <UserAuthGuard>
+              <NotificationsPage />
+            </UserAuthGuard>
+          ),
+        },
 
-        // Auth Routes
-        { path: "auth/sessions", element: <Sessions /> },
+        {
+          path: "/admin",
+          element: (
+            <AdminAuthGuard>
+              <AdminLayout />
+            </AdminAuthGuard>
+          ),
+          children: [
+            { index: true, element: <AdminDashboard /> },
+            { path: "dashboard", element: <AdminDashboard /> },
 
-        // User Management
-        { path: "users", element: <Users /> },
-        { path: "users/:id", element: <UserDetails /> },
-        { path: "roles", element: <Roles /> },
+            // Analytics Routes
+            { path: "logs", element: <AnalyticsLogs /> },
+            { path: "analytics/engagement", element: <EngagementMetrics /> },
+            { path: "analytics/routes", element: <SearchRoutes /> },
+            { path: "analytics/trends", element: <TrendCharts /> },
+            // CMS routes
+            { path: "cms/about-us", element: <AdminCmsAbout /> },
+            { path: "cms/faq", element: <AdminCmsFaq /> },
+            { path: "cms/privacy-policy", element: <AdminCmsPrivacy /> },
+            { path: "cms/terms-conditions", element: <AdminCmsTerms /> },
+            { path: "cms/contact", element: <AdminCmsContact /> },
+            { path: "cms/visa-requirements", element: <AdminCmsVisa /> },
 
-        // Customer Management
-        { path: "customers", element: <Customers /> },
-        { path: "customers/:id", element: <CustomerDetails /> },
+            // Monitoring Routes
+            { path: "monitoring/health", element: <APIHealth /> },
+            { path: "monitoring/alerts", element: <SystemAlerts /> },
+            { path: "monitoring/logs", element: <SystemLogs /> },
 
-        // Email Campaigns
-        { path: "email-campaigns", element: <EmailCampaigns /> },
+            // Auth Routes
+            { path: "auth/sessions", element: <Sessions /> },
 
-        // Settings & Profile
-        { path: "settings", element: <Settings /> },
-        { path: "profile", element: <AdminProfile /> },
-        { path: "notifications", element: <AdminNotifications /> },
-        { path: "feedback", element: <Feedback /> },
+            // User Management
+            { path: "users", element: <Users /> },
+            { path: "users/:id", element: <UserDetails /> },
+            { path: "roles", element: <Roles /> },
+
+            // Customer Management
+            { path: "customers", element: <Customers /> },
+            { path: "customers/:id", element: <CustomerDetails /> },
+
+            // Email Campaigns
+            { path: "email-campaigns", element: <EmailCampaigns /> },
+
+            // Settings & Profile
+            { path: "settings", element: <Settings /> },
+            { path: "profile", element: <AdminProfile /> },
+            { path: "notifications", element: <AdminNotifications /> },
+            { path: "feedback", element: <Feedback /> },
+          ],
+        },
+
+        { path: "/search/flight", element: <FlightSearchPage /> },
+
+        { path: "/flight/details", element: <FlightDetailsPage /> },
+
+        { path: "/Hotels", element: <LandingHotels /> },
+
+        { path: "/Car", element: <LandingCar /> },
+
+        { path: "/FlightsInner", element: <FlightsInner /> },
+
+        { path: "/FlightsInner2", element: <FlightsInner2 /> },
+
+        { path: "/Recentactivities", element: <Recentactivities /> },
+
+        { path: "/HotelsInner", element: <HotelsInner /> },
+
+        { path: "/CarInner", element: <CarInner /> },
+
+        { path: "/Faq", element: <FaqInner /> },
+
+        { path: "/BookYourTicket", element: <BookYourTicket /> },
+
+        { path: "/ReviewInner", element: <ReviewInner /> },
+
+        { path: "/About", element: <About /> },
+
+        { path: "/Contact", element: <Contact /> },
+
+        { path: "/PrivacyPolicy", element: <PrivacyPolicy /> },
+
+        { path: "/TermsAndConditions", element: <TermsAndConditions /> },
+
+        { path: "/Login", element: <Login /> },
+
+        { path: "/Singup", element: <Singup /> },
+
+        { path: "/reset-password", element: <ResetPassword /> },
+
+        { path: "/admin-login", element: <AdminLogin /> },
+
+        { path: "/loader", element: <WeDirecting /> },
+
+        { path: "/FlightsBooking", element: <Booking_StepFormmain /> },
+        { path: "/flight-search", element: <FilterFlights /> },
+
+        { path: "/COVID", element: <COVID /> },
+
+        { path: "/Airport", element: <Airport /> },
+
+        { path: "/VisaRequirements", element: <VisaRequirements /> },
       ],
     },
+  ],
+  {
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    },
+  }
+);
 
-    { path: "/search/flight", element: <FlightSearchPage /> },
-
-    { path: "/flight/details", element: <FlightDetailsPage /> },
-
-    { path: "/Hotels", element: <LandingHotels /> },
-
-    { path: "/Car", element: <LandingCar /> },
-
-    { path: "/FlightsInner", element: <FlightsInner /> },
-
-    { path: "/FlightsInner2", element: <FlightsInner2 /> },
-
-    { path: "/Recentactivities", element: <Recentactivities /> },
-
-    { path: "/HotelsInner", element: <HotelsInner /> },
-
-    { path: "/CarInner", element: <CarInner /> },
-
-    { path: "/Faq", element: <FaqInner /> },
-
-    { path: "/BookYourTicket", element: <BookYourTicket /> },
-
-    { path: "/ReviewInner", element: <ReviewInner /> },
-
-    { path: "/About", element: <About /> },
-
-    { path: "/Contact", element: <Contact /> },
-
-    { path: "/PrivacyPolicy", element: <PrivacyPolicy /> },
-
-    { path: "/Login", element: <Login /> },
-
-    { path: "/Singup", element: <Singup /> },
-
-    { path: "/reset-password", element: <ResetPassword /> },
-
-    { path: "/admin-login", element: <AdminLogin /> },
-
-    { path: "/loader", element: <WeDirecting /> },
-
-    { path: "/FlightsBooking", element: <Booking_StepFormmain /> },
-    { path: "/flight-search", element: <FilterFlights /> },
-
-    { path: "/COVID", element: <COVID /> },
-
-    { path: "/Airport", element: <Airport /> },
-
-    { path: "/VisaRequirements", element: <VisaRequirements /> },
-  ]);
-};
-
-export default Routes;
+export default router;

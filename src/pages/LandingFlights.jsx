@@ -7,6 +7,7 @@ import FlightSec4 from "../components/Landing_page_1_componets/FlightSec4";
 // import FlightHero from "../components/Landing_page_1_componets/FlightHero";
 import FlightFaq from "../components/Landing_page_1_componets/FlightFaq";
 import FlightSec1 from "../components/Landing_page_1_componets/FlightSec1";
+import TopCityDeals from "../components/Landing_page_1_componets/TopCityDeals";
 import { FlightContext } from "../context/FlightContext";
 import { useLocation } from "react-router-dom";
 import HeroSearchFilter from "@/components/ui/hero-search-filter/flights";
@@ -61,6 +62,7 @@ const LandingFlights = () => {
       <Header />
       <HeroSearchFilter />
       <FlightSec1 />
+      <TopCityDeals />
       <FlightSec2 ref={sectionRefs.sec2} />
       <FlightSec3 ref={sectionRefs.sec3} />
       <FlightFaq ref={sectionRefs.faq} />

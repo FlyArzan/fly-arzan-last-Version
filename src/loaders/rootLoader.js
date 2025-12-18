@@ -64,23 +64,6 @@ async function fetchGeoData() {
 }
 
 /**
- * Get nearest airport based on country code
- */
-async function fetchNearestAirport(countryCode) {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/airports/nearest?countryCode=${countryCode}`
-    );
-    if (response.ok) {
-      return response.json();
-    }
-  } catch (e) {
-    console.warn("Failed to fetch nearest airport:", e);
-  }
-  return null;
-}
-
-/**
  * Map country code to language
  */
 function getLanguageForCountry(countryCode) {
@@ -283,11 +266,11 @@ export async function rootLoader() {
       };
     }
 
-    // Fetch nearest airport in parallel
-    const nearestAirport = await fetchNearestAirport(geoData.countryCode);
+    // nearestAirport is now included in the geo-currency response (no second API call needed)
+    const nearestAirport = geoData.nearestAirport || null;
 
     // Cache the combined data with background info
-    const combinedData = { ...geoData, nearestAirport };
+    const combinedData = { ...geoData };
     cacheGeoData(combinedData, backgroundImage, timePeriod, hour);
 
     const language = getLanguageForCountry(geoData.countryCode || "US");

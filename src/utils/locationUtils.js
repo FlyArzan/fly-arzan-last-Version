@@ -96,36 +96,38 @@ const COUNTRY_TO_LANGUAGE = {
 };
 
 /**
- * Get user's location data from IP using ip-api.com (free, no CORS issues)
+ * Get user's location data from backend API (which uses paid ipapi.com)
+ * Frontend should NOT call geo APIs directly - backend handles this securely
  */
 export async function getUserLocationFromIP() {
   try {
-    const response = await fetch(
-      "http://ip-api.com/json/?fields=status,message,country,countryCode,region,regionName,city,lat,lon,timezone,currency"
-    );
+    const API_BASE_URL = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${API_BASE_URL}/api/geo-currency`);
 
     if (!response.ok) {
-      // console.error(`HTTP error! status: ${response.status}`);
-      return null; // Return null instead of throwing
+      return null;
     }
 
-    const locationData = await response.json();
+    const geoData = await response.json();
 
-    // Validate response
-    if (locationData.status === "fail") {
-      // console.error(locationData.message || "IP API error");
-      return null; // Return null instead of throwing
-    }
-
-    return locationData;
-  } catch (error) {
-    // console.error("Failed to get user location from IP:", error);
-    return null; // Return null instead of throwing
+    // Map backend response to expected format
+    return {
+      status: "success",
+      country: geoData.countryName,
+      countryCode: geoData.countryCode,
+      city: geoData.city,
+      lat: geoData.latitude,
+      lon: geoData.longitude,
+      timezone: geoData.timeZone?.id,
+      currency: geoData.currency?.code,
+    };
+  } catch {
+    return null;
   }
 }
 
 /**
- * Map ip-api.com response to regionalSettings format
+ * Map ipapi.co response to regionalSettings format
  */
 export function mapLocationToRegionalSettings(locationData) {
   const countryCode = locationData.countryCode || "US";

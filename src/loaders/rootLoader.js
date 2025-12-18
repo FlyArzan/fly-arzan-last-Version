@@ -275,32 +275,38 @@ export async function rootLoader() {
 
     const language = getLanguageForCountry(geoData.countryCode || "US");
 
+    // Build regionalSettings
+    const regionalSettings = {
+      language,
+      country: {
+        name: geoData.countryName || "United States",
+        countryCode: geoData.countryCode || "US",
+        flag: geoData.countryFlag || "https://flagcdn.com/w320/us.png",
+      },
+      currency: {
+        curr: geoData.currency?.code || "USD",
+        symbol:
+          geoData.currency?.symbol_native || geoData.currency?.symbol || "$",
+      },
+      location: {
+        latitude: null,
+        longitude: null,
+        timezone: geoData.timeZone?.id || "America/New_York",
+      },
+      exchangeRate: geoData.exchangeRate || {
+        base: "USD",
+        rates: { USD: 1 },
+      },
+      setBy: "ip",
+      detectedAt: new Date().toISOString(),
+    };
+
+    // Save regionalSettings to localStorage so RegionalSettingsContext can use it immediately
+    localStorage.setItem("regionalSettings", JSON.stringify(regionalSettings));
+
     return {
       geoData: combinedData,
-      regionalSettings: {
-        language,
-        country: {
-          name: geoData.countryName || "United States",
-          countryCode: geoData.countryCode || "US",
-          flag: geoData.countryFlag || "https://flagcdn.com/w320/us.png",
-        },
-        currency: {
-          curr: geoData.currency?.code || "USD",
-          symbol:
-            geoData.currency?.symbol_native || geoData.currency?.symbol || "$",
-        },
-        location: {
-          latitude: null,
-          longitude: null,
-          timezone: geoData.timeZone?.id || "America/New_York",
-        },
-        exchangeRate: geoData.exchangeRate || {
-          base: "USD",
-          rates: { USD: 1 },
-        },
-        setBy: "ip",
-        detectedAt: new Date().toISOString(),
-      },
+      regionalSettings,
       nearestAirport,
       timePeriod,
       backgroundImage,
@@ -313,25 +319,30 @@ export async function rootLoader() {
     // Return fallback data so app still works
     const language = getLanguageForCountry("US");
 
+    const fallbackSettings = {
+      language,
+      country: {
+        name: "United States",
+        countryCode: "US",
+        flag: "https://flagcdn.com/w320/us.png",
+      },
+      currency: { curr: "USD", symbol: "$" },
+      location: {
+        latitude: null,
+        longitude: null,
+        timezone: "America/New_York",
+      },
+      exchangeRate: { base: "USD", rates: { USD: 1 } },
+      setBy: "fallback",
+      detectedAt: new Date().toISOString(),
+    };
+
+    // Save fallback settings so RegionalSettingsContext can use them immediately
+    localStorage.setItem("regionalSettings", JSON.stringify(fallbackSettings));
+
     return {
       geoData: DEFAULT_GEO_DATA,
-      regionalSettings: {
-        language,
-        country: {
-          name: "United States",
-          countryCode: "US",
-          flag: "https://flagcdn.com/w320/us.png",
-        },
-        currency: { curr: "USD", symbol: "$" },
-        location: {
-          latitude: null,
-          longitude: null,
-          timezone: "America/New_York",
-        },
-        exchangeRate: { base: "USD", rates: { USD: 1 } },
-        setBy: "fallback",
-        detectedAt: new Date().toISOString(),
-      },
+      regionalSettings: fallbackSettings,
       nearestAirport: null,
       timePeriod,
       backgroundImage,

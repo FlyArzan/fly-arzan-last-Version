@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 import { CalendarDays } from "lucide-react";
+import { useRegionalSettings } from "@/context/RegionalSettingsContext";
+import PropTypes from "prop-types";
 
 // Skeleton component for loading state
 const DateSkeleton = () => (
@@ -16,6 +18,14 @@ const FlexibleDates = ({
   setIsCalendarOpen,
   isLoading = false,
 }) => {
+  const { convertPrice, selectedCurrencySymbol } = useRegionalSettings();
+
+  // Format price with currency conversion
+  const formatPrice = (priceValue) => {
+    if (!priceValue) return "-";
+    const converted = convertPrice(priceValue);
+    return `${selectedCurrencySymbol}${converted}`;
+  };
   return (
     <div className="container tw:flex tw:items-center tw:gap-[10px]">
       <div className="tw:flex tw:items-center tw:snap-x tw:overflow-x-auto tw:scrollbar-hide tw:shadow tw:grow tw:divide-x tw:divide-muted tw:bg-white tw:rounded-xl">
@@ -78,7 +88,7 @@ const FlexibleDates = ({
                     "tw:text-primary"
                 )}
               >
-                {date.price || "-"}
+                {formatPrice(date.priceValue)}
               </span>
             </label>
           ))
@@ -98,6 +108,14 @@ const FlexibleDates = ({
       </button>
     </div>
   );
+};
+
+FlexibleDates.propTypes = {
+  flexibleDates: PropTypes.array.isRequired,
+  selectedFlexibleDate: PropTypes.number,
+  handleFlexibleDateClick: PropTypes.func.isRequired,
+  setIsCalendarOpen: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool,
 };
 
 export default FlexibleDates;

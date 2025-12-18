@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import TanstackQueryProvider from "./providers/tanstack-query-prover";
 import { RegionalSettingsProvider } from "./context/RegionalSettingsContext";
 import { WebSocketProvider } from "./providers/WebSocketProvider";
+import CookieConsent from "./components/ui/cookie-consent/CookieConsent";
 
 function InitialLoader() {
   return (
@@ -54,6 +55,7 @@ function App() {
         <WebSocketProvider>
           <RouterProvider router={router} fallbackElement={<InitialLoader />} />
           <ToastContainer />
+          <CookieConsent />
         </WebSocketProvider>
       </RegionalSettingsProvider>
     </TanstackQueryProvider>

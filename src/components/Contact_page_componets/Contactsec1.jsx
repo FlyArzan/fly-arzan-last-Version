@@ -1,7 +1,31 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const Contactsec1 = ({ content }) => {
   const { t } = useTranslation();
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    companyName: "",
+    phone: "",
+    message: ""
+  });
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // TODO: Implement email client integration here.
+    // This is where you would send 'formData' to your backend or email service.
+    // Example: emailjs.sendForm(...) or fetch('/api/contact', { body: formData })
+    console.log("Form Submitted", formData);
+    setIsSubmitted(true);
+  };
 
   // Use CMS content if available
   const contactInfo = content?.contactInfo || [];
@@ -155,30 +179,71 @@ https://www.facebook.com/profile.php?id=61571147600625
               <h2>{formSettings?.title || t("ContactUspage.titel1")}</h2>
               <p>{formSettings?.subtitle || t("ContactUspage.text1")}</p>
 
-              <div className="Contactsec1-form">
-                <div className="Contactsec1-form-input">
-                  <input type="text" placeholder="Full Name" />
+              {isSubmitted ? (
+                <div className="Contactsec1-form" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '30px', gap: '10px' }}>
+                  <div style={{ fontSize: '3rem', color: '#28a745', lineHeight: '1' }}>✓</div>
+                  <h3>Thank You!</h3>
+                  <p className="tw:p-0! tw:text-lg">Your message has been sent successfully.</p>
+                  <p className="tw:p-0! tw:text-lg! tw:text-gray-500!">We will review your inquiry and get back to you shortly.</p>
                 </div>
+              ) : (
+                <form className="Contactsec1-form" onSubmit={handleSubmit}>
+                  <div className="Contactsec1-form-input">
+                    <input
+                      type="text"
+                      name="fullName"
+                      placeholder="Full Name"
+                      value={formData.fullName}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
 
-                <div className="Contactsec1-form-input">
-                  <input type="Email" placeholder="Your Email Address" />
-                </div>
+                  <div className="Contactsec1-form-input">
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Your Email Address"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
 
-                <div className="Contactsec1-form-input">
-                  <input type="text" placeholder="Company Name" />
-                </div>
+                  <div className="Contactsec1-form-input">
+                    <input
+                      type="text"
+                      name="companyName"
+                      placeholder="Company Name"
+                      value={formData.companyName}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-                <div className="Contactsec1-form-input">
-                  <input type="number" placeholder="Phone Number" />
-                </div>
+                  <div className="Contactsec1-form-input">
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="Phone Number"
+                      value={formData.phone}
+                      onChange={handleChange}
+                    />
+                  </div>
 
-                <div className="Contactsec1-form-input textarea-box">
-                  <textarea name="" id="" placeholder="Message"></textarea>
-                </div>
-                <div className="Submit-box">
-                  <button>{t(`buttons.Submit`)}</button>
-                </div>
-              </div>
+                  <div className="Contactsec1-form-input textarea-box">
+                    <textarea
+                      name="message"
+                      placeholder="Message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                    ></textarea>
+                  </div>
+                  <div className="Submit-box">
+                    <button type="submit">{t(`buttons.Submit`)}</button>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>

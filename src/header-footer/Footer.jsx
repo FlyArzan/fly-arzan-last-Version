@@ -36,7 +36,7 @@ const Footer = () => {
 
   return (
     <>
-      <footer>
+      <footer className="tw:mt-auto">
         <div className="container">
           <div className="main-footer">
             <div className="footer--main--top">

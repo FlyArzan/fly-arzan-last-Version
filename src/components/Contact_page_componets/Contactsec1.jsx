@@ -12,19 +12,48 @@ const Contactsec1 = ({ content }) => {
     message: ""
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    // Prevent default submission
     e.preventDefault();
-    // TODO: Implement email client integration here.
-    // This is where you would send 'formData' to your backend or email service.
-    // Example: emailjs.sendForm(...) or fetch('/api/contact', { body: formData })
-    console.log("Form Submitted", formData);
-    setIsSubmitted(true);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsSubmitted(true);
+        // Reset form
+        setFormData({
+          fullName: "",
+          email: "",
+          companyName: "",
+          phone: "",
+          message: ""
+        });
+      } else {
+        alert(data.error || "Failed to send message. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      alert("An error occurred. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Use CMS content if available
@@ -240,7 +269,9 @@ https://www.facebook.com/profile.php?id=61571147600625
                     ></textarea>
                   </div>
                   <div className="Submit-box">
-                    <button type="submit">{t(`buttons.Submit`)}</button>
+                    <button type="submit" disabled={isLoading}>
+                      {isLoading ? "Sending..." : t(`buttons.Submit`)}
+                    </button>
                   </div>
                 </form>
               )}

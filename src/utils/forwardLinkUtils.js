@@ -144,10 +144,10 @@ export function generateForwardLink(flightDetailsData) {
     return affiliateBase + encodeURIComponent(deepLink) + "&campaign_id=121";
   } catch {
     // Return basic URL if something goes wrong
-    const tripAffiliateParams =
-      "Allianceid=7464080&SID=284201968&trip_sub1=&trip_sub3=D8671931";
+    // const tripAffiliateParams =
+    //   "Allianceid=7464080&SID=284201968&trip_sub1=&trip_sub3=D8671931";
     const basicParams = new URLSearchParams(baseParams);
-    const basicDeepLink = `https://trip.com/flights/showfarefirst?${basicParams.toString()}&${tripAffiliateParams}`;
+    const basicDeepLink = `https://trip.com/flights/showfarefirst?${basicParams.toString()}`;
     const affiliateBase =
       "https://tp.media/r?marker=593963&trs=413727&p=8626&u=";
     return (

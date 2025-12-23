@@ -356,7 +356,6 @@
     "para9": "   Monday to Friday | 9:00 AM – 5:00 PM (GMT) "
   },
 
-  
   "Faqpage1": {
     "faq1": {
       "question": "How do I search for hotels on your website?",
@@ -593,17 +592,15 @@
       "answer": "Yes, you can search for flights for up to 9 passengers. For larger groups, we recommend contacting the airline or travel provider directly. "
     }
   },
-  
-"Articlestitale": {
-  "heading1": "Sugarloaf Mountain",
-  "heading2": "The Sagrada Família",
-  "heading3": "Hagia Sophia Grand Mosque",
-  "para1": "Seen from the peak of Sugarloaf Mountain, Rio is undoubtedly a Marvelous City. There are many good times to make the ascent, but sunset on a clear day is the most rewarding. Two cable cars connect to the summit, 395 meters above Rio. At the top, the city unfolds beneath you, with Corcovado Mountain and Christ the Redeemer off to the west, and Copacabana Beach to the south.",
-  "para2": "The Expiatory Temple of the Holy Family (Sagrada Família) is considered to be the symbol of Barcelona by many residents, and the one place you shouldn’t miss when you visit the Catalan capital.",
-  "para3": "The Hagia Sophia (officially the Hagia Sophia Grand Mosque) is one of the Byzantine Empire’s surviving architectural marvels. Located in the heart of Istanbul’s historic center, this sacred building remains – even today – an important symbol of power."
-}
-,
 
+  "Articlestitale": {
+    "heading1": "Sugarloaf Mountain",
+    "heading2": "The Sagrada Família",
+    "heading3": "Hagia Sophia Grand Mosque",
+    "para1": "Seen from the peak of Sugarloaf Mountain, Rio is undoubtedly a Marvelous City. There are many good times to make the ascent, but sunset on a clear day is the most rewarding. Two cable cars connect to the summit, 395 meters above Rio. At the top, the city unfolds beneath you, with Corcovado Mountain and Christ the Redeemer off to the west, and Copacabana Beach to the south.",
+    "para2": "The Expiatory Temple of the Holy Family (Sagrada Família) is considered to be the symbol of Barcelona by many residents, and the one place you shouldn’t miss when you visit the Catalan capital.",
+    "para3": "The Hagia Sophia (officially the Hagia Sophia Grand Mosque) is one of the Byzantine Empire’s surviving architectural marvels. Located in the heart of Istanbul’s historic center, this sacred building remains – even today – an important symbol of power."
+  },
   "FlightsInner": {
     "Suggested": "Suggested",
     "Fastest": "Fastest",
@@ -624,7 +621,7 @@
   "BookYourTicket": {
     "Book": "Book Your Flight",
     "Back_result": "Back to Results",
-    "text1": "The displayed prices include estimated taxes and mandatory charges. Baggage policies and ticket terms may vary",
+    "text1": "Please note that flight prices, schedules, and durations may change at any time. When you proceed to book, you will be redirected to our partner's website, where the final price and flight information will be confirmed.",
     "text2": "Some providers may apply additional fees for luggage, insurance, or credit card payments",
     "text3": "Please review all ticket details and final costs on the provider's website before completing your booking",
     "Extra": "Extra Services",
@@ -800,7 +797,7 @@
         }
       }
     },
-    
+
     "location": {
       "select": "Select",
       "options": {

@@ -32,6 +32,7 @@ import { useRegionalSettings } from "../../../../context/RegionalSettingsContext
 import Calendar from "../../calendar";
 import PropTypes from "prop-types";
 import { logSearchEvent } from "@/lib/analytics";
+import { getNearestAirportCached } from "@/utils/locationUtils";
 
 const RoundWayForm = ({ initialValues }) => {
   const navigate = useNavigate();
@@ -115,6 +116,28 @@ const RoundWayForm = ({ initialValues }) => {
       });
     }
   }, [initialValues, reset]);
+
+  // Auto-detect nearest airport and set as departure if not already set
+  useEffect(() => {
+    const autoSetDeparture = async () => {
+      // Only auto-set if flyingFrom is empty
+      if (!flyingFrom?.iataCode) {
+        try {
+          const nearestAirport = await getNearestAirportCached();
+          if (nearestAirport?.iataCode && nearestAirport?.city) {
+            setValue("flyingFrom", {
+              city: nearestAirport.city,
+              iataCode: nearestAirport.iataCode,
+            });
+          }
+        } catch (error) {
+          console.warn("Could not auto-detect departure airport:", error);
+        }
+      }
+    };
+
+    autoSetDeparture();
+  }, []); // Run once on mount
 
   // Get City Data
   const { data: cityFromData, isLoading: isLoadingFrom } =
@@ -462,7 +485,7 @@ const RoundWayForm = ({ initialValues }) => {
               Travellers & Cabin
             </label>
           </PopoverTrigger>
-          <PopoverContent  mobileTitle="Select Cabin" className="tw:w-[300px]">
+          <PopoverContent mobileTitle="Select Cabin" className="tw:w-[300px]">
             {/* Cabin Selection */}
             <div className="tw:flex tw:flex-col tw:mb-3 tw:w-full">
               <label htmlFor="cabin" className="tw:font-medium">

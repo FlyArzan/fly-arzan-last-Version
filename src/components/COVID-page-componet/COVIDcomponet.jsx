@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 
 const COVIDcomponet = () => {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -12,7 +12,6 @@ const COVIDcomponet = () => {
           <div className="PrivacyPolicysec1-main">
             <div className="PrivacyPolicysec1-tital">
               <h2>COVID-19 Updates </h2>
-       
             </div>
           </div>
         </div>

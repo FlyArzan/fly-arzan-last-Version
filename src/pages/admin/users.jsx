@@ -43,6 +43,8 @@ import {
   useSetUserRole,
   useImpersonateUser,
 } from "@/hooks/useUsers";
+import { useIsAuthenticated } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
 import {
   cardStyles,
   inputStyles,
@@ -62,6 +64,9 @@ export default function Users() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [banDialogOpen, setBanDialogOpen] = useState(false);
+
+  // Get current user to prevent self-demotion
+  const { user: currentUser } = useIsAuthenticated();
 
   // Fetch users from backend
   const { data, isLoading, refetch, error } = useUsers({
@@ -119,6 +124,15 @@ export default function Users() {
 
   const handleSetRole = async (role) => {
     if (selectedUser) {
+      // Prevent self-demotion
+      if (selectedUser.id === currentUser?.id) {
+        toast.error(
+          "You cannot change your own role. This would lock you out."
+        );
+        setRoleDialogOpen(false);
+        handleMenuClose();
+        return;
+      }
       try {
         await setRoleMutation.mutateAsync({ userId: selectedUser.id, role });
       } catch (err) {
@@ -143,7 +157,11 @@ export default function Users() {
 
   const getInitials = (name, email) => {
     if (name) {
-      return name.split(" ").map((n) => n[0]).join("").toUpperCase();
+      return name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase();
     }
     return email?.charAt(0).toUpperCase() || "?";
   };
@@ -186,7 +204,10 @@ export default function Users() {
       </Box>
 
       {error && (
-        <Alert severity="error" sx={{ bgcolor: "rgba(239, 68, 68, 0.1)", color: "#EF4444" }}>
+        <Alert
+          severity="error"
+          sx={{ bgcolor: "rgba(239, 68, 68, 0.1)", color: "#EF4444" }}
+        >
           Failed to load users: {error.message}
         </Alert>
       )}
@@ -246,7 +267,9 @@ export default function Users() {
                     <TableCell sx={tableStyles.headerCell}>Role</TableCell>
                     <TableCell sx={tableStyles.headerCell}>Status</TableCell>
                     <TableCell sx={tableStyles.headerCell}>Created</TableCell>
-                    <TableCell align="right" sx={tableStyles.headerCell}>Actions</TableCell>
+                    <TableCell align="right" sx={tableStyles.headerCell}>
+                      Actions
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -257,7 +280,11 @@ export default function Users() {
                       onClick={() => navigate(`/admin/users/${user.id}`)}
                     >
                       <TableCell sx={tableStyles.bodyCell}>
-                        <Stack direction="row" spacing={1.5} alignItems="center">
+                        <Stack
+                          direction="row"
+                          spacing={1.5}
+                          alignItems="center"
+                        >
                           <Avatar
                             src={user.image}
                             sx={{
@@ -272,10 +299,23 @@ export default function Users() {
                             {getInitials(user.name, user.email)}
                           </Avatar>
                           <Box>
-                            <Typography sx={{ color: "#FFFFFF", fontSize: 14, fontWeight: 500, fontFamily: "Inter" }}>
+                            <Typography
+                              sx={{
+                                color: "#FFFFFF",
+                                fontSize: 14,
+                                fontWeight: 500,
+                                fontFamily: "Inter",
+                              }}
+                            >
                               {user.name || "Unnamed User"}
                             </Typography>
-                            <Typography sx={{ color: "#71717A", fontSize: 12, fontFamily: "Inter" }}>
+                            <Typography
+                              sx={{
+                                color: "#71717A",
+                                fontSize: 12,
+                                fontFamily: "Inter",
+                              }}
+                            >
                               {user.email}
                             </Typography>
                           </Box>
@@ -291,20 +331,34 @@ export default function Users() {
                       <TableCell sx={tableStyles.bodyCell}>
                         <Chip
                           size="small"
-                          icon={user.banned ? <BlockIcon sx={{ fontSize: 14 }} /> : <CheckCircleIcon sx={{ fontSize: 14 }} />}
+                          icon={
+                            user.banned ? (
+                              <BlockIcon sx={{ fontSize: 14 }} />
+                            ) : (
+                              <CheckCircleIcon sx={{ fontSize: 14 }} />
+                            )
+                          }
                           label={user.banned ? "Banned" : "Active"}
-                          sx={getStatusChipStyle(user.banned ? "banned" : "active")}
+                          sx={getStatusChipStyle(
+                            user.banned ? "banned" : "active"
+                          )}
                         />
                       </TableCell>
-                      <TableCell sx={{ ...tableStyles.bodyCell, color: "#71717A" }}>
-                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}
+                      <TableCell
+                        sx={{ ...tableStyles.bodyCell, color: "#71717A" }}
+                      >
+                        {user.createdAt
+                          ? new Date(user.createdAt).toLocaleDateString()
+                          : "—"}
                       </TableCell>
                       <TableCell align="right" sx={tableStyles.bodyCell}>
                         <IconButton
                           size="small"
                           onClick={(e) => handleMenuOpen(e, user)}
                         >
-                          <MoreVertIcon sx={{ fontSize: 18, color: "#71717A" }} />
+                          <MoreVertIcon
+                            sx={{ fontSize: 18, color: "#71717A" }}
+                          />
                         </IconButton>
                       </TableCell>
                     </TableRow>
@@ -347,17 +401,40 @@ export default function Users() {
         PaperProps={{ sx: menuStyles.paper }}
       >
         <MenuItem onClick={handleViewProfile}>
-          <PersonIcon sx={{ fontSize: 18, mr: 1.5, color: "#3B82F6" }} /> View profile
+          <PersonIcon sx={{ fontSize: 18, mr: 1.5, color: "#3B82F6" }} /> View
+          profile
         </MenuItem>
-        <MenuItem onClick={() => { setRoleDialogOpen(true); }}>
-          <AdminPanelSettingsIcon sx={{ fontSize: 18, mr: 1.5, color: "#A855F7" }} /> Change role
+        <MenuItem
+          onClick={() => {
+            setRoleDialogOpen(true);
+          }}
+          disabled={selectedUser?.id === currentUser?.id}
+          sx={{ opacity: selectedUser?.id === currentUser?.id ? 0.5 : 1 }}
+        >
+          <AdminPanelSettingsIcon
+            sx={{ fontSize: 18, mr: 1.5, color: "#A855F7" }}
+          />
+          {selectedUser?.id === currentUser?.id
+            ? "Change role (self)"
+            : "Change role"}
         </MenuItem>
-        <MenuItem onClick={() => { setBanDialogOpen(true); }}>
-          <BlockIcon sx={{ fontSize: 18, mr: 1.5, color: selectedUser?.banned ? "#22C55E" : "#EF4444" }} />
+        <MenuItem
+          onClick={() => {
+            setBanDialogOpen(true);
+          }}
+        >
+          <BlockIcon
+            sx={{
+              fontSize: 18,
+              mr: 1.5,
+              color: selectedUser?.banned ? "#22C55E" : "#EF4444",
+            }}
+          />
           {selectedUser?.banned ? "Unban user" : "Ban user"}
         </MenuItem>
         <MenuItem onClick={handleImpersonate}>
-          <PersonAddIcon sx={{ fontSize: 18, mr: 1.5, color: "#F97316" }} /> Impersonate
+          <PersonAddIcon sx={{ fontSize: 18, mr: 1.5, color: "#F97316" }} />{" "}
+          Impersonate
         </MenuItem>
       </Menu>
 
@@ -374,21 +451,38 @@ export default function Users() {
           },
         }}
       >
-        <DialogTitle sx={{ color: "#FFFFFF", fontFamily: "Inter", fontWeight: 600 }}>
+        <DialogTitle
+          sx={{ color: "#FFFFFF", fontFamily: "Inter", fontWeight: 600 }}
+        >
           Change Role for {selectedUser?.name || selectedUser?.email}
         </DialogTitle>
         <DialogContent>
           <Stack spacing={1} sx={{ mt: 1 }}>
-            {["admin", "user"].map((role) => (
+            {selectedUser?.id === currentUser?.id && (
+              <Alert
+                severity="warning"
+                sx={{
+                  mb: 2,
+                  bgcolor: "rgba(245, 158, 11, 0.1)",
+                  color: "#F59E0B",
+                }}
+              >
+                You cannot change your own role.
+              </Alert>
+            )}
+            {["super", "admin", "moderator", "user"].map((role) => (
               <Button
                 key={role}
                 fullWidth
                 variant={selectedUser?.role === role ? "contained" : "outlined"}
                 onClick={() => handleSetRole(role)}
+                disabled={selectedUser?.id === currentUser?.id}
                 sx={{
                   justifyContent: "flex-start",
                   textTransform: "capitalize",
-                  ...(selectedUser?.role === role ? buttonStyles.primary : buttonStyles.secondary),
+                  ...(selectedUser?.role === role
+                    ? buttonStyles.primary
+                    : buttonStyles.secondary),
                 }}
               >
                 {role}
@@ -397,7 +491,10 @@ export default function Users() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setRoleDialogOpen(false)} sx={{ color: "#71717A" }}>
+          <Button
+            onClick={() => setRoleDialogOpen(false)}
+            sx={{ color: "#71717A" }}
+          >
             Cancel
           </Button>
         </DialogActions>
@@ -416,23 +513,34 @@ export default function Users() {
           },
         }}
       >
-        <DialogTitle sx={{ color: "#FFFFFF", fontFamily: "Inter", fontWeight: 600 }}>
+        <DialogTitle
+          sx={{ color: "#FFFFFF", fontFamily: "Inter", fontWeight: 600 }}
+        >
           {selectedUser?.banned ? "Unban User" : "Ban User"}
         </DialogTitle>
         <DialogContent>
           <Typography sx={{ color: "#71717A", fontFamily: "Inter" }}>
             {selectedUser?.banned
-              ? `Are you sure you want to unban ${selectedUser?.name || selectedUser?.email}?`
-              : `Are you sure you want to ban ${selectedUser?.name || selectedUser?.email}? This will revoke all their sessions.`}
+              ? `Are you sure you want to unban ${
+                  selectedUser?.name || selectedUser?.email
+                }?`
+              : `Are you sure you want to ban ${
+                  selectedUser?.name || selectedUser?.email
+                }? This will revoke all their sessions.`}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setBanDialogOpen(false)} sx={{ color: "#71717A" }}>
+          <Button
+            onClick={() => setBanDialogOpen(false)}
+            sx={{ color: "#71717A" }}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleBanUser}
-            sx={selectedUser?.banned ? buttonStyles.primary : buttonStyles.danger}
+            sx={
+              selectedUser?.banned ? buttonStyles.primary : buttonStyles.danger
+            }
           >
             {selectedUser?.banned ? "Unban" : "Ban"}
           </Button>

@@ -7,8 +7,8 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Modal } from "@/components/ui/modal";
-import { LucideX, X } from "lucide-react";
-import { useState } from "react";
+import { LucideX, X, User, LogOut, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { HiMenuAlt3 } from "react-icons/hi";
 import { TfiWorld } from "react-icons/tfi";
 import { useMediaQuery } from "usehooks-ts";
@@ -20,18 +20,61 @@ import NewRegisterForm from "@/components/ui/auth/new-register-form";
 import { motion, AnimatePresence } from "framer-motion";
 import { RiLoginCircleLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
+import { useSession, useSignOut } from "@/hooks/useAuth";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const Header = () => {
   const [openAuthModal, setAuthModal] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [openUserMenu, setOpenUserMenu] = useState(false);
   const isMobile = useMediaQuery("(max-width: 1023px)", {
     initializeWithValue: false,
   });
   const [openRegionModal, setOpenRegionModal] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
+  const userMenuRef = useRef(null);
 
   const { regionalSettings, isLoaded } = useRegionalSettings();
   const { i18n } = useTranslation();
+
+  // Get user session
+  const { data: session, isPending: isSessionLoading } = useSession();
+  const user = session?.user;
+  const isAuthenticated = !!user;
+
+  // Sign out mutation
+  const signOutMutation = useSignOut();
+
+  const handleSignOut = () => {
+    signOutMutation.mutate(undefined, {
+      onSuccess: () => {
+        setOpenUserMenu(false);
+        window.location.href = "/";
+      },
+    });
+  };
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setOpenUserMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Get user initials for avatar
+  const getUserInitials = (name) => {
+    if (!name) return "U";
+    const parts = name.split(" ");
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
   const siteNavigation = [
     {
@@ -195,15 +238,97 @@ const Header = () => {
                         }`}
                   </span>
                 </button>
-                <button
-                  onClick={() => setAuthModal(true)}
-                  className="tw:inline-flex tw:items-center tw:gap-1 tw:bg-primary tw:hover:bg-primary/90 tw:shadow-[0_2px_4px_0_rgba(165,163,174,0.30)] tw:py-2.5 tw:md:py-[10px] tw:md:px-5 tw:px-3 tw:!text-sm tw:!text-white tw:!rounded-md"
-                >
-                  <span className="tw:hidden tw:md:block">
-                    Register / Login
-                  </span>
-                  <RiLoginCircleLine size={20} className="tw:md:hidden" />
-                </button>
+                {/* User Auth Section */}
+                {isSessionLoading ? (
+                  // Loading state
+                  <div className="tw:w-[100px] tw:h-[40px] tw:bg-gray-200 tw:animate-pulse tw:rounded-md" />
+                ) : isAuthenticated ? (
+                  // Logged in - Show notification bell and user menu
+                  <>
+                    {/* Notification Bell with Popover */}
+                    <NotificationBell />
+
+                    {/* User Menu */}
+                    <div className="tw:relative" ref={userMenuRef}>
+                      <button
+                        onClick={() => setOpenUserMenu(!openUserMenu)}
+                        className="tw:inline-flex tw:items-center tw:gap-2 tw:py-1.5 tw:px-2 tw:md:px-3 tw:rounded-full tw:hover:bg-gray-100 tw:transition-colors"
+                      >
+                        {/* Avatar */}
+                        {user?.image ? (
+                          <img
+                            src={user.image}
+                            alt={user.name}
+                            className="tw:w-8 tw:h-8 tw:rounded-full tw:object-cover"
+                          />
+                        ) : (
+                          <div className="tw:w-8 tw:h-8 tw:rounded-full tw:bg-primary tw:flex tw:items-center tw:justify-center tw:text-white tw:text-sm tw:font-medium">
+                            {getUserInitials(user?.name)}
+                          </div>
+                        )}
+                        <span className="tw:hidden tw:md:block tw:text-sm tw:font-medium tw:text-gray-700 tw:max-w-[100px] tw:truncate">
+                          {user?.name?.split(" ")[0] || "User"}
+                        </span>
+                        <ChevronDown
+                          size={16}
+                          className="tw:hidden tw:md:block tw:text-gray-500"
+                        />
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {openUserMenu && (
+                        <div className="tw:absolute tw:right-0 tw:top-full tw:mt-2 tw:w-56 tw:bg-white tw:rounded-lg tw:shadow-lg tw:border tw:border-gray-200 tw:py-2 tw:z-50">
+                          {/* User Info */}
+                          <div className="tw:px-4 tw:py-2 tw:border-b tw:border-gray-100">
+                            <p className="tw:text-sm tw:font-medium tw:text-gray-900 tw:truncate">
+                              {user?.name || "User"}
+                            </p>
+                            <p className="tw:text-xs tw:text-gray-500 tw:truncate">
+                              {user?.email}
+                            </p>
+                          </div>
+
+                          {/* Menu Items */}
+                          <div className="tw:py-1">
+                            <Link
+                              to="/dashboard"
+                              onClick={() => setOpenUserMenu(false)}
+                              className="tw:flex tw:items-center tw:gap-3 tw:px-4 tw:py-2 tw:text-sm tw:text-gray-700 tw:hover:bg-gray-50 tw:!no-underline"
+                            >
+                              <User size={16} />
+                              My Dashboard
+                            </Link>
+                          </div>
+
+                          {/* Sign Out */}
+                          <div className="tw:border-t tw:border-gray-100 tw:pt-1">
+                            <button
+                              onClick={handleSignOut}
+                              disabled={signOutMutation.isPending}
+                              className="tw:flex tw:items-center tw:gap-3 tw:w-full tw:px-4 tw:py-2 tw:text-sm tw:text-red-600 tw:hover:bg-red-50 tw:disabled:opacity-50"
+                            >
+                              <LogOut size={16} />
+                              {signOutMutation.isPending
+                                ? "Signing out..."
+                                : "Sign Out"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  // Not logged in - Show login button
+                  <button
+                    onClick={() => setAuthModal(true)}
+                    className="tw:inline-flex tw:items-center tw:gap-1 tw:bg-primary tw:hover:bg-primary/90 tw:shadow-[0_2px_4px_0_rgba(165,163,174,0.30)] tw:py-2.5 tw:md:py-[10px] tw:md:px-5 tw:px-3 tw:!text-sm tw:!text-white tw:!rounded-md"
+                  >
+                    <span className="tw:hidden tw:md:block">
+                      Register / Login
+                    </span>
+                    <RiLoginCircleLine size={20} className="tw:md:hidden" />
+                  </button>
+                )}
                 <button
                   className="tw:flex tw:gap-2 tw:text-xl tw:font-medium"
                   onClick={() => setOpenMenu(!openMenu)}

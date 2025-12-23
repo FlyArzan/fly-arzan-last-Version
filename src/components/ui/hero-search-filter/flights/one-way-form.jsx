@@ -32,6 +32,7 @@ import { useRegionalSettings } from "../../../../context/RegionalSettingsContext
 import Calendar from "../../calendar";
 import PropTypes from "prop-types";
 import { logSearchEvent } from "@/lib/analytics";
+import { getNearestAirportCached } from "@/utils/locationUtils";
 
 const OneWayForm = ({ initialValues }) => {
   const navigate = useNavigate();
@@ -102,6 +103,28 @@ const OneWayForm = ({ initialValues }) => {
       setTempDepart(initialValues.depart || undefined);
     }
   }, [initialValues, reset]);
+
+  // Auto-detect nearest airport and set as departure if not already set
+  useEffect(() => {
+    const autoSetDeparture = async () => {
+      // Only auto-set if flyingFrom is empty
+      if (!flyingFrom?.iataCode) {
+        try {
+          const nearestAirport = await getNearestAirportCached();
+          if (nearestAirport?.iataCode && nearestAirport?.city) {
+            setValue("flyingFrom", {
+              city: nearestAirport.city,
+              iataCode: nearestAirport.iataCode,
+            });
+          }
+        } catch (error) {
+          console.warn("Could not auto-detect departure airport:", error);
+        }
+      }
+    };
+
+    autoSetDeparture();
+  }, []); // Run once on mount
 
   // Watch form values
   const formValues = watch();

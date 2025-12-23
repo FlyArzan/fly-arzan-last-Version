@@ -26,35 +26,40 @@ export const cardStyles = {
     blue: {
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
     purple: {
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(147, 51, 234, 0.05) 0%, rgba(147, 51, 234, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(147, 51, 234, 0.05) 0%, rgba(147, 51, 234, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
     green: {
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
     orange: {
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(249, 115, 22, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(249, 115, 22, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
     red: {
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
@@ -66,7 +71,8 @@ export const cardStyles = {
       minHeight: 140,
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
@@ -75,7 +81,8 @@ export const cardStyles = {
       minHeight: 140,
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(147, 51, 234, 0.05) 0%, rgba(147, 51, 234, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(147, 51, 234, 0.05) 0%, rgba(147, 51, 234, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
@@ -84,7 +91,8 @@ export const cardStyles = {
       minHeight: 140,
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
@@ -93,7 +101,8 @@ export const cardStyles = {
       minHeight: 140,
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(249, 115, 22, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(249, 115, 22, 0.05) 0%, rgba(249, 115, 22, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
@@ -102,7 +111,8 @@ export const cardStyles = {
       minHeight: 140,
       borderRadius: 2,
       bgcolor: "#1A1D23",
-      background: "linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%)",
       border: "1px solid rgba(255, 255, 255, 0.08)",
       boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
     },
@@ -118,10 +128,10 @@ export const inputStyles = {
       fontSize: 14,
       fontFamily: "Inter",
       "& fieldset": {
-        borderColor: "rgba(255, 255, 255, 0.08)",
+        borderColor: "rgba(255, 255, 255, 0.1)",
       },
       "&:hover fieldset": {
-        borderColor: "rgba(255, 255, 255, 0.15)",
+        borderColor: "rgba(255, 255, 255, 0.2)",
       },
       "&.Mui-focused fieldset": {
         borderColor: "#3B82F6",
@@ -134,6 +144,15 @@ export const inputStyles = {
         color: "#71717A",
         opacity: 1,
       },
+    },
+    "& .MuiInputLabel-root": {
+      color: "#9ca3af",
+      "&.Mui-focused": { color: "#3B82F6" },
+    },
+    "& input, & textarea": {
+      color: "#e5e7eb",
+      outline: "none !important",
+      boxShadow: "none !important",
     },
   },
   search: {
@@ -153,6 +172,51 @@ export const inputStyles = {
         color: "#71717A",
         opacity: 1,
       },
+    },
+  },
+  // Dark input style for modals and forms
+  dark: {
+    "& .MuiOutlinedInput-root": {
+      bgcolor: "#0B0F16",
+      borderRadius: 2,
+      fontSize: 14,
+      fontFamily: "Inter",
+      "& fieldset": {
+        borderColor: "rgba(255, 255, 255, 0.15)",
+      },
+      "&:hover fieldset": {
+        borderColor: "rgba(255, 255, 255, 0.25)",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#3B82F6",
+        borderWidth: 1,
+      },
+      "& input, & textarea": {
+        color: "#FFFFFF",
+        border: "none",
+        outline: "none",
+        boxShadow: "none",
+      },
+      "& input:focus, & textarea:focus": {
+        border: "none",
+        outline: "none",
+        boxShadow: "none",
+      },
+      "& input::placeholder, & textarea::placeholder": {
+        color: "#71717A",
+        opacity: 1,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: "#9ca3af",
+      fontFamily: "Inter",
+      "&.Mui-focused": {
+        color: "#3B82F6",
+      },
+    },
+    "& .MuiFormHelperText-root": {
+      color: "#71717A",
+      fontFamily: "Inter",
     },
   },
 };
@@ -214,6 +278,8 @@ export const buttonStyles = {
     fontWeight: 500,
     textTransform: "none",
     borderRadius: 2,
+    px: 2,
+    py: 1,
     "&:hover": {
       bgcolor: "#2563EB",
     },
@@ -225,6 +291,8 @@ export const buttonStyles = {
     fontWeight: 500,
     textTransform: "none",
     borderRadius: 2,
+    px: 2,
+    py: 1,
     border: "1px solid rgba(59, 130, 246, 0.3)",
     "&:hover": {
       bgcolor: "rgba(59, 130, 246, 0.1)",
@@ -238,6 +306,8 @@ export const buttonStyles = {
     fontWeight: 500,
     textTransform: "none",
     borderRadius: 2,
+    px: 2,
+    py: 1,
     border: "1px solid rgba(239, 68, 68, 0.3)",
     "&:hover": {
       bgcolor: "rgba(239, 68, 68, 0.2)",
@@ -378,12 +448,36 @@ export const menuStyles = {
 
 // Role colors
 export const roleColors = {
-  admin: { bg: "rgba(239, 68, 68, 0.1)", color: "#EF4444", border: "rgba(239, 68, 68, 0.2)" },
-  moderator: { bg: "rgba(249, 115, 22, 0.1)", color: "#F59E0B", border: "rgba(249, 115, 22, 0.2)" },
-  user: { bg: "rgba(59, 130, 246, 0.1)", color: "#3B82F6", border: "rgba(59, 130, 246, 0.2)" },
-  owner: { bg: "rgba(249, 115, 22, 0.1)", color: "#F97316", border: "rgba(249, 115, 22, 0.2)" },
-  analyst: { bg: "rgba(34, 197, 94, 0.1)", color: "#22C55E", border: "rgba(34, 197, 94, 0.2)" },
-  support: { bg: "rgba(147, 51, 234, 0.1)", color: "#A855F7", border: "rgba(147, 51, 234, 0.2)" },
+  admin: {
+    bg: "rgba(239, 68, 68, 0.1)",
+    color: "#EF4444",
+    border: "rgba(239, 68, 68, 0.2)",
+  },
+  moderator: {
+    bg: "rgba(249, 115, 22, 0.1)",
+    color: "#F59E0B",
+    border: "rgba(249, 115, 22, 0.2)",
+  },
+  user: {
+    bg: "rgba(59, 130, 246, 0.1)",
+    color: "#3B82F6",
+    border: "rgba(59, 130, 246, 0.2)",
+  },
+  owner: {
+    bg: "rgba(249, 115, 22, 0.1)",
+    color: "#F97316",
+    border: "rgba(249, 115, 22, 0.2)",
+  },
+  analyst: {
+    bg: "rgba(34, 197, 94, 0.1)",
+    color: "#22C55E",
+    border: "rgba(34, 197, 94, 0.2)",
+  },
+  support: {
+    bg: "rgba(147, 51, 234, 0.1)",
+    color: "#A855F7",
+    border: "rgba(147, 51, 234, 0.2)",
+  },
 };
 
 // Status colors

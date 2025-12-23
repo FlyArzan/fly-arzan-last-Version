@@ -2,6 +2,34 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+// ============================================
+// PUBLIC CMS HOOKS (for frontend pages)
+// ============================================
+
+/**
+ * Fetch published CMS page content (public, no auth required)
+ * @param {string} slug - Page slug (e.g., "about_us", "faq", "contact")
+ */
+export const usePublicCmsPage = (slug) => {
+  return useQuery({
+    queryKey: ["cms", "public", slug],
+    queryFn: async () => {
+      const url = `${API_BASE_URL}/api/cms/public/${slug}`;
+      const res = await fetch(url);
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error(`Failed to fetch CMS page: ${res.status}`);
+      return res.json();
+    },
+    enabled: Boolean(slug),
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    retry: 1,
+  });
+};
+
+// ============================================
+// ADMIN CMS HOOKS (for dashboard)
+// ============================================
+
 const fetcher = async (path, options = {}) => {
   const url = `${API_BASE_URL}/api${path}`;
   const res = await fetch(url, {

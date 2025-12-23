@@ -3,26 +3,42 @@ import { Checkbox } from "../checkbox";
 import { Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple } from "react-icons/fa6";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpSchema } from "@/schema/authSchema";
-import { useSignUp } from "@/hooks/useAuth";
+import { useSignUp, signInWithGoogle } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const NewRegisterForm = ({ onSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(signUpSchema),
+    defaultValues: {
+      terms: false,
+    },
   });
 
   const signUpMutation = useSignUp();
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle("/dashboard");
+    } catch (error) {
+      toast.error(error.message || "Google sign in failed");
+      setIsGoogleLoading(false);
+    }
+  };
 
   const onSubmit = (data) => {
     signUpMutation.mutate(data, {
@@ -105,23 +121,39 @@ const NewRegisterForm = ({ onSuccess }) => {
             )}
           </div>
 
-          <div className="tw:flex tw:items-center tw:gap-2 tw:justify-between">
-            <div className="tw:flex tw:gap-2 tw:items-center">
-              <Checkbox className="tw:!mb-0.5" id="rememberMe" />
-              <label className="tw:text-sm tw:!mb-0" htmlFor="rememberMe">
+          <div className="tw:flex tw:flex-col tw:gap-1">
+            <div className="tw:flex tw:gap-2 tw:items-start">
+              <Checkbox
+                className="tw:mt-0.5"
+                id="terms"
+                checked={termsAccepted}
+                onCheckedChange={(checked) => {
+                  setTermsAccepted(checked);
+                  setValue("terms", checked, { shouldValidate: true });
+                }}
+              />
+              <label className="tw:text-sm tw:leading-tight" htmlFor="terms">
                 I agree to the platform&apos;s
-                <Link to="/terms" className="tw:text-primary tw:!no-underline">
+                <Link
+                  to="/PrivacyPolicy"
+                  className="tw:text-primary tw:hover:underline"
+                >
                   &nbsp;Terms of Service
                 </Link>
                 &nbsp;and&nbsp;
                 <Link
-                  to="/privacy"
-                  className="tw:text-primary tw:!no-underline"
+                  to="/PrivacyPolicy"
+                  className="tw:text-primary tw:hover:underline"
                 >
                   Privacy Policy
                 </Link>
               </label>
             </div>
+            {errors.terms && (
+              <span className="tw:text-red-500 tw:text-xs">
+                {errors.terms.message}
+              </span>
+            )}
           </div>
 
           <button
@@ -141,11 +173,23 @@ const NewRegisterForm = ({ onSuccess }) => {
           </div>
 
           <div className="tw:grid tw:grid-cols-2 tw:gap-4">
-            <button className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted">
-              <FcGoogle size={20} />
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+              className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted tw:disabled:opacity-50 tw:disabled:cursor-not-allowed"
+            >
+              {isGoogleLoading ? (
+                <Loader2 className="tw:w-5 tw:h-5 tw:animate-spin" />
+              ) : (
+                <FcGoogle size={20} />
+              )}
               <span>Google</span>
             </button>
-            <button className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted">
+            <button
+              type="button"
+              className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted"
+            >
               <FaApple size={20} />
               <span>Apple</span>
             </button>

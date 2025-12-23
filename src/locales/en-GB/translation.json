@@ -344,16 +344,14 @@
     "titel6": "Local Guide"
   },
 
-
-"Articlestitale": {
-  "heading1": "Sugarloaf Mountain",
-  "heading2": "The Sagrada Família",
-  "heading3": "Hagia Sophia Grand Mosque",
-  "para1": "Seen from the peak of Sugarloaf Mountain, Rio is undoubtedly a Marvelous City. There are many good times to make the ascent, but sunset on a clear day is the most rewarding. Two cable cars connect to the summit, 395 meters above Rio. At the top, the city unfolds beneath you, with Corcovado Mountain and Christ the Redeemer off to the west, and Copacabana Beach to the south.",
-  "para2": "The Expiatory Temple of the Holy Family (Sagrada Família) is considered to be the symbol of Barcelona by many residents, and the one place you shouldn’t miss when you visit the Catalan capital.",
-  "para3": "The Hagia Sophia (officially the Hagia Sophia Grand Mosque) is one of the Byzantine Empire’s surviving architectural marvels. Located in the heart of Istanbul’s historic center, this sacred building remains – even today – an important symbol of power."
-}
-,
+  "Articlestitale": {
+    "heading1": "Sugarloaf Mountain",
+    "heading2": "The Sagrada Família",
+    "heading3": "Hagia Sophia Grand Mosque",
+    "para1": "Seen from the peak of Sugarloaf Mountain, Rio is undoubtedly a Marvelous City. There are many good times to make the ascent, but sunset on a clear day is the most rewarding. Two cable cars connect to the summit, 395 meters above Rio. At the top, the city unfolds beneath you, with Corcovado Mountain and Christ the Redeemer off to the west, and Copacabana Beach to the south.",
+    "para2": "The Expiatory Temple of the Holy Family (Sagrada Família) is considered to be the symbol of Barcelona by many residents, and the one place you shouldn’t miss when you visit the Catalan capital.",
+    "para3": "The Hagia Sophia (officially the Hagia Sophia Grand Mosque) is one of the Byzantine Empire’s surviving architectural marvels. Located in the heart of Istanbul’s historic center, this sacred building remains – even today – an important symbol of power."
+  },
   "ContactUspage": {
     "heading": "Contact Us",
     "titel1": "We’re always happy to connect! ",
@@ -621,9 +619,9 @@
   "BookYourTicket": {
     "Book": "Book Your Flight",
     "Back_result": "Back to result",
-    "text1": "The displayed prices include estimated taxes and mandatory charges. Baggage policies and ticket terms may vary",
-    "text2": "    Some providers may apply additional fees for luggage, insurance, or credit card payments",
-    "text3": " Please review all ticket details and final costs on the provider's website before completing your  booking",
+    "text1": "Please note that flight prices, schedules, and durations may change at any time. When you proceed to book, you will be redirected to our partner's website, where the final price and flight information will be confirmed.",
+    "text2": "",
+    "text3": "",
     "Extra": "Extra servicet",
     "Saver": "Saver",
     "Premium": "Premium",
@@ -1099,7 +1097,7 @@
       "FoodAndBeverage": {
         "title": "Food And Beverage",
         "options": {
-         "complimentaryBreakfast": "Complimentary Breakfast",
+          "complimentaryBreakfast": "Complimentary Breakfast",
           "onSiteRestaurant": "On-Site Restaurant",
           "barLounge": "Bar/Lounge",
           "coffeeShop": "Coffee Shop",
@@ -1110,15 +1108,15 @@
         "title": "Payments",
         "options": {
           "payNow": "Pay now",
-        "payLater": "Pay Later",
-        "partialPayment": "Partial payment",
-        "flexiblePayment": "Flexible Payment"
+          "payLater": "Pay Later",
+          "partialPayment": "Partial payment",
+          "flexiblePayment": "Flexible Payment"
         }
       },
       "accessibility": {
         "title": "Accessibility",
         "options": {
-         "wheelchairAccessible": "Wheelchair Accessible",
+          "wheelchairAccessible": "Wheelchair Accessible",
           "elevatorLift": "Elevator/Lift",
           "accessibleParking": "Accessible Parking",
           "hearingVisualAccessibility": "Hearing/Visual Accessibility Features"

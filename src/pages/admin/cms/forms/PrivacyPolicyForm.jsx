@@ -238,20 +238,24 @@ const cardSx = {
   boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
 };
 
+// Keep these for backward compatibility with SortableSectionItem component
 const inputLabelSx = { color: "#9ca3af" };
 const inputSx = { color: "#e5e7eb" };
 
-// Common TextField styling to fix focus outline
+// Common TextField styling to fix focus outline and border issues
 const textFieldSx = {
   "& .MuiOutlinedInput-root": {
+    bgcolor: "#0B0F16",
     "& fieldset": { borderColor: "rgba(255,255,255,0.1)" },
     "&:hover fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-    "&.Mui-focused fieldset": { borderColor: "#3B82F6" },
+    "&.Mui-focused fieldset": { borderColor: "#3B82F6", borderWidth: 1 },
   },
-  "& .MuiOutlinedInput-input": {
-    "&:focus": { outline: "none" },
+  "& .MuiInputLabel-root": {
+    color: "#9ca3af",
+    "&.Mui-focused": { color: "#3B82F6" },
   },
   "& input, & textarea": {
+    color: "#e5e7eb",
     outline: "none !important",
     boxShadow: "none !important",
   },

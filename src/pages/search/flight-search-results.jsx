@@ -423,10 +423,13 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                 // Log click-out event (fire-and-forget)
                 if (itinerary.itineraries.length > 0) {
                   const firstSeg = itinerary.itineraries[0];
-                  const lastSeg = itinerary.itineraries[itinerary.itineraries.length - 1];
+                  const lastSeg =
+                    itinerary.itineraries[itinerary.itineraries.length - 1];
                   logClickOutEvent({
                     origin: firstSeg.flights[0].departure.iataCode,
-                    destination: lastSeg.flights[lastSeg.flights.length - 1].arrival.iataCode,
+                    destination:
+                      lastSeg.flights[lastSeg.flights.length - 1].arrival
+                        .iataCode,
                     tripType: "multi-city",
                     partner: airlinesInfo[0]?.airlineCode,
                   });
@@ -521,7 +524,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                                             (airport, airportIndex) => (
                                               <strong
                                                 key={airportIndex}
-                                                className="tw:text-[#5D586C] tw:!font-normal"
+                                                className="tw:text-[#5D586C] tw:font-normal!"
                                               >
                                                 {airport}
                                                 {airportIndex <
@@ -571,7 +574,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
 
                     <button
                       onClick={handleMultiCitySelect}
-                      className="tw:w-full tw:md:w-fit tw:bg-primary tw:py-2 tw:px-[30px] tw:flex tw:flex-col tw:!text-white tw:!rounded-full hover:tw:bg-primary/90 tw:transition-colors"
+                      className="tw:w-full tw:md:w-fit tw:bg-primary tw:py-2 tw:px-[30px] tw:flex tw:flex-col tw:text-white! tw:rounded-full! hover:tw:bg-primary/90 tw:transition-colors"
                     >
                       <span className="tw:text-sm">Select</span>
                       <span className="tw:text-base tw:font-medium">

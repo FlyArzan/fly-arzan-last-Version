@@ -1,28 +1,36 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import logo from "../../assets/Images/loginlogo.png";
-import apple from "../../assets/Images/apple.png";
-import google from "../../assets/Images/google.png";
+import { FcGoogle } from "react-icons/fc";
+import { FaApple } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
 import { loginSchema, registrationSchema } from "../Schemas/Schemas";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useSignIn, useSignUp } from "@/hooks/useAuth";
-import { toast } from "sonner";
+import { useSignIn, useSignUp, signInWithGoogle } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
 
-const Login = ({ setShowPopup, redirectTo }) => {
-  const [isSignup, setIsSignup] = useState(false); // Track which form is visible
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Get redirect path from props, location state, or default to /admin
-  const from = redirectTo || location.state?.from || "/admin";
-  
+const Login = ({ setShowPopup }) => {
+  const [isSignup, setIsSignup] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true); // Default to true
+
   const signInMutation = useSignIn();
   const signUpMutation = useSignUp();
-  
-  const loading = signInMutation.isPending || signUpMutation.isPending;
-  const error = signInMutation.error?.message || signUpMutation.error?.message;
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signInWithGoogle("/dashboard");
+    } catch (error) {
+      toast.error(error.message || "Google sign in failed");
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const loading =
+    signInMutation.isPending || signUpMutation.isPending || isRedirecting;
 
   const {
     register,
@@ -34,236 +42,523 @@ const Login = ({ setShowPopup, redirectTo }) => {
   const { t } = useTranslation();
 
   const onSubmit = async (data) => {
+    console.log("Form submitted with data:", data);
     try {
       if (isSignup) {
+        console.log("Attempting signup...");
         await signUpMutation.mutateAsync({
-          name: data.email.split("@")[0], // Use email prefix as name
+          name: data.email.split("@")[0],
           email: data.email,
           password: data.password,
         });
         toast.success("Account created successfully!");
-        setIsSignup(false); // Switch to login
+        setIsSignup(false);
       } else {
+        console.log("Attempting login...");
         const response = await signInMutation.mutateAsync({
           email: data.email,
           password: data.password,
+          rememberMe, // Pass rememberMe option
         });
-        if (response?.user) {
-          toast.success("Login successful!");
+        console.log("Login response:", response);
+
+        // Use confirmedUser from session polling, fallback to response.user
+        const user = response?.confirmedUser || response?.user;
+
+        if (user) {
+          // Block admin/super users from logging in via user login
+          if (user.role === "admin" || user.role === "super") {
+            return;
+          }
+
+          toast.success("Login successful! Redirecting...");
+          setIsRedirecting(true);
+
           if (setShowPopup) {
             setShowPopup(false);
-          } else {
-            // Navigate based on role (only super can access admin)
-            const userRole = response.user.role;
-            const isSuperAdmin = userRole === "super";
-            // Super admins go to /admin, others go to /dashboard (or original destination if not /admin)
-            let destination;
-            if (isSuperAdmin) {
-              destination = "/admin";
-            } else if (from && from !== "/admin") {
-              destination = from;
-            } else {
-              destination = "/dashboard";
-            }
-            navigate(destination, { replace: true });
           }
+
+          // Users always go to dashboard
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 100);
+        } else {
+          toast.error("Login failed - no user in response");
         }
       }
     } catch (err) {
+      console.error("Auth error:", err);
       toast.error(err.message || "Authentication failed");
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
-      {!isSignup ? (
-        <section className="Login-sec" style={{ maxWidth: '480px', width: '100%', margin: '0 auto' }}>
-          <div className="Login-main">
-            <div className="Login-form-box">
-              <div className="Login-form-logo">
-                <Link to="/">
-                  <img src={logo} alt="Logo" />
-                </Link>
-              </div>
-              <div className="Login-form-tital">
-                <h2>{t(`Logsec.heading`)}</h2>
-                <p>{t(`Logsec.para`)}</p>
-              </div>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="Login-form-group">
-                  <div className="Login-form-group-box">
-                    <div className="Login-form-input-group">
-                      <label>{t(`Logsec.label1`)}</label>
-                      <input
-                        type="text"
-                        placeholder="info@example.com"
-                        {...register("email")}
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="error">*{errors.email.message}</p>
-                    )}
-                    <div className="Login-form-input-group">
-                      <label>{t(`Logsec.label2`)}</label>
-                      <input
-                        type="password"
-                        placeholder="**************"
-                        {...register("password")}
-                      />
-                    </div>
-                    {errors.password && (
-                      <p className="error">*{errors.password.message}</p>
-                    )}
-                    {error && <p className="error">{error}</p>}
-                  </div>
-                  <div className="Login-form-Forgot-box">
-                    <div className="Remember-box">
-                      <input type="checkbox" />
-                      <p>{t(`Logsec.label3`)}</p>
-                    </div>
-                    <a href="#">{t(`Logsec.label4`)}</a>
-                  </div>
-                  <div className="Login-form-btn">
-                    <button disabled={loading} type="submit">
-                      {loading ? t(`Logsec.btn3`) : t(`Logsec.btn1`)}{" "}
-                    </button>
-                  </div>
-                  <div className="Or-box">
-                    <div className="Or-line"></div>
-                    <h2>{t(`Logsec.label5`)}</h2>
-                    <div className="Or-line"></div>
-                  </div>
-                  <div className="google-btn-box">
-                    <button>
-                      <img src={google} alt="Google" />
-                    </button>
-                    <h2>{t(`Logsec.label6`)}</h2>
-                    <button>
-                      <img src={apple} alt="Apple" />
-                    </button>
-                  </div>
-                  <div className="an-account-box">
-                    <p>
-                      {t(`Logsec.label7`)}
-                      <Link
-                        onClick={() => setIsSignup(true)}
-                        className="link-btn"
-                      >
-                        Sign Up
-                      </Link>
-                    </p>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </section>
-      ) : (
-        <section className="Login-sec singup-page" style={{ maxWidth: '480px', width: '100%', margin: '0 auto' }}>
-          <div className="Login-main">
-            <div className="Login-form-box">
-              <div className="Login-form-logo">
-                <Link to="/">
-                  <img src={logo} alt="Logo" />
-                </Link>
-              </div>
-              <div className="Login-form-tital">
-                <h2>{t(`Logsec.heading1`)} </h2>
-                <p>{t(`Logsec.para1`)}</p>
-              </div>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="Login-form-group">
-                  <div className="Login-form-group-box">
-                    <div className="Login-form-input-group">
-                      <label>{t(`Logsec.label8`)} </label>
-                      <input
-                        type="Email"
-                        placeholder="info@example.com"
-                        {...register("email")}
-                      />
-                      {errors.email && (
-                        <p className="error mt-2">*{errors.email.message}</p>
-                      )}
-                    </div>
+  // Show full-screen loader when redirecting
+  if (isRedirecting) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+          gap: "20px",
+        }}
+      >
+        <div
+          style={{
+            width: "48px",
+            height: "48px",
+            border: "4px solid #e5e7eb",
+            borderTopColor: "#50add8",
+            borderRadius: "50%",
+            animation: "spin 1s linear infinite",
+          }}
+        />
+        <p
+          style={{
+            color: "#6b7280",
+            fontSize: "16px",
+            fontFamily: "Rubik, sans-serif",
+          }}
+        >
+          Login successful! Redirecting to your dashboard...
+        </p>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
-                    <div className="Login-form-input-group more-group-with">
-                      <label>{t(`Logsec.label9`)}</label>
-                      <input
-                        type="Password"
-                        placeholder="**************"
-                        {...register("password")}
-                      />
-                      {errors.password && (
-                        <p className="error mt-2">*{errors.password.message}</p>
-                      )}
-                    </div>
-                    <div className="Login-form-input-group more-group-with">
-                      <label> {t(`Logsec.label10`)} </label>
-                      <input
-                        type="password"
-                        placeholder="**************"
-                        {...register("confirmPassword")}
-                      />
-                      {errors.confirmPassword && (
-                        <p className="error mt-2">
-                          *{errors.confirmPassword.message}
-                        </p>
-                      )}
-                    </div>
-                    {error && <p className="error">{error}</p>}
-                  </div>
-                  <div className="Login-form-Forgot-box">
-                    <div className="Remember-box more-withd-Forgot">
-                      <input type="checkbox" {...register("terms")} />
-                      <p>
-                        {t(`Logsec.label11`)}{" "}
-                        <a href="#">{t(`Logsec.label12`)} </a>{" "}
-                        {t(`Logsec.label13`)}{" "}
-                        <a href="#">{t(`Logsec.label14`)} </a>
-                      </p>
-                    </div>
-                  </div>
-                  {errors.terms && (
-                    <p className="error mt-2">*{errors.terms.message}</p>
-                  )}
-                  <div className="Login-form-btn">
-                    {/* <Link to="/Recentactivities"> */}
-                    <button disabled={loading} type="submit">
-                      {loading ? t(`Logsec.btn5`) : t(`Logsec.btn2`)}{" "}
-                    </button>
-                    {/* </Link> */}
-                  </div>
-                  <div className="Or-box">
-                    <div className="Or-line"></div>
-                    <h2>{t(`Logsec.label5`)} </h2>
-                    <div className="Or-line"></div>
-                  </div>
-                  <div className="google-btn-box">
-                    <button>
-                      <img src={google} alt="Google" />
-                    </button>
-                    <h2>{t(`Logsec.label6`)} </h2>
-                    <button>
-                      <img src={apple} alt="Apple" />
-                    </button>
-                  </div>
-                  <div className="an-account-box">
-                    <p>
-                      {t(`Logsec.label15`)}
-                      <Link
-                        onClick={() => setIsSignup(false)}
-                        className="link-btn"
-                      >
-                        Log in
-                      </Link>
-                    </p>
-                  </div>
-                </div>
-              </form>
-            </div>
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+        padding: "24px 16px",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "420px",
+          background: "#ffffff",
+          borderRadius: "16px",
+          boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)",
+          padding: "40px 32px",
+        }}
+      >
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: "24px" }}>
+          <Link to="/">
+            <img
+              src={logo}
+              alt="FlyArzan"
+              style={{ height: "40px", objectFit: "contain" }}
+            />
+          </Link>
+        </div>
+
+        {/* Title */}
+        <div style={{ textAlign: "center", marginBottom: "32px" }}>
+          <h1
+            style={{
+              fontSize: "24px",
+              fontWeight: "600",
+              color: "#1f2937",
+              marginBottom: "8px",
+              fontFamily: "Rubik, sans-serif",
+            }}
+          >
+            {isSignup ? t(`Logsec.heading1`) : t(`Logsec.heading`)}
+          </h1>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "#6b7280",
+              fontFamily: "Rubik, sans-serif",
+            }}
+          >
+            {isSignup ? t(`Logsec.para1`) : t(`Logsec.para`)}
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Email Field */}
+          <div style={{ marginBottom: "20px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px",
+                fontFamily: "Rubik, sans-serif",
+              }}
+            >
+              {t(`Logsec.label1`)}
+            </label>
+            <input
+              type="email"
+              placeholder="info@example.com"
+              {...register("email")}
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                fontSize: "14px",
+                border: errors.email
+                  ? "1px solid #ef4444"
+                  : "1px solid #d1d5db",
+                borderRadius: "8px",
+                outline: "none",
+                transition: "border-color 0.2s",
+                fontFamily: "Rubik, sans-serif",
+                boxSizing: "border-box",
+              }}
+            />
+            {errors.email && (
+              <p
+                style={{
+                  color: "#ef4444",
+                  fontSize: "12px",
+                  marginTop: "4px",
+                  fontFamily: "Rubik, sans-serif",
+                }}
+              >
+                {errors.email.message}
+              </p>
+            )}
           </div>
-        </section>
-      )}
+
+          {/* Password Field */}
+          <div style={{ marginBottom: "20px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "14px",
+                fontWeight: "500",
+                color: "#374151",
+                marginBottom: "8px",
+                fontFamily: "Rubik, sans-serif",
+              }}
+            >
+              {t(`Logsec.label2`)}
+            </label>
+            <input
+              type="password"
+              placeholder="••••••••••••"
+              {...register("password")}
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                fontSize: "14px",
+                border: errors.password
+                  ? "1px solid #ef4444"
+                  : "1px solid #d1d5db",
+                borderRadius: "8px",
+                outline: "none",
+                transition: "border-color 0.2s",
+                fontFamily: "Rubik, sans-serif",
+                boxSizing: "border-box",
+              }}
+            />
+            {errors.password && (
+              <p
+                style={{
+                  color: "#ef4444",
+                  fontSize: "12px",
+                  marginTop: "4px",
+                  fontFamily: "Rubik, sans-serif",
+                }}
+              >
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          {/* Confirm Password (Signup only) */}
+          {isSignup && (
+            <div style={{ marginBottom: "20px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                  color: "#374151",
+                  marginBottom: "8px",
+                  fontFamily: "Rubik, sans-serif",
+                }}
+              >
+                {t(`Logsec.label10`)}
+              </label>
+              <input
+                type="password"
+                placeholder="••••••••••••"
+                {...register("confirmPassword")}
+                style={{
+                  width: "100%",
+                  padding: "12px 16px",
+                  fontSize: "14px",
+                  border: errors.confirmPassword
+                    ? "1px solid #ef4444"
+                    : "1px solid #d1d5db",
+                  borderRadius: "8px",
+                  outline: "none",
+                  transition: "border-color 0.2s",
+                  fontFamily: "Rubik, sans-serif",
+                  boxSizing: "border-box",
+                }}
+              />
+              {errors.confirmPassword && (
+                <p
+                  style={{
+                    color: "#ef4444",
+                    fontSize: "12px",
+                    marginTop: "4px",
+                    fontFamily: "Rubik, sans-serif",
+                  }}
+                >
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Remember Me & Forgot Password (Login only) */}
+          {!isSignup && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "24px",
+              }}
+            >
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontSize: "14px",
+                  color: "#4b5563",
+                  cursor: "pointer",
+                  fontFamily: "Rubik, sans-serif",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                />
+                {t(`Logsec.label3`)}
+              </label>
+              <a
+                href="#"
+                style={{
+                  fontSize: "14px",
+                  color: "#50add8",
+                  textDecoration: "none",
+                  fontFamily: "Rubik, sans-serif",
+                }}
+              >
+                {t(`Logsec.label4`)}
+              </a>
+            </div>
+          )}
+
+          {/* Terms (Signup only) */}
+          {isSignup && (
+            <div style={{ marginBottom: "24px" }}>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "8px",
+                  fontSize: "13px",
+                  color: "#4b5563",
+                  cursor: "pointer",
+                  fontFamily: "Rubik, sans-serif",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  {...register("terms")}
+                  style={{
+                    width: "16px",
+                    height: "16px",
+                    cursor: "pointer",
+                    marginTop: "2px",
+                  }}
+                />
+                <span>
+                  {t(`Logsec.label11`)}{" "}
+                  <a href="#" style={{ color: "#50add8" }}>
+                    {t(`Logsec.label12`)}
+                  </a>{" "}
+                  {t(`Logsec.label13`)}{" "}
+                  <a href="#" style={{ color: "#50add8" }}>
+                    {t(`Logsec.label14`)}
+                  </a>
+                </span>
+              </label>
+              {errors.terms && (
+                <p
+                  style={{
+                    color: "#ef4444",
+                    fontSize: "12px",
+                    marginTop: "4px",
+                    fontFamily: "Rubik, sans-serif",
+                  }}
+                >
+                  {errors.terms.message}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "14px",
+              fontSize: "16px",
+              fontWeight: "500",
+              color: "#ffffff",
+              background: loading ? "#93c5fd" : "#50add8",
+              border: "none",
+              borderRadius: "8px",
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "background 0.2s",
+              fontFamily: "Rubik, sans-serif",
+              marginBottom: "24px",
+            }}
+          >
+            {loading
+              ? isSignup
+                ? t(`Logsec.btn5`)
+                : t(`Logsec.btn3`)
+              : isSignup
+              ? t(`Logsec.btn2`)
+              : t(`Logsec.btn1`)}
+          </button>
+
+          {/* Divider */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
+              marginBottom: "24px",
+            }}
+          >
+            <div style={{ flex: 1, height: "1px", background: "#e5e7eb" }} />
+            <span
+              style={{
+                fontSize: "14px",
+                color: "#9ca3af",
+                fontFamily: "Rubik, sans-serif",
+              }}
+            >
+              {t(`Logsec.label5`)}
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "#e5e7eb" }} />
+          </div>
+
+          {/* Social Buttons */}
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              marginBottom: "24px",
+            }}
+          >
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isGoogleLoading}
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "12px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                background: "#ffffff",
+                cursor: isGoogleLoading ? "not-allowed" : "pointer",
+                fontSize: "14px",
+                fontFamily: "Rubik, sans-serif",
+                color: "#374151",
+                opacity: isGoogleLoading ? 0.5 : 1,
+              }}
+            >
+              <FcGoogle size={20} />
+              {isGoogleLoading ? "Signing in..." : "Google"}
+            </button>
+            <button
+              type="button"
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "12px",
+                border: "1px solid #e5e7eb",
+                borderRadius: "8px",
+                background: "#ffffff",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontFamily: "Rubik, sans-serif",
+                color: "#374151",
+              }}
+            >
+              <FaApple size={20} />
+              Apple
+            </button>
+          </div>
+
+          {/* Switch Form Link */}
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: "14px",
+              color: "#6b7280",
+              fontFamily: "Rubik, sans-serif",
+            }}
+          >
+            {isSignup ? t(`Logsec.label15`) : t(`Logsec.label7`)}
+            <button
+              type="button"
+              onClick={() => setIsSignup(!isSignup)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#50add8",
+                fontWeight: "600",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontFamily: "Rubik, sans-serif",
+                marginLeft: "4px",
+              }}
+            >
+              {isSignup ? "Log in" : "Sign Up"}
+            </button>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

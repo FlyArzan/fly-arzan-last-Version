@@ -1,11 +1,11 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import ClosedFaq from "../../assets/Images/ClosedFaq.png";
 import Openedfaq from "../../assets/Images/Openedfaq.png";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import { useTranslation } from "react-i18next";
 
-const Tab11 = () => {
+const Tab11 = ({ categories = [] }) => {
   const [openFaq, setOpenFaq] = useState(null);
   const [showAll, setShowAll] = useState(false);
   const [showAll1, setShowAll1] = useState(false);
@@ -21,6 +21,9 @@ const Tab11 = () => {
   };
 
   const { t } = useTranslation();
+
+  // Check if CMS categories are available and use them
+  const hasCmsCategories = categories && categories.length > 0;
 
   const faqs1 = [
     {
@@ -248,15 +251,34 @@ const Tab11 = () => {
     // Add more FAQs here
   ];
 
+  // Use CMS categories if available, otherwise fall back to translation-based tabs
+  const tabNames = hasCmsCategories
+    ? categories.map((cat) => cat.name)
+    : [
+        t("Faqpage.tab1"),
+        t("Faqpage.tab2"),
+        t("Faqpage.tab3"),
+        t("Faqpage.tab4"),
+      ];
+
+  // Get FAQ items for a category index
+  const getFaqsForCategory = (index) => {
+    if (hasCmsCategories && categories[index]) {
+      return categories[index].items || [];
+    }
+    // Fallback to translation-based FAQs
+    const faqArrays = [faqs, faqs1, faqs2, faqs3];
+    return faqArrays[index] || [];
+  };
+
   return (
     <div className="FaqInner-Tab-box">
       <Tabs>
         <div className="FaqInner-Tab-head">
           <TabList>
-            <Tab>{t(`Faqpage.tab1`)}</Tab>
-            <Tab>{t(`Faqpage.tab2`)}</Tab>
-            <Tab>{t(`Faqpage.tab3`)}</Tab>
-            <Tab>{t(`Faqpage.tab4`)}</Tab>
+            {tabNames.map((name, idx) => (
+              <Tab key={idx}>{name}</Tab>
+            ))}
           </TabList>
         </div>
 

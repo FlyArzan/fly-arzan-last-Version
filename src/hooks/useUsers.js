@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -7,7 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL;
  */
 const adminFetch = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}/api/admin${endpoint}`;
-  
+
   const response = await fetch(url, {
     credentials: "include",
     headers: {
@@ -19,7 +20,7 @@ const adminFetch = async (endpoint, options = {}) => {
 
   // Get response text first
   const text = await response.text();
-  
+
   // Handle empty responses
   if (!text || text.trim() === "") {
     if (!response.ok) {
@@ -123,9 +124,13 @@ export const useSetUserRole = () => {
         body: JSON.stringify({ role }),
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, { role }) => {
+      toast.success(`Role changed to ${role} successfully`);
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "user"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to change role");
     },
   });
 };
@@ -144,8 +149,12 @@ export const useBanUser = () => {
       });
     },
     onSuccess: () => {
+      toast.success("User banned successfully");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "user"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to ban user");
     },
   });
 };
@@ -163,8 +172,12 @@ export const useUnbanUser = () => {
       });
     },
     onSuccess: () => {
+      toast.success("User unbanned successfully");
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "user"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to unban user");
     },
   });
 };

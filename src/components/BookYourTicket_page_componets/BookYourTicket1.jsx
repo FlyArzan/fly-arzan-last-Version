@@ -23,7 +23,7 @@ const BookYourTicket1 = () => {
   };
   const faqs = [
     {
-      question: "Pre-Booking Information for Customers:",
+      question: "Pre-Booking Notice",
     },
   ];
   // useEffect(() => {
@@ -371,18 +371,11 @@ const BookYourTicket1 = () => {
                           {openFaq === index && (
                             <div className="faq--1--paragraph">
                               <p>
-                                The displayed prices include estimated taxes and
-                                mandatory charges. Baggage policies and ticket
-                                terms may vary
-                              </p>
-                              <p>
-                                Some providers may apply additional fees for
-                                luggage, insurance, or credit card payments
-                              </p>
-                              <p>
-                                Please review all ticket details and final costs
-                                on the provider's website before completing your
-                                booking
+                                Please note that flight prices, schedules, and
+                                durations may change at any time. When you
+                                proceed to book, you will be redirected to our
+                                partner&apos;s website, where the final price
+                                and flight information will be confirmed.
                               </p>
                             </div>
                           )}

@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Footer_logo from "../assets/Images/Footer_logo.png";
 import fb_logo from "../assets/Images/fb_logo.png";
 import Instagram_Logo from "../assets/Images/Instagram_Logo.png";
 import X_logo from "../assets/Images/X_logo.png";
 import youtube_logo from "../assets/Images/youtube_logo.png";
-import wheather from "../assets/Images/wheather.png";
-import EmailSend from "../assets/Images/EmailSend.png";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -17,29 +15,28 @@ const Footer = () => {
 
   const handleEmail = () => {
     const trimmedEmail = email.trim();
-  
+
     // Check if empty
     if (trimmedEmail === "") {
       toast.error("Please enter your email address.");
       return;
     }
-  
+
     // Check if valid email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
       toast.error("Please enter a valid email address.");
       return;
     }
-  
+
     // Success
     console.log("Successfully Subscribed");
     toast.success("Thank you for your subscription");
   };
-  
 
   return (
     <>
-      <footer>
+      <footer className="tw:mt-auto">
         <div className="container">
           <div className="main-footer">
             <div className="footer--main--top">
@@ -105,6 +102,14 @@ const Footer = () => {
                     <Link to="/PrivacyPolicy">
                       <li>{t("footer.quickLinks.privacyPolicy")}</li>
                     </Link>
+                    <Link to="/TermsAndConditions">
+                      <li>
+                        {t(
+                          "footer.quickLinks.termsAndConditions",
+                          "Terms & Conditions"
+                        )}
+                      </li>
+                    </Link>
                     <Link to="/Contact">
                       <li>{t("footer.quickLinks.contact")}</li>
                     </Link>
@@ -113,10 +118,15 @@ const Footer = () => {
                 <div className="footer-ul-list-box">
                   <h3>{t("footer.travelSupport.title")}</h3>
                   <ul>
-                    <Link to="/COVID"><li>{t('footer.travelSupport.covid')}</li></Link>
-                    <Link to="/VisaRequirements"><li>{t('footer.travelSupport.visa')}</li></Link>
-                    <Link to="/Airport"><li>{t('footer.travelSupport.airport')}</li></Link>
-            
+                    <Link to="/COVID">
+                      <li>{t("footer.travelSupport.covid")}</li>
+                    </Link>
+                    <Link to="/VisaRequirements">
+                      <li>{t("footer.travelSupport.visa")}</li>
+                    </Link>
+                    <Link to="/Airport">
+                      <li>{t("footer.travelSupport.airport")}</li>
+                    </Link>
                   </ul>
                 </div>
                 <div className="footer-ul-list-box more-with-input">

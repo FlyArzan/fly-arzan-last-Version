@@ -30,20 +30,20 @@ const cardSx = {
   boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
 };
 
-const inputLabelSx = { color: "#9ca3af" };
-const inputSx = { color: "#e5e7eb" };
-
-// Common TextField styling to fix focus outline
+// Common TextField styling to fix focus outline and border issues
 const textFieldSx = {
   "& .MuiOutlinedInput-root": {
+    bgcolor: "#0B0F16",
     "& fieldset": { borderColor: "rgba(255,255,255,0.1)" },
     "&:hover fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-    "&.Mui-focused fieldset": { borderColor: "#3B82F6" },
+    "&.Mui-focused fieldset": { borderColor: "#3B82F6", borderWidth: 1 },
   },
-  "& .MuiOutlinedInput-input": {
-    "&:focus": { outline: "none" },
+  "& .MuiInputLabel-root": {
+    color: "#9ca3af",
+    "&.Mui-focused": { color: "#3B82F6" },
   },
   "& input, & textarea": {
+    color: "#e5e7eb",
     outline: "none !important",
     boxShadow: "none !important",
   },
@@ -292,8 +292,6 @@ export default function AboutUsForm() {
             label="Page Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            InputLabelProps={{ sx: inputLabelSx }}
-            inputProps={{ sx: inputSx }}
             sx={textFieldSx}
           />
         </CardContent>
@@ -326,8 +324,6 @@ export default function AboutUsForm() {
               label="Heading"
               value={content.hero?.heading || ""}
               onChange={(e) => updateContent("hero.heading", e.target.value)}
-              InputLabelProps={{ sx: inputLabelSx }}
-              inputProps={{ sx: inputSx }}
               sx={textFieldSx}
             />
             <TextField
@@ -335,8 +331,6 @@ export default function AboutUsForm() {
               label="Subheading"
               value={content.hero?.subheading || ""}
               onChange={(e) => updateContent("hero.subheading", e.target.value)}
-              InputLabelProps={{ sx: inputLabelSx }}
-              inputProps={{ sx: inputSx }}
               sx={textFieldSx}
             />
           </Stack>
@@ -370,8 +364,6 @@ export default function AboutUsForm() {
               label="Section Title"
               value={content.whoWeAre?.title || ""}
               onChange={(e) => updateContent("whoWeAre.title", e.target.value)}
-              InputLabelProps={{ sx: inputLabelSx }}
-              inputProps={{ sx: inputSx }}
               sx={textFieldSx}
             />
             <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
@@ -411,8 +403,6 @@ export default function AboutUsForm() {
                   label={`Paragraph ${index + 1}`}
                   value={para}
                   onChange={(e) => updateParagraph(index, e.target.value)}
-                  InputLabelProps={{ sx: inputLabelSx }}
-                  inputProps={{ sx: inputSx }}
                   sx={textFieldSx}
                 />
                 <IconButton
@@ -502,15 +492,7 @@ export default function AboutUsForm() {
                       onChange={(e) =>
                         updateService(index, "title", e.target.value)
                       }
-                      InputLabelProps={{ sx: inputLabelSx }}
-                      inputProps={{ sx: inputSx }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "rgba(255,255,255,0.1)",
-                          },
-                        },
-                      }}
+                      sx={textFieldSx}
                     />
                     <TextField
                       fullWidth
@@ -521,15 +503,7 @@ export default function AboutUsForm() {
                       onChange={(e) =>
                         updateService(index, "description", e.target.value)
                       }
-                      InputLabelProps={{ sx: inputLabelSx }}
-                      inputProps={{ sx: inputSx }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "rgba(255,255,255,0.1)",
-                          },
-                        },
-                      }}
+                      sx={textFieldSx}
                     />
                   </Stack>
                 </AccordionDetails>
@@ -594,8 +568,6 @@ export default function AboutUsForm() {
                   onChange={(e) =>
                     updateFeature(index, "title", e.target.value)
                   }
-                  InputLabelProps={{ sx: inputLabelSx }}
-                  inputProps={{ sx: inputSx }}
                   sx={textFieldSx}
                 />
                 <TextField
@@ -605,8 +577,6 @@ export default function AboutUsForm() {
                   onChange={(e) =>
                     updateFeature(index, "description", e.target.value)
                   }
-                  InputLabelProps={{ sx: inputLabelSx }}
-                  inputProps={{ sx: inputSx }}
                   sx={textFieldSx}
                 />
                 <IconButton
@@ -669,8 +639,6 @@ export default function AboutUsForm() {
               onChange={(e) =>
                 updateContent("whyChooseUs.title", e.target.value)
               }
-              InputLabelProps={{ sx: inputLabelSx }}
-              inputProps={{ sx: inputSx }}
               sx={textFieldSx}
             />
             <TextField
@@ -680,8 +648,6 @@ export default function AboutUsForm() {
               onChange={(e) =>
                 updateContent("whyChooseUs.subtitle", e.target.value)
               }
-              InputLabelProps={{ sx: inputLabelSx }}
-              inputProps={{ sx: inputSx }}
               sx={textFieldSx}
             />
             <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
@@ -699,8 +665,6 @@ export default function AboutUsForm() {
                   onChange={(e) =>
                     updateWhyChooseUsItem(index, "title", e.target.value)
                   }
-                  InputLabelProps={{ sx: inputLabelSx }}
-                  inputProps={{ sx: inputSx }}
                   sx={textFieldSx}
                 />
                 <TextField
@@ -710,8 +674,6 @@ export default function AboutUsForm() {
                   onChange={(e) =>
                     updateWhyChooseUsItem(index, "description", e.target.value)
                   }
-                  InputLabelProps={{ sx: inputLabelSx }}
-                  inputProps={{ sx: inputSx }}
                   sx={textFieldSx}
                 />
                 <IconButton

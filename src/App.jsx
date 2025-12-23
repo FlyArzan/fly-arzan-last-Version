@@ -1,58 +1,62 @@
-import Routes from "./Routes/Routes";
-import Scroll from "./ScrollToTop/Scroll";
-import { BrowserRouter } from "react-router-dom";
+import { router } from "./Routes/Routes";
+import { RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import { FlightProvider } from "./context/FlightContext";
-// import { HotelProvider } from "./context/HotelContext";
-// import { CarProvider } from "./context/CarContext";
-// import { useContext, useEffect } from "react";
-// import axios from "axios";
-// import { useLocationContext } from "./context/userLocationContext";
-// import { useGet } from "./utils/ApiMethod";
-// import { LOCATION_API_KEY } from "./baseUrl";
-// import getSymbolFromCurrency from "currency-symbol-map";
 import TanstackQueryProvider from "./providers/tanstack-query-prover";
 import { RegionalSettingsProvider } from "./context/RegionalSettingsContext";
+import { WebSocketProvider } from "./providers/WebSocketProvider";
+import CookieConsent from "./components/ui/cookie-consent/CookieConsent";
+
+function InitialLoader() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)",
+      }}
+    >
+      <img
+        src="/logo.svg"
+        alt="FlyArzan"
+        style={{ width: "120px", marginBottom: "24px" }}
+        onError={(e) => {
+          e.target.style.display = "none";
+        }}
+      />
+      <div
+        style={{
+          width: "40px",
+          height: "40px",
+          border: "3px solid #e0e0e0",
+          borderTopColor: "#3b82f6",
+          borderRadius: "50%",
+          animation: "spin 1s linear infinite",
+        }}
+      />
+      <style>
+        {`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+    </div>
+  );
+}
 
 function App() {
-  // const { setUserLocation } = useLocationContext();
-  // const selectedLocalCoun = JSON.parse(localStorage.getItem("selectCountry"));
-
-  // useEffect(() => {
-  //   const fetchLocation = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         `https://api.ipapi.com/api/check?access_key=${LOCATION_API_KEY}`
-  //       );
-  //       const data = await response.json();
-
-  //       setUserLocation({
-  //         country_name: selectedLocalCoun?.country
-  //           ? selectedLocalCoun?.country
-  //           : data?.country_name, // <<<<< actual user country ,
-  //         city: selectedLocalCoun?.city ? selectedLocalCoun?.city : data?.city,
-  //         userCountry: data?.country_name,
-  //         userCity: data?.city,
-  //         curr: data?.currency?.code,
-  //         symbol: getSymbolFromCurrency(data?.currency?.code),
-  //       });
-  //     } catch (error) {
-  //       console.error("Error fetching location:", error);
-  //     }
-  //   };
-
-  //   fetchLocation();
-  // }, []);
-
   return (
     <TanstackQueryProvider>
       <RegionalSettingsProvider>
-        <BrowserRouter>
-          <Scroll />
-          <Routes />
+        <WebSocketProvider>
+          <RouterProvider router={router} fallbackElement={<InitialLoader />} />
           <ToastContainer />
-        </BrowserRouter>
+          <CookieConsent />
+        </WebSocketProvider>
       </RegionalSettingsProvider>
     </TanstackQueryProvider>
   );

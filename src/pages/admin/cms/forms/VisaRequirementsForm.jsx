@@ -32,20 +32,20 @@ const cardSx = {
   boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
 };
 
-const inputLabelSx = { color: "#9ca3af" };
-const inputSx = { color: "#e5e7eb" };
-
-// Common TextField styling to fix focus outline
+// Common TextField styling to fix focus outline and border issues
 const textFieldSx = {
   "& .MuiOutlinedInput-root": {
+    bgcolor: "#0B0F16",
     "& fieldset": { borderColor: "rgba(255,255,255,0.1)" },
     "&:hover fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-    "&.Mui-focused fieldset": { borderColor: "#3B82F6" },
+    "&.Mui-focused fieldset": { borderColor: "#3B82F6", borderWidth: 1 },
   },
-  "& .MuiOutlinedInput-input": {
-    "&:focus": { outline: "none" },
+  "& .MuiInputLabel-root": {
+    color: "#9ca3af",
+    "&.Mui-focused": { color: "#3B82F6" },
   },
   "& input, & textarea": {
+    color: "#e5e7eb",
     outline: "none !important",
     boxShadow: "none !important",
   },
@@ -254,8 +254,6 @@ export default function VisaRequirementsForm() {
             label="Page Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            InputLabelProps={{ sx: inputLabelSx }}
-            inputProps={{ sx: inputSx }}
             sx={textFieldSx}
           />
         </CardContent>
@@ -288,8 +286,6 @@ export default function VisaRequirementsForm() {
               label="Title"
               value={content.hero?.title || ""}
               onChange={(e) => updateHero("title", e.target.value)}
-              InputLabelProps={{ sx: inputLabelSx }}
-              inputProps={{ sx: inputSx }}
               sx={textFieldSx}
             />
             <TextField
@@ -297,8 +293,6 @@ export default function VisaRequirementsForm() {
               label="Subtitle"
               value={content.hero?.subtitle || ""}
               onChange={(e) => updateHero("subtitle", e.target.value)}
-              InputLabelProps={{ sx: inputLabelSx }}
-              inputProps={{ sx: inputSx }}
               sx={textFieldSx}
             />
           </Stack>
@@ -333,8 +327,6 @@ export default function VisaRequirementsForm() {
             label="Introduction Text"
             value={content.introduction || ""}
             onChange={(e) => updateField("introduction", e.target.value)}
-            InputLabelProps={{ sx: inputLabelSx }}
-            inputProps={{ sx: inputSx }}
             sx={textFieldSx}
           />
         </CardContent>
@@ -432,15 +424,7 @@ export default function VisaRequirementsForm() {
                         onChange={(e) =>
                           updateCountry(countryIndex, "name", e.target.value)
                         }
-                        InputLabelProps={{ sx: inputLabelSx }}
-                        inputProps={{ sx: inputSx }}
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              borderColor: "rgba(255,255,255,0.1)",
-                            },
-                          },
-                        }}
+                        sx={textFieldSx}
                       />
                       <TextField
                         label="Country Code"
@@ -453,16 +437,11 @@ export default function VisaRequirementsForm() {
                             e.target.value.toUpperCase()
                           )
                         }
-                        InputLabelProps={{ sx: inputLabelSx }}
-                        inputProps={{ sx: { ...inputSx, maxLength: 3 } }}
-                        sx={{
-                          minWidth: 150,
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              borderColor: "rgba(255,255,255,0.1)",
-                            },
-                          },
+                        inputProps={{
+                          style: { textTransform: "uppercase" },
+                          maxLength: 3,
                         }}
+                        sx={{ ...textFieldSx, minWidth: 150 }}
                       />
                     </Stack>
 
@@ -479,8 +458,6 @@ export default function VisaRequirementsForm() {
                           e.target.value
                         )
                       }
-                      InputLabelProps={{ sx: inputLabelSx }}
-                      inputProps={{ sx: inputSx }}
                       sx={textFieldSx}
                     />
 
@@ -497,15 +474,7 @@ export default function VisaRequirementsForm() {
                             e.target.value
                           )
                         }
-                        InputLabelProps={{ sx: inputLabelSx }}
-                        inputProps={{ sx: inputSx }}
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              borderColor: "rgba(255,255,255,0.1)",
-                            },
-                          },
-                        }}
+                        sx={textFieldSx}
                       />
                       <TextField
                         fullWidth
@@ -515,15 +484,7 @@ export default function VisaRequirementsForm() {
                         onChange={(e) =>
                           updateCountry(countryIndex, "fees", e.target.value)
                         }
-                        InputLabelProps={{ sx: inputLabelSx }}
-                        inputProps={{ sx: inputSx }}
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            "& fieldset": {
-                              borderColor: "rgba(255,255,255,0.1)",
-                            },
-                          },
-                        }}
+                        sx={textFieldSx}
                       />
                     </Stack>
 
@@ -572,15 +533,7 @@ export default function VisaRequirementsForm() {
                               e.target.value
                             )
                           }
-                          InputLabelProps={{ sx: inputLabelSx }}
-                          inputProps={{ sx: inputSx }}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              "& fieldset": {
-                                borderColor: "rgba(255,255,255,0.1)",
-                              },
-                            },
-                          }}
+                          sx={textFieldSx}
                         />
                         <IconButton
                           size="small"
@@ -637,8 +590,6 @@ export default function VisaRequirementsForm() {
             placeholder="e.g., Visa requirements may change. Please verify with the embassy..."
             value={content.generalInfo || ""}
             onChange={(e) => updateField("generalInfo", e.target.value)}
-            InputLabelProps={{ sx: inputLabelSx }}
-            inputProps={{ sx: inputSx }}
             sx={textFieldSx}
           />
         </CardContent>

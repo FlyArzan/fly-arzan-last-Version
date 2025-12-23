@@ -1,20 +1,21 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import Tab6 from "../Tab-componet/Tab6";
 import { useTranslation } from "react-i18next";
 
-const Abouthero = () => {
+const Abouthero = ({ content }) => {
   const { t } = useTranslation();
+
+  // Use CMS content if available, fallback to translations
+  const heading = content?.heading || t("AboutUs.heading");
+  const subheading = content?.subheading;
+
   return (
-    <>
-      <section className="Abouthero-sec top-margin">
-        <div className="container">
-          <div className="Abouthero-main">
-            <h2>{t(`AboutUs.heading`)}</h2>
-          </div>
+    <section className="Abouthero-sec top-margin">
+      <div className="container">
+        <div className="Abouthero-main">
+          <h2>{heading}</h2>
+          {subheading && <p>{subheading}</p>}
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 

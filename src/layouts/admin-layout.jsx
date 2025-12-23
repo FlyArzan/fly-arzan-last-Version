@@ -30,6 +30,8 @@ import {
   WarningAmber as WarningAmberIcon,
   BugReport as BugReportIcon,
   People as PeopleIcon,
+  PersonOutline as PersonOutlineIcon,
+  Email as EmailIcon,
   Security as SecurityIcon,
   Settings as SettingsIcon,
   Feedback as FeedbackIcon,
@@ -38,7 +40,9 @@ import {
   PrivacyTip as PrivacyTipIcon,
   ContactPage as ContactPageIcon,
   Public as PublicIcon,
+  Notifications as NotificationsIcon,
 } from "@mui/icons-material";
+import { useUnreadCount } from "@/hooks/useNotifications";
 
 const drawerWidth = 280;
 
@@ -62,6 +66,11 @@ const navSections = [
         label: "Privacy Policy",
         icon: PrivacyTipIcon,
         path: "/admin/cms/privacy-policy",
+      },
+      {
+        label: "Terms & Conditions",
+        icon: DescriptionIcon,
+        path: "/admin/cms/terms-conditions",
       },
       { label: "Contact", icon: ContactPageIcon, path: "/admin/cms/contact" },
       {
@@ -125,6 +134,16 @@ const navSections = [
         path: "/admin/users",
       },
       {
+        label: "Customers",
+        icon: PersonOutlineIcon,
+        path: "/admin/customers",
+      },
+      {
+        label: "Email Campaigns",
+        icon: EmailIcon,
+        path: "/admin/email-campaigns",
+      },
+      {
         label: "Roles & Permissions",
         icon: SecurityIcon,
         path: "/admin/roles",
@@ -152,11 +171,12 @@ const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const navigate = useNavigate();
-  
+
   // Get session and sign out mutation
   const { data: session } = useSession();
   const signOutMutation = useSignOut();
-  
+  const { data: unreadCount = 0 } = useUnreadCount();
+
   const user = session?.user;
   const userName = user?.name || "Admin User";
   const userEmail = user?.email || "admin@flyarzan.com";
@@ -248,6 +268,36 @@ const AdminLayout = () => {
           </Stack>
 
           <Stack direction="row" spacing={2} alignItems="center">
+            {/* Notification Bell */}
+            <IconButton
+              color="inherit"
+              onClick={() => navigate("/admin/notifications")}
+              sx={{ position: "relative" }}
+            >
+              <NotificationsIcon sx={{ color: "#A1A1AA" }} />
+              {unreadCount > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 4,
+                    right: 4,
+                    width: 18,
+                    height: 18,
+                    bgcolor: "#EF4444",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 10,
+                    fontWeight: 600,
+                    color: "#fff",
+                  }}
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </Box>
+              )}
+            </IconButton>
+
             <Stack direction="row" spacing={1.5} alignItems="center">
               <Box sx={{ textAlign: "right" }}>
                 <Typography
@@ -303,8 +353,22 @@ const AdminLayout = () => {
                 },
               }}
             >
-              <MenuItem onClick={handleProfileMenuClose}>Profile</MenuItem>
-              <MenuItem onClick={handleProfileMenuClose}>Settings</MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleProfileMenuClose();
+                  navigate("/admin/profile");
+                }}
+              >
+                Profile
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleProfileMenuClose();
+                  navigate("/admin/settings");
+                }}
+              >
+                Settings
+              </MenuItem>
               <Divider sx={{ borderColor: "rgba(31,41,55,0.9)" }} />
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </Menu>

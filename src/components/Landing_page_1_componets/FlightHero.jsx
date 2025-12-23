@@ -1,13 +1,21 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import Tab1 from "../Tab-componet/Tab1";
 import { useTranslation } from "react-i18next";
+import { useTimeBasedBackground } from "@/hooks/useTimeBasedBackground";
 
 const FlightHero = () => {
   const { t } = useTranslation();
+  const { backgroundImage } = useTimeBasedBackground();
+
   return (
     <>
-      <section className="hero-sec">
+      <section
+        className="hero-sec"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <div className="container">
           <div className="main-hero">
             <div className="hero-tital">

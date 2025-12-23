@@ -43,14 +43,35 @@ const DEFAULT_SETTINGS = {
   setBy: "fallback",
 };
 
-export const RegionalSettingsProvider = ({ children }) => {
-  const [regionalSettings, setRegionalSettings] = useState(() => {
-    // Initialize from localStorage if available
+/**
+ * Get prefetched regional settings from localStorage (set by rootLoader)
+ * This provides instant access without loading state
+ */
+const getPrefetchedSettings = () => {
+  try {
     const stored = localStorage.getItem("regionalSettings");
-    return stored ? JSON.parse(stored) : DEFAULT_SETTINGS;
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (e) {
+    console.warn("Failed to get prefetched settings:", e);
+  }
+  return null;
+};
+
+export const RegionalSettingsProvider = ({ children }) => {
+  // Initialize from prefetched data or localStorage immediately (no loading state)
+  const [regionalSettings, setRegionalSettings] = useState(() => {
+    const prefetched = getPrefetchedSettings();
+    return prefetched || DEFAULT_SETTINGS;
   });
 
-  const [isLoaded, setIsLoaded] = useState(false);
+  // Mark as loaded immediately if we have prefetched data
+  const [isLoaded, setIsLoaded] = useState(() => {
+    const prefetched = getPrefetchedSettings();
+    return !!prefetched;
+  });
+
   const { isLoading, data: geoData, refetch } = useGeoCurrency();
 
   // Map country to language
@@ -82,13 +103,19 @@ export const RegionalSettingsProvider = ({ children }) => {
       SA: { label: "العربية (Arabic)", code: "ar" },
       EG: { label: "العربية (Arabic)", code: "ar" },
       GR: { label: "Ελληνικά (Greek)", code: "el" },
+      BD: { label: "English (USA)", code: "en-US" }, // Bangladesh
+      IN: { label: "English (USA)", code: "en-US" }, // India
+      PK: { label: "English (USA)", code: "en-US" }, // Pakistan
     };
     return langMap[countryCode] || { label: "English (USA)", code: "en-US" };
   };
 
-  // Initialize settings on mount or when geoData changes
+  // Only fetch if we don't have prefetched data and user hasn't set preferences
   useEffect(() => {
-    if (geoData && !isLoaded) {
+    // Skip if already loaded from prefetch or user settings
+    if (isLoaded) return;
+
+    if (geoData) {
       const settings = {
         language: getLanguageForCountry(geoData.countryCode || "US"),
         country: {
@@ -117,7 +144,7 @@ export const RegionalSettingsProvider = ({ children }) => {
       setRegionalSettings(settings);
       localStorage.setItem("regionalSettings", JSON.stringify(settings));
       setIsLoaded(true);
-    } else if (!geoData && !isLoading && !isLoaded) {
+    } else if (!geoData && !isLoading) {
       // Fallback to default if geo fetch fails
       const fallbackSettings = { ...DEFAULT_SETTINGS };
       setRegionalSettings(fallbackSettings);
@@ -128,18 +155,6 @@ export const RegionalSettingsProvider = ({ children }) => {
       setIsLoaded(true);
     }
   }, [geoData, isLoading, isLoaded]);
-
-  // Check localStorage on mount to respect user settings
-  useEffect(() => {
-    const stored = localStorage.getItem("regionalSettings");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed.setBy === "user") {
-        setRegionalSettings(parsed);
-        setIsLoaded(true);
-      }
-    }
-  }, []);
 
   const updateRegionalSettings = useCallback(
     (newSettings) => {

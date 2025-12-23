@@ -14,7 +14,7 @@ const FlightSearchPageHeader = ({ initialOneWayFormValues }) => {
   const totalTravellers = (travellers.adults || 0) + (travellers.children || 0);
 
   return (
-    <h1 className="tw:!text-[18px] tw:font-semibold tw:text-[#00000B] tw:!mb-5">
+    <h1 className="tw:text-base! tw:lg:!text-[18px] tw:font-semibold tw:text-[#00000B] tw:!mb-5">
       {`${flyingFrom.city} (${flyingFrom.iataCode}) - ${flyingTo.city} (${
         flyingTo.iataCode
       }) - ${totalTravellers} Traveller${

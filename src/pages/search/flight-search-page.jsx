@@ -209,16 +209,31 @@ const FlightSearchPage = () => {
   const { isLoading, data: flightOffersData } =
     useFlightOffers(flightOffersParams);
 
+  // Flexible dates with real API data - pass search params
+  const flexibleDatesParams = useMemo(
+    () => ({
+      origin: initialValues?.flyingFrom?.iataCode,
+      destination: initialValues?.flyingTo?.iataCode,
+      oneWay: tripType === "one-way",
+    }),
+    [
+      initialValues?.flyingFrom?.iataCode,
+      initialValues?.flyingTo?.iataCode,
+      tripType,
+    ]
+  );
+
   const {
     selectedFlexibleDate,
     isCalendarOpen,
     selectedDate,
     flexibleDates,
     priceData,
+    isPricesLoading,
     setIsCalendarOpen,
     handleDateSelect,
     handleFlexibleDateClick,
-  } = useFlexibleDates();
+  } = useFlexibleDates(flexibleDatesParams);
 
   // Memoized filter component selection
   const FilterComponent = useMemo(() => {
@@ -330,6 +345,7 @@ const FlightSearchPage = () => {
               selectedFlexibleDate={selectedFlexibleDate}
               handleFlexibleDateClick={handleFlexibleDateClick}
               setIsCalendarOpen={setIsCalendarOpen}
+              isLoading={isPricesLoading}
             />
 
             {/* Progress Bar */}
@@ -374,6 +390,7 @@ const FlightSearchPage = () => {
         onDateSelect={handleDateSelect}
         selectedDate={selectedDate}
         priceData={priceData}
+        isLoading={isPricesLoading}
       />
     </>
   );

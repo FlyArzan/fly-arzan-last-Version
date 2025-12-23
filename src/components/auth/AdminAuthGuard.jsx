@@ -1,22 +1,22 @@
-import { useEffect, useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { useSession } from "@/hooks/useAuth";
+import { useSession } from "@/lib/auth-client";
 
 /**
  * AdminAuthGuard - Protects admin routes
- * 
- * Shows loading state while checking authentication,
- * redirects to login if not authenticated or not admin.
+ *
+ * Uses better-auth client for faster session checks.
+ * - If not authenticated → redirect to /Login
+ * - If not admin/super → redirect to /dashboard
+ * - Otherwise → render children
  */
 const AdminAuthGuard = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: session, isLoading, isFetched } = useSession();
-  const [shouldRedirect, setShouldRedirect] = useState(false);
-  const [redirectTarget, setRedirectTarget] = useState(null);
+  const { data: session, isPending } = useSession();
+  const [checked, setChecked] = useState(false);
 
-  // Check if user is admin (super or admin role)
   const user = session?.user;
   const isAdmin = user && (user.role === "admin" || user.role === "super");
 
@@ -24,46 +24,45 @@ const AdminAuthGuard = ({ children }) => {
   useLayoutEffect(() => {
     document.body.classList.add("admin-loading");
     document.body.style.backgroundColor = "#0B0F16";
-    
+
     return () => {
       document.body.classList.remove("admin-loading");
       document.body.style.backgroundColor = "";
     };
   }, []);
 
-  useEffect(() => {
-    // Only check after initial fetch is complete
-    if (!isFetched) return;
+  // Perform redirect check synchronously before paint
+  useLayoutEffect(() => {
+    // Wait for session to load
+    if (isPending) return;
 
     // Not authenticated - redirect to login
     if (!user) {
-      setRedirectTarget("/Login");
-      setShouldRedirect(true);
+      navigate("/Login", {
+        replace: true,
+        state: {
+          from: location.pathname,
+          message: "Please login to access admin panel",
+        },
+      });
       return;
     }
 
     // Authenticated but not admin - redirect to user dashboard
     if (!isAdmin) {
-      setRedirectTarget("/dashboard");
-      setShouldRedirect(true);
+      navigate("/dashboard", {
+        replace: true,
+        state: { message: "You don't have permission to access admin panel" },
+      });
       return;
     }
-  }, [user, isAdmin, isFetched]);
 
-  // Handle redirect in separate effect to avoid render issues
-  useEffect(() => {
-    if (shouldRedirect && redirectTarget) {
-      navigate(redirectTarget, { 
-        replace: true,
-        state: redirectTarget === "/Login" 
-          ? { from: location.pathname, message: "Please login to access admin panel" }
-          : { message: "You don't have permission to access admin panel" }
-      });
-    }
-  }, [shouldRedirect, redirectTarget, navigate, location.pathname]);
+    // Admin user - allow access
+    setChecked(true);
+  }, [user, isAdmin, isPending, navigate, location.pathname]);
 
   // Loading state - show immediately with dark background
-  if (isLoading || !isFetched) {
+  if (isPending || !checked) {
     return (
       <Box
         sx={{
@@ -76,11 +75,11 @@ const AdminAuthGuard = ({ children }) => {
           gap: 3,
         }}
       >
-        <CircularProgress 
-          size={48} 
-          sx={{ 
+        <CircularProgress
+          size={48}
+          sx={{
             color: "#3B82F6",
-          }} 
+          }}
         />
         <Box sx={{ textAlign: "center" }}>
           <Typography
@@ -104,34 +103,6 @@ const AdminAuthGuard = ({ children }) => {
             Verifying your credentials...
           </Typography>
         </Box>
-      </Box>
-    );
-  }
-
-  // Redirecting state
-  if (shouldRedirect || !user || !isAdmin) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-          bgcolor: "#0B0F16",
-          gap: 2,
-        }}
-      >
-        <CircularProgress size={32} sx={{ color: "#3B82F6" }} />
-        <Typography
-          variant="body2"
-          sx={{
-            color: "#71717A",
-            fontFamily: "Inter",
-          }}
-        >
-          Redirecting...
-        </Typography>
       </Box>
     );
   }

@@ -346,7 +346,7 @@ button.swich svg {
 
 section.hero-sec {
   width: 100%;
-  background-image: url(../src/assets/Images/hero_bg.png);
+  /* background-image is set dynamically via useTimeBasedBackground hook */
   padding: 60px 0;
   background-position: center;
   background-repeat: no-repeat;
@@ -735,7 +735,7 @@ section.Sec2-sec {
 
 .Sec2-tital {
   width: 100%;
-  padding-bottom: 90px;
+  padding-bottom: 40px;
 }
 
 .Sec2-tital h2 {
@@ -1386,10 +1386,14 @@ footer {
 .more-with-input-group input {
   width: 100%;
   border: none;
-  border-bottom: 0.5px solid #fff;
   background: transparent;
   padding: 15px 20px;
   outline: none;
+  color: #fff;
+}
+
+.more-with-input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .more-with-input-group button {
@@ -2308,6 +2312,21 @@ section.FaqInnerhero-sec {
   text-transform: capitalize;
 }
 
+.FaqInnerhero-tital p,
+.faq-subtitle {
+  color: #fff;
+  text-align: center;
+  font-family: "Rubik";
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-top: 15px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .FaqInnerhero-Search-box {
   width: 50%;
   display: flex;
@@ -2775,6 +2794,20 @@ section.Abouthero-sec {
   font-weight: 700;
   line-height: normal;
   text-transform: capitalize;
+}
+
+.Abouthero-main p {
+  color: #fff;
+  text-align: center;
+  font-family: "Rubik";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-top: 15px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Abouthero________Styling________Css */
@@ -7386,7 +7419,7 @@ h2.react-datepicker__current-month {
   }
 
   .Sec2-tital {
-    padding-bottom: 70px;
+    padding-bottom: 16px;
   }
 
   .Sec2-card-body h2 {
@@ -8577,7 +8610,7 @@ h2.react-datepicker__current-month {
   }
 
   .Sec2-tital {
-    padding-bottom: 60px;
+    padding-bottom: 14px;
   }
 
   .Sec2-card-bottom span h2 {
@@ -9255,7 +9288,7 @@ h2.react-datepicker__current-month {
   }
 
   .Sec2-tital {
-    padding-bottom: 40px;
+    padding-bottom: 12px;
   }
 
   .Sec2-card-img {
@@ -11310,7 +11343,7 @@ h2.react-datepicker__current-month {
   }
 
   .Sec2-tital {
-    padding-bottom: 30px;
+    padding-bottom: 10px;
   }
 
   section.Sec2-sec {

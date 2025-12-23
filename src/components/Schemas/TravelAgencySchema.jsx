@@ -22,11 +22,39 @@ const TravelAgencySchema = () => {
       "https://twitter.com/flyarzan",
       "https://instagram.com/flyarzan"
     ],
-    "serviceType": [
-      "Flight Booking",
-      "Hotel Reservation", 
-      "Car Rental",
-      "Travel Planning"
+    "makesOffer": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Flight Booking",
+          "description": "Book flights worldwide at competitive prices"
+        }
+      },
+      {
+        "@type": "Offer", 
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Hotel Reservation",
+          "description": "Reserve hotels and accommodations globally"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service", 
+          "name": "Car Rental",
+          "description": "Rent cars for your travel needs"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Travel Planning",
+          "description": "Complete travel planning and booking services"
+        }
+      }
     ]
   };
 

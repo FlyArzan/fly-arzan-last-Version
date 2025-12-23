@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production=false
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -17,20 +17,23 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Stage 2: Production image with only built files
+# Stage 2: Production image
 FROM node:22-alpine AS production
 
 # Set working directory
 WORKDIR /app
 
-# Install serve globally (lightweight static server)
-RUN npm install -g serve
+# Copy package files
+COPY package*.json ./
 
-# Copy only the built dist folder from builder stage
+# Install only production dependencies (including serve from package.json)
+RUN npm ci --only=production
+
+# Copy built dist folder from builder stage
 COPY --from=builder /app/dist ./dist
 
 # Expose port
 EXPOSE 5173
 
-# Start the application
-CMD ["serve", "-s", "dist", "-l", "5173"]
+# Start the application using npm start
+CMD ["npm", "run", "start"]

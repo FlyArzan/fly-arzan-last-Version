@@ -6,6 +6,7 @@ import TanstackQueryProvider from "./providers/tanstack-query-prover";
 import { RegionalSettingsProvider } from "./context/RegionalSettingsContext";
 import { WebSocketProvider } from "./providers/WebSocketProvider";
 import CookieConsent from "./components/ui/cookie-consent/CookieConsent";
+import TravelAgencySchema from "./components/Schemas/TravelAgencySchema";
 
 function InitialLoader() {
   return (
@@ -53,6 +54,7 @@ function App() {
     <TanstackQueryProvider>
       <RegionalSettingsProvider>
         <WebSocketProvider>
+          <TravelAgencySchema />
           <RouterProvider router={router} fallbackElement={<InitialLoader />} />
           <ToastContainer />
           <CookieConsent />

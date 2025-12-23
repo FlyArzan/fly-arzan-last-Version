@@ -13,18 +13,21 @@ import { store } from "./Redux/store.js";
 import { CarProvider } from "./context/CarContext.jsx";
 import { HotelProvider } from "./context/HotelContext.jsx";
 import { FlightProvider } from "./context/FlightContext.jsx";
+import { HelmetProvider } from 'react-helmet-async';
 import "./i18n"; // import here!
 
 createRoot(document.getElementById("root")).render(
   // <StrictMode>
-  <CarProvider>
-    <HotelProvider>
-      <FlightProvider>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </FlightProvider>
-    </HotelProvider>
-  </CarProvider>
+  <HelmetProvider>
+    <CarProvider>
+      <HotelProvider>
+        <FlightProvider>
+          <Provider store={store}>
+            <App />
+          </Provider>
+        </FlightProvider>
+      </HotelProvider>
+    </CarProvider>
+  </HelmetProvider>
   // {/* // </StrictMode/> */}
 );

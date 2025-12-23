@@ -13,7 +13,7 @@ build
 out
 
 # Environment files
-.env
+# .env (included for Vite build-time variables)
 .env.local
 .env.*.local
 

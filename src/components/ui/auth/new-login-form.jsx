@@ -28,12 +28,16 @@ const NewLoginForm = ({ onSuccess }) => {
   const onSubmit = (data) => {
     signInMutation.mutate(data, {
       onSuccess: (response) => {
-        if (response?.user) {
+        console.log("Login response:", response);
+        // better-auth returns { user, session } structure
+        const user = response?.user;
+        if (user) {
           toast.success("Login successful!");
           // Close modal if callback provided
           if (onSuccess) onSuccess();
           // Navigate based on role (only super can access admin)
-          const isSuperAdmin = response.user.role === "super";
+          console.log("User role:", user.role);
+          const isSuperAdmin = user.role === "super";
           if (isSuperAdmin) {
             navigate("/admin");
           } else {

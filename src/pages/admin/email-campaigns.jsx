@@ -30,6 +30,7 @@ import SendIcon from "@mui/icons-material/Send";
 import PeopleIcon from "@mui/icons-material/People";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BlockIcon from "@mui/icons-material/Block";
+import ErrorIcon from "@mui/icons-material/Error";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import CampaignIcon from "@mui/icons-material/Campaign";
@@ -38,6 +39,7 @@ import {
   useEmailStats,
   useSendToAllSubscribers,
 } from "@/hooks/useNotifications";
+import PropTypes from "prop-types";
 import {
   cardStyles,
   inputStyles,
@@ -88,6 +90,13 @@ const StatsCard = ({ title, value, icon: Icon, color }) => (
     </Stack>
   </Card>
 );
+
+StatsCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  icon: PropTypes.elementType.isRequired,
+  color: PropTypes.string.isRequired,
+};
 
 export default function EmailCampaigns() {
   const [page, setPage] = useState(1);
@@ -242,7 +251,7 @@ export default function EmailCampaigns() {
                     <TableCell sx={tableStyles.headerCell} width={40} />
                     <TableCell sx={tableStyles.headerCell}>Subject</TableCell>
                     <TableCell sx={tableStyles.headerCell}>Sent</TableCell>
-                    <TableCell sx={tableStyles.headerCell}>Blocked</TableCell>
+                    <TableCell sx={tableStyles.headerCell}>Failed</TableCell>
                     <TableCell sx={tableStyles.headerCell}>Date</TableCell>
                     <TableCell sx={tableStyles.headerCell}>Sent By</TableCell>
                   </TableRow>
@@ -286,10 +295,10 @@ export default function EmailCampaigns() {
                           <Chip
                             size="small"
                             icon={<CheckCircleIcon sx={{ fontSize: 14 }} />}
-                            label={campaign.sentCount}
+                            label={campaign.sentCount ?? 0}
                             sx={{
-                              bgcolor: "rgba(34, 197, 94, 0.1)",
-                              color: "#22C55E",
+                              bgcolor: campaign.sentCount > 0 ? "rgba(34, 197, 94, 0.1)" : "rgba(113, 113, 122, 0.1)",
+                              color: campaign.sentCount > 0 ? "#22C55E" : "#71717A",
                               fontFamily: "Inter",
                               fontWeight: 500,
                             }}
@@ -298,11 +307,11 @@ export default function EmailCampaigns() {
                         <TableCell sx={tableStyles.bodyCell}>
                           <Chip
                             size="small"
-                            icon={<BlockIcon sx={{ fontSize: 14 }} />}
-                            label={campaign.blockedCount}
+                            icon={<ErrorIcon sx={{ fontSize: 14 }} />}
+                            label={campaign.failedCount ?? 0}
                             sx={{
-                              bgcolor: "rgba(239, 68, 68, 0.1)",
-                              color: "#EF4444",
+                              bgcolor: campaign.failedCount > 0 ? "rgba(239, 68, 68, 0.1)" : "rgba(113, 113, 122, 0.1)",
+                              color: campaign.failedCount > 0 ? "#EF4444" : "#71717A",
                               fontFamily: "Inter",
                               fontWeight: 500,
                             }}

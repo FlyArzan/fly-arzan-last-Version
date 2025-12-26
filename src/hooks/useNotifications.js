@@ -318,10 +318,22 @@ export const useSendToAllSubscribers = () => {
       });
     },
     onSuccess: (data) => {
-      if (data.sent > 0) {
-        toast.success(`Email sent to ${data.sent} subscribers`);
+      // Check if the operation was successful (campaign was created)
+      if (data.success === false) {
+        // No subscribers found - backend returned success: false
+        toast.warning(data.message || "No newsletter subscribers found");
+      } else if (data.sent > 0 && data.failed === 0) {
+        // All emails sent successfully
+        toast.success(`Email sent to ${data.sent} subscriber${data.sent > 1 ? 's' : ''}`);
+      } else if (data.sent > 0 && data.failed > 0) {
+        // Some emails sent, some failed
+        toast.warning(`Email sent to ${data.sent} subscriber${data.sent > 1 ? 's' : ''}, ${data.failed} failed`);
+      } else if (data.failed > 0) {
+        // All emails failed
+        toast.error(`Failed to send emails to ${data.failed} subscriber${data.failed > 1 ? 's' : ''}`);
       } else {
-        toast.warning("No newsletter subscribers found");
+        // Campaign created but no emails to send (edge case)
+        toast.info("Campaign created");
       }
       queryClient.invalidateQueries({ queryKey: ["admin", "email"] });
     },

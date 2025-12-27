@@ -1,7 +1,9 @@
 import { forwardRef, useRef, useState } from "react";
 import Useful1 from "../../assets/Images/Useful1.png";
-import Useful2 from "../../assets/Images/Useful2.png";
-import Useful3 from "../../assets/Images/Useful3.png";
+// import Useful2 from "../../assets/Images/Useful2.png";
+import Useful2 from "../../assets/Images/sagrada_familia.jpeg";
+// import Useful3 from "../../assets/Images/Useful3.png";
+import Useful3 from "../../assets/Images/sophia_grand_mossque.jpeg";
 import { useTranslation } from "react-i18next";
 import { IoArrowForwardOutline } from "react-icons/io5";
 

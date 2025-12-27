@@ -113,7 +113,7 @@ export const useSignOut = () => {
 export const useForgotPassword = () => {
   return useMutation({
     mutationFn: async ({ email, redirectTo }) => {
-      const result = await authClient.forgetPassword({
+      const result = await authClient.requestPasswordReset({
         email,
         redirectTo: redirectTo || `${window.location.origin}/reset-password`,
       });

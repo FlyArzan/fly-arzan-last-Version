@@ -21,11 +21,13 @@ export function openPartnerWithLoading(targetUrl, options = {}) {
   } = options;
 
   // Open new window IMMEDIATELY (preserves user gesture)
-  const win = window.open("", "_blank", "noopener");
+  // NOTE: Cannot use "noopener" because we need to write to the window
+  const win = window.open("", "_blank");
 
   if (win) {
+    // Manually set opener to null for security (after we're done writing)
     // Write loading page content to the new window
-    win.document.write(`
+    const loadingHTML = `
       <!DOCTYPE html>
       <html lang="en">
         <head>
@@ -98,20 +100,23 @@ export function openPartnerWithLoading(targetUrl, options = {}) {
         </head>
         <body>
           <div class="container">
-            <img src="${partnerLogo}" alt="${partnerName}" class="logo" />
+            <img src="${partnerLogo}" alt="${partnerName}" class="logo" onerror="this.style.display='none'" />
             <h2>Redirecting to ${partnerName}</h2>
             <p>Please wait while we connect you to our partner...</p>
             <div class="loader-bar"></div>
           </div>
+          <script>
+            // Redirect after delay
+            setTimeout(function() {
+              window.location.href = "${targetUrl.replace(/"/g, '\\"')}";
+            }, ${delay});
+          </script>
         </body>
       </html>
-    `);
-    win.document.close();
+    `;
 
-    // After delay, navigate the EXISTING window to affiliate URL
-    setTimeout(() => {
-      win.location.href = targetUrl;
-    }, delay);
+    win.document.write(loadingHTML);
+    win.document.close();
 
     return true;
   } else {

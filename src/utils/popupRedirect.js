@@ -25,8 +25,7 @@ export function openPartnerWithLoading(targetUrl, options = {}) {
   const win = window.open("", "_blank");
 
   if (win) {
-    // Manually set opener to null for security (after we're done writing)
-    // Write loading page content to the new window
+    // Write loading page content matching the /loader page branding
     const loadingHTML = `
       <!DOCTYPE html>
       <html lang="en">
@@ -34,76 +33,152 @@ export function openPartnerWithLoading(targetUrl, options = {}) {
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>Redirecting to ${partnerName}...</title>
+          <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
           <style>
             * {
               margin: 0;
               padding: 0;
               box-sizing: border-box;
             }
+            
             body {
               display: flex;
               justify-content: center;
               align-items: center;
               min-height: 100vh;
-              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white;
+              font-family: 'Rubik', sans-serif;
+              background: #fff;
             }
-            .container {
-              text-align: center;
-              padding: 40px;
-              background: rgba(255, 255, 255, 0.1);
-              border-radius: 20px;
-              backdrop-filter: blur(10px);
-              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            
+            .directing-main {
+              width: 100%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              flex-direction: column;
+              padding: 40px 20px;
             }
+            
+            .logo-container {
+              margin-bottom: 30px;
+              animation: float 3s ease-in-out infinite;
+            }
+            
             .logo {
               width: 120px;
               height: auto;
-              margin-bottom: 24px;
-              border-radius: 8px;
-              background: white;
-              padding: 10px;
+              filter: drop-shadow(0 4px 12px rgba(80, 173, 216, 0.3));
             }
+            
             h2 {
-              font-size: 24px;
+              color: #000;
+              text-align: center;
+              font-family: 'Rubik', sans-serif;
+              font-size: 42px;
+              font-weight: 500;
+              line-height: normal;
+              margin-bottom: 8px;
+            }
+            
+            .partner-name {
+              color: #50ADD8;
+              text-align: center;
+              font-family: 'Rubik', sans-serif;
+              font-size: 28px;
               font-weight: 600;
-              margin-bottom: 16px;
+              margin-bottom: 40px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
             }
-            p {
-              font-size: 16px;
-              opacity: 0.9;
-              margin-bottom: 24px;
-            }
-            .loader-bar {
-              width: 200px;
-              height: 4px;
-              background: rgba(255, 255, 255, 0.3);
-              border-radius: 2px;
-              overflow: hidden;
-              margin: 0 auto;
-            }
-            .loader-bar::after {
+            
+            .partner-name::before,
+            .partner-name::after {
               content: '';
-              display: block;
-              width: 100%;
-              height: 100%;
-              background: white;
-              animation: loading ${delay}ms linear forwards;
-              transform-origin: left;
+              width: 40px;
+              height: 2px;
+              background: linear-gradient(90deg, transparent, #50ADD8);
             }
-            @keyframes loading {
-              from { transform: scaleX(0); }
-              to { transform: scaleX(1); }
+            
+            .partner-name::after {
+              background: linear-gradient(90deg, #50ADD8, transparent);
+            }
+            
+            /* Loader bar matching the original design */
+            .loaderBar {
+              width: min(500px, 80vw);
+              height: 16px;
+              position: relative;
+              overflow: hidden;
+              border-radius: 50px;
+              background: #e7dcdc;
+            }
+            
+            .loaderBar::before {
+              content: "";
+              position: absolute;
+              top: 0;
+              left: 0;
+              height: 100%;
+              border-radius: 50px;
+              background: repeating-linear-gradient(
+                45deg,
+                #50add8 0 30px,
+                #50add8 0 40px
+              ) right/200% 100%;
+              animation: fillProgress ${delay}ms ease-in-out forwards;
+            }
+            
+            @keyframes fillProgress {
+              0% { width: 0; }
+              33% { width: 33.333%; }
+              66% { width: 66.67%; }
+              100% { width: 100%; }
+            }
+            
+            @keyframes float {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-10px); }
+            }
+            
+            .subtitle {
+              color: #666;
+              font-size: 14px;
+              margin-top: 20px;
+              opacity: 0;
+              animation: fadeIn 0.5s ease-out 0.5s forwards;
+            }
+            
+            @keyframes fadeIn {
+              to { opacity: 1; }
+            }
+            
+            /* Responsive */
+            @media (max-width: 768px) {
+              h2 { font-size: 32px; }
+              .partner-name { font-size: 22px; }
+              .loaderBar { height: 12px; }
+              .logo { width: 100px; }
+            }
+            
+            @media (max-width: 480px) {
+              h2 { font-size: 26px; }
+              .partner-name { font-size: 18px; }
+              .loaderBar { height: 10px; }
+              .logo { width: 80px; }
             }
           </style>
         </head>
         <body>
-          <div class="container">
-            <img src="${partnerLogo}" alt="${partnerName}" class="logo" onerror="this.style.display='none'" />
-            <h2>Redirecting to ${partnerName}</h2>
-            <p>Please wait while we connect you to our partner...</p>
-            <div class="loader-bar"></div>
+          <div class="directing-main">
+            <div class="logo-container">
+              <img src="${partnerLogo}" alt="${partnerName}" class="logo" onerror="this.style.display='none'" />
+            </div>
+            <h2>Directing To</h2>
+            <p class="partner-name">${partnerName}</p>
+            <div class="loaderBar"></div>
+            <p class="subtitle">Finding the best deals for you...</p>
           </div>
           <script>
             // Redirect after delay

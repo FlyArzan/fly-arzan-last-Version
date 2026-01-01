@@ -4,9 +4,10 @@ import UnifiedFlightSegment from "@/components/ui/unified-flight-segment";
 import SimilarFlights from "@/components/ui/similar-flights";
 import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { RiStarFill, RiStarLine } from "react-icons/ri";
+// import { RiStarFill, RiStarLine } from "react-icons/ri";
 import { FaqCollapsible } from "@/components/ui/faq-collapsible";
 import { useEffect, useState } from "react";
+import { openPartnerWithLoading } from "@/utils/popupRedirect";
 
 const FlightDetailsPage = () => {
   const navigate = useNavigate();
@@ -259,31 +260,31 @@ const FlightDetailsPage = () => {
 
   const ticketList = getTicketList();
 
-  const renderStars = (avgRating) => {
-    const stars = [];
-    const fullStars = Math.floor(avgRating);
+  // const renderStars = (avgRating) => {
+  //   const stars = [];
+  //   const fullStars = Math.floor(avgRating);
 
-    // Render full stars
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(
-        <RiStarFill key={`full-${i}`} size={20} className="tw:text-[#E1574A]" />
-      );
-    }
+  //   // Render full stars
+  //   for (let i = 0; i < fullStars; i++) {
+  //     stars.push(
+  //       <RiStarFill key={`full-${i}`} size={20} className="tw:text-[#E1574A]" />
+  //     );
+  //   }
 
-    // Render empty stars to complete the 5-star rating
-    const remainingStars = 5 - stars.length;
-    for (let i = 0; i < remainingStars; i++) {
-      stars.push(
-        <RiStarLine
-          key={`empty-${i}`}
-          size={20}
-          className="tw:text-secondary"
-        />
-      );
-    }
+  //   // Render empty stars to complete the 5-star rating
+  //   const remainingStars = 5 - stars.length;
+  //   for (let i = 0; i < remainingStars; i++) {
+  //     stars.push(
+  //       <RiStarLine
+  //         key={`empty-${i}`}
+  //         size={20}
+  //         className="tw:text-secondary"
+  //       />
+  //     );
+  //   }
 
-    return stars;
-  };
+  //   return stars;
+  // };
 
   return (
     <>
@@ -293,7 +294,7 @@ const FlightDetailsPage = () => {
           <div className="container tw:flex tw:flex-col tw:gap-2 tw:lg:gap-6">
             <Link
               to="/search/flight"
-              className="tw:flex tw:!text-secondary tw:gap-1 tw:!no-underline"
+              className="tw:flex tw:text-secondary! tw:gap-1 tw:no-underline!"
             >
               <ChevronLeft />
               <span>Back to Search Results</span>
@@ -312,7 +313,7 @@ const FlightDetailsPage = () => {
             <div className="tw:flex tw:flex-col tw:lg:flex-row tw:gap-[30px]">
               {/* List */}
               <div className="tw:flex tw:flex-col tw:gap-6 tw:grow tw:order-2 tw:lg:order-1">
-                <h2 className="tw:!text-2xl tw:font-semibold tw:text-center tw:sm:text-left">
+                <h2 className="tw:text-2xl! tw:font-semibold tw:text-center tw:sm:text-left">
                   Book your tickets
                 </h2>
 
@@ -363,8 +364,21 @@ const FlightDetailsPage = () => {
 
                       {/* Select Button */}
                       <button
-                        onClick={() => navigate("/loader")}
-                        className="tw:w-auto tw:!bg-[#50ADD8] tw:!no-underline tw:!text-white tw:!rounded-full tw:!px-5 tw:sm:!px-6 tw:py-2 tw:text-sm hover:tw:!bg-[#4A9BC4] tw:!transition-colors tw:duration-200 tw:border-0 tw:cursor-pointer"
+                        onClick={() => {
+                          // Get the forward URL from flight data
+                          if (flightData && flightData.forwardUrl) {
+                            // Open partner site immediately (bypasses popup blocker)
+                            openPartnerWithLoading(flightData.forwardUrl, {
+                              delay: 3000,
+                              partnerName: data.airline,
+                              partnerLogo: data.icon,
+                            });
+                          } else {
+                            // Fallback to old behavior if no forward URL
+                            navigate("/loader");
+                          }
+                        }}
+                        className="tw:w-auto tw:bg-[#50ADD8]! tw:no-underline! tw:text-white! tw:rounded-full! tw:px-5! tw:sm:px-6! tw:py-2 tw:text-sm hover:tw:!bg-[#4A9BC4] tw:transition-colors! tw:duration-200 tw:border-0 tw:cursor-pointer"
                       >
                         Select
                       </button>

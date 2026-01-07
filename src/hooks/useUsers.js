@@ -125,7 +125,14 @@ export const useSetUserRole = () => {
       });
     },
     onSuccess: (_, { role }) => {
-      toast.success(`Role changed to ${role} successfully`);
+      if (role === "super") {
+        toast.success(
+          `Role changed to ${role} successfully. Note: Super admins are hidden from the user list for security.`,
+          { autoClose: 6000 }
+        );
+      } else {
+        toast.success(`Role changed to ${role} successfully`);
+      }
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "user"] });
     },

@@ -145,7 +145,7 @@ export default function Sessions() {
   });
 
   const getDeviceIcon = (device) => {
-    const iconProps = { fontSize: 18, color: "inherit" };
+    const iconProps = { sx: { fontSize: 18 }, color: "inherit" };
     switch (device.toLowerCase()) {
       case "desktop":
         return <DevicesIcon {...iconProps} />;

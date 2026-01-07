@@ -135,6 +135,10 @@ export default function Users() {
       }
       try {
         await setRoleMutation.mutateAsync({ userId: selectedUser.id, role });
+        // Automatically refresh the user list after role change
+        setTimeout(() => {
+          refetch();
+        }, 500);
       } catch (err) {
         console.error("Set role failed:", err);
       }

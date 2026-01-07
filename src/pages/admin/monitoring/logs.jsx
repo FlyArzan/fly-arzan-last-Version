@@ -12,6 +12,8 @@ import {
   Select,
   MenuItem,
   Button,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import DescriptionIcon from "@mui/icons-material/Description";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -22,107 +24,8 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import InfoIcon from "@mui/icons-material/Info";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
+import { useSystemLogs, useSystemLogStats } from "@/hooks/useSystemLogs";
 
-// Mock Data
-const mockLogs = [
-  {
-    id: 1,
-    timestamp: "2024-01-15 14:32:45",
-    level: "error",
-    service: "Backend API",
-    message: "Database connection timeout",
-    details: "Connection to PostgreSQL failed after 30s timeout",
-    user: "system",
-  },
-  {
-    id: 2,
-    timestamp: "2024-01-15 14:31:22",
-    level: "warning",
-    service: "Amadeus API",
-    message: "Rate limit approaching",
-    details: "95% of hourly quota consumed",
-    user: "api_service",
-  },
-  {
-    id: 3,
-    timestamp: "2024-01-15 14:30:15",
-    level: "info",
-    service: "Auth Service",
-    message: "User login successful",
-    details: "User ID: 12345, IP: 192.168.1.100",
-    user: "john.doe@example.com",
-  },
-  {
-    id: 4,
-    timestamp: "2024-01-15 14:29:03",
-    level: "error",
-    service: "Email Service",
-    message: "Failed to send email",
-    details: "SMTP connection refused",
-    user: "notification_service",
-  },
-  {
-    id: 5,
-    timestamp: "2024-01-15 14:28:47",
-    level: "info",
-    service: "Search Service",
-    message: "Flight search completed",
-    details: "JFK to LAX, 234 results returned in 1.2s",
-    user: "jane.smith@example.com",
-  },
-  {
-    id: 6,
-    timestamp: "2024-01-15 14:27:30",
-    level: "warning",
-    service: "Cache Service",
-    message: "Cache miss rate high",
-    details: "Cache miss rate: 45% (threshold: 30%)",
-    user: "system",
-  },
-  {
-    id: 7,
-    timestamp: "2024-01-15 14:26:18",
-    level: "info",
-    service: "Payment Service",
-    message: "Payment processed successfully",
-    details: "Transaction ID: TXN-789456, Amount: $289.00",
-    user: "payment_gateway",
-  },
-  {
-    id: 8,
-    timestamp: "2024-01-15 14:25:05",
-    level: "error",
-    service: "Backend API",
-    message: "Internal server error",
-    details: "Unhandled exception in /api/flights endpoint",
-    user: "system",
-  },
-  {
-    id: 9,
-    timestamp: "2024-01-15 14:24:52",
-    level: "info",
-    service: "Auth Service",
-    message: "Password reset requested",
-    details: "Reset token sent to user email",
-    user: "alice.johnson@example.com",
-  },
-  {
-    id: 10,
-    timestamp: "2024-01-15 14:23:40",
-    level: "warning",
-    service: "Database",
-    message: "Slow query detected",
-    details: "Query execution time: 5.2s (threshold: 3s)",
-    user: "system",
-  },
-];
-
-const mockLogStats = {
-  total: 15847,
-  errors: 234,
-  warnings: 567,
-  info: 15046,
-};
 
 export default function SystemLogs() {
   const [filterLevel, setFilterLevel] = useState("all");
@@ -130,15 +33,35 @@ export default function SystemLogs() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState("today");
 
-  const filteredLogs = mockLogs.filter((log) => {
-    const matchesLevel = filterLevel === "all" || log.level === filterLevel;
-    const matchesService = filterService === "all" || log.service === filterService;
-    const matchesSearch =
-      log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.details.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      log.service.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesLevel && matchesService && matchesSearch;
+  // Fetch real data from backend
+  const { data: logsData, isLoading, error } = useSystemLogs({
+    limit: 50,
+    offset: 0,
+    level: filterLevel,
+    service: filterService,
+    search: searchQuery,
   });
+
+  const { data: statsData } = useSystemLogStats();
+
+  const logs = logsData?.logs || [];
+  const logStats = statsData || { total: 0, errors: 0, warnings: 0, info: 0 };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">Failed to load system logs. Please try again later.</Alert>
+      </Box>
+    );
+  }
 
   const levelColor = (level) => {
     switch (level) {
@@ -171,7 +94,7 @@ export default function SystemLogs() {
     console.log("Exporting logs");
   };
 
-  const services = [...new Set(mockLogs.map((log) => log.service))];
+  const services = [...new Set(logs.map((log) => log.service))];
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -219,7 +142,7 @@ export default function SystemLogs() {
             />
             <CardContent sx={{ px: 2.25, pb: 2.25 }}>
               <Typography sx={{ color: "#e5e7eb", fontSize: 24, fontWeight: 700 }}>
-                {mockLogStats.total.toLocaleString()}
+                {logStats.total.toLocaleString()}
               </Typography>
             </CardContent>
           </Card>
@@ -232,10 +155,10 @@ export default function SystemLogs() {
             />
             <CardContent sx={{ px: 2.25, pb: 2.25 }}>
               <Typography sx={{ color: "#e5e7eb", fontSize: 24, fontWeight: 700 }}>
-                {mockLogStats.errors.toLocaleString()}
+                {logStats.errors.toLocaleString()}
               </Typography>
               <Typography sx={{ color: "#f97316", fontSize: 11, mt: 0.5 }}>
-                {((mockLogStats.errors / mockLogStats.total) * 100).toFixed(2)}% of total
+                {logStats.total > 0 ? ((logStats.errors / logStats.total) * 100).toFixed(2) : 0}% of total
               </Typography>
             </CardContent>
           </Card>
@@ -248,10 +171,10 @@ export default function SystemLogs() {
             />
             <CardContent sx={{ px: 2.25, pb: 2.25 }}>
               <Typography sx={{ color: "#e5e7eb", fontSize: 24, fontWeight: 700 }}>
-                {mockLogStats.warnings.toLocaleString()}
+                {logStats.warnings.toLocaleString()}
               </Typography>
               <Typography sx={{ color: "#facc15", fontSize: 11, mt: 0.5 }}>
-                {((mockLogStats.warnings / mockLogStats.total) * 100).toFixed(2)}% of total
+                {logStats.total > 0 ? ((logStats.warnings / logStats.total) * 100).toFixed(2) : 0}% of total
               </Typography>
             </CardContent>
           </Card>
@@ -259,15 +182,17 @@ export default function SystemLogs() {
         <Grid item xs={12} md={3} sx={{ minWidth: 0 }}>
           <Card sx={{ borderRadius: 2, bgcolor: "#1A1D23", background: "linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.02) 100%)", border: "1px solid rgba(255, 255, 255, 0.08)", boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)" }}>
             <CardHeader
-              title={<Typography sx={{ color: "#9ca3af", fontSize: 12 }}>Info</Typography>}
+              title={
+                <Typography sx={{ color: "#9ca3af", fontSize: 12 }}>Info</Typography>
+              }
               sx={{ px: 2.25, pt: 2.25, pb: 0.75 }}
             />
             <CardContent sx={{ px: 2.25, pb: 2.25 }}>
               <Typography sx={{ color: "#e5e7eb", fontSize: 24, fontWeight: 700 }}>
-                {mockLogStats.info.toLocaleString()}
+                {logStats.info.toLocaleString()}
               </Typography>
-              <Typography sx={{ color: "#4ade80", fontSize: 11, mt: 0.5 }}>
-                {((mockLogStats.info / mockLogStats.total) * 100).toFixed(2)}% of total
+              <Typography sx={{ color: "#60a5fa", fontSize: 11, mt: 0.5 }}>
+                {logStats.total > 0 ? ((logStats.info / logStats.total) * 100).toFixed(2) : 0}% of total
               </Typography>
             </CardContent>
           </Card>
@@ -383,7 +308,7 @@ export default function SystemLogs() {
           </Stack>
 
           {/* Logs list */}
-          {filteredLogs.length === 0 ? (
+          {logs.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 6 }}>
               <DescriptionIcon sx={{ fontSize: 40, color: "#4b5563", mb: 1 }} />
               <Typography sx={{ color: "#e5e7eb", fontWeight: 500 }}>No logs found</Typography>
@@ -393,7 +318,7 @@ export default function SystemLogs() {
             </Box>
           ) : (
             <Stack spacing={1.5}>
-              {filteredLogs.map((log) => {
+              {logs.map((log) => {
                 const meta = levelColor(log.level);
                 return (
                   <Box

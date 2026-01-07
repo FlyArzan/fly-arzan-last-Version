@@ -41,6 +41,7 @@ import AdminCmsPrivacy from "../pages/admin/cms/privacy-policy";
 import AdminCmsTerms from "../pages/admin/cms/terms-conditions";
 import AdminCmsContact from "../pages/admin/cms/contact";
 import AdminCmsVisa from "../pages/admin/cms/visa-requirements";
+import AdminCmsCovid from "../pages/admin/cms/covid-19";
 import Roles from "../pages/admin/roles";
 import Customers from "../pages/admin/customers";
 import CustomerDetails from "../pages/admin/customer-details";
@@ -128,6 +129,7 @@ export const router = createBrowserRouter(
             { path: "cms/terms-conditions", element: <AdminCmsTerms /> },
             { path: "cms/contact", element: <AdminCmsContact /> },
             { path: "cms/visa-requirements", element: <AdminCmsVisa /> },
+            { path: "cms/covid-19", element: <AdminCmsCovid /> },
 
             // Monitoring Routes
             { path: "monitoring/health", element: <APIHealth /> },

@@ -78,6 +78,11 @@ const navSections = [
         icon: PublicIcon,
         path: "/admin/cms/visa-requirements",
       },
+      {
+        label: "COVID-19 Info",
+        icon: PublicIcon,
+        path: "/admin/cms/covid-19",
+      },
     ],
   },
   {
@@ -137,6 +142,11 @@ const navSections = [
         label: "Customers",
         icon: PersonOutlineIcon,
         path: "/admin/customers",
+      },
+      {
+        label: "User Sessions",
+        icon: SecurityIcon,
+        path: "/admin/auth/sessions",
       },
       {
         label: "Email Campaigns",
@@ -250,21 +260,6 @@ const AdminLayout = () => {
             >
               <MenuIcon />
             </IconButton>
-
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 600, color: "#FFFFFF", fontFamily: "Inter" }}
-              >
-                Fly Arzan Admin
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ color: "#71717A", fontFamily: "Inter" }}
-              >
-                Control center for analytics, monitoring and users
-              </Typography>
-            </Box>
           </Stack>
 
           <Stack direction="row" spacing={2} alignItems="center">

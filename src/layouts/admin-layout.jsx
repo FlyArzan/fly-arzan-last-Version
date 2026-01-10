@@ -83,6 +83,11 @@ const navSections = [
         icon: PublicIcon,
         path: "/admin/cms/covid-19",
       },
+      {
+        label: "Airport Info",
+        icon: PublicIcon,
+        path: "/admin/cms/airport",
+      },
     ],
   },
   {

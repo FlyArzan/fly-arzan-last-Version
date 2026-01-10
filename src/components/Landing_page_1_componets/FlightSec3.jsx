@@ -5,10 +5,7 @@ import Useful2 from "../../assets/Images/sagrada_familia.jpeg";
 // import Useful3 from "../../assets/Images/Useful3.png";
 import Useful3 from "../../assets/Images/sophia_grand_mossque.jpeg";
 import { useTranslation } from "react-i18next";
-import { IoArrowForwardOutline } from "react-icons/io5";
-
 import Slider from "react-slick";
-import { Link } from "react-router-dom";
 
 const FlightSec3 = forwardRef((props, ref) => {
   const { t } = useTranslation();
@@ -256,13 +253,6 @@ const FlightSec3 = forwardRef((props, ref) => {
                   </svg>
                 </button>
               </div>
-            </div>
-
-            <div className="Sec3-explore-btn-container">
-              <Link to="/blog" className="Sec3-explore-btn">
-                <span>Explore More</span>
-                <IoArrowForwardOutline />
-              </Link>
             </div>
           </div>
         </div>

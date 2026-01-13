@@ -6,6 +6,7 @@ import Useful2 from "../../assets/Images/sagrada_familia.jpeg";
 import Useful3 from "../../assets/Images/sophia_grand_mossque.jpeg";
 import { useTranslation } from "react-i18next";
 import Slider from "react-slick";
+import { Link } from "react-router-dom";
 
 const FlightSec3 = forwardRef((props, ref) => {
   const { t } = useTranslation();
@@ -134,7 +135,8 @@ const FlightSec3 = forwardRef((props, ref) => {
                   <div className="Sec3-card-tital">
                     <span>
                       <h3>{t("Articlestitale.heading3")}</h3>
-                      <svg
+                      <Link target="_blank" to="https://www.lonelyplanet.com/turkey/istanbul/sultanahmet/attractions/hagia-sophia-grand-mosque/a/poi-sig/401908/1324696">
+                        <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
@@ -158,6 +160,7 @@ const FlightSec3 = forwardRef((props, ref) => {
                           </clipPath>
                         </defs>
                       </svg>
+                      </Link>
                     </span>
                     <p> {t("Articlestitale.para3")}</p>
                   </div>

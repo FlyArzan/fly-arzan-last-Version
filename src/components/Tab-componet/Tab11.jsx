@@ -283,171 +283,57 @@ const Tab11 = ({ categories = [] }) => {
         </div>
 
         <div className="FaqInner-Tab-body">
-          <TabPanel>
-            <div className="faqs--description" ref={faqRef1}>
-              {faqs.slice(0, showAll ? faqs.length : 7).map((faq, index) => (
-                <div key={index} className="faq--1">
-                  <div
-                    className="faq--item--heading"
-                    onClick={() => toggleFaq(index)}
-                  >
-                    <h1>{faq.question}</h1>
-                    <span>
-                      {openFaq === index ? (
-                        <img src={ClosedFaq} alt="Collapse" />
-                      ) : (
-                        <img src={Openedfaq} alt="Expand" />
+          {tabNames.map((_, tabIndex) => {
+            const currentFaqs = getFaqsForCategory(tabIndex);
+            const showAllState = [showAll, showAll1, showAll2, showAll3][tabIndex];
+            const setShowAllState = [setShowAll, setShowAll1, setShowAll2, setShowAll3][tabIndex];
+            const faqRef = [faqRef1, faqRef2, faqRef3, faqRef4][tabIndex];
+
+            return (
+              <TabPanel key={tabIndex}>
+                <div className="faqs--description" ref={faqRef}>
+                  {currentFaqs.slice(0, showAllState ? currentFaqs.length : 7).map((faq, index) => (
+                    <div key={index} className="faq--1">
+                      <div
+                        className="faq--item--heading"
+                        onClick={() => toggleFaq(index)}
+                      >
+                        <h1>{faq.question}</h1>
+                        <span>
+                          {openFaq === index ? (
+                            <img src={ClosedFaq} alt="Collapse" />
+                          ) : (
+                            <img src={Openedfaq} alt="Expand" />
+                          )}
+                        </span>
+                      </div>
+                      {openFaq === index && (
+                        <div className="faq--1--paragraph">
+                          <p>{faq.answer}</p>
+                        </div>
                       )}
-                    </span>
-                  </div>
-                  {openFaq === index && (
-                    <div className="faq--1--paragraph">
-                      <p>{faq.answer}</p>
+                    </div>
+                  ))}
+
+                  {/* Show More / Show Less Button */}
+                  {currentFaqs.length > 7 && (
+                    <div className="Sec2-btn-box">
+                      <button
+                        onClick={() => {
+                          setShowAllState(!showAllState);
+                          if (showAllState && faqRef.current) {
+                            faqRef.current.scrollIntoView({ behavior: "smooth" });
+                          }
+                        }}
+                      >
+                        {showAllState ? t("buttons.showLess") : t("buttons.more")}
+                      </button>
                     </div>
                   )}
                 </div>
-              ))}
-
-              {/* Show More / Show Less Button */}
-              {faqs.length > 7 && (
-                <div className="Sec2-btn-box">
-                  <button
-                    onClick={() => {
-                      setShowAll(!showAll);
-                      if (showAll && faqRef1.current) {
-                        faqRef1.current.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }}
-                  >
-                    {showAll ? t("buttons.showLess") : t("buttons.more")}
-                  </button>
-                </div>
-              )}
-            </div>
-          </TabPanel>
-
-          <TabPanel>
-            <div className="faqs--description" ref={faqRef2}>
-              {faqs1.slice(0, showAll1 ? faqs1.length : 7).map((faq, index) => (
-                <div key={index} className="faq--1">
-                  <div
-                    className="faq--item--heading"
-                    onClick={() => toggleFaq(index)}
-                  >
-                    <h1>{faq.question}</h1>
-                    <span>
-                      {openFaq === index ? (
-                        <img src={ClosedFaq} alt="Collapse" />
-                      ) : (
-                        <img src={Openedfaq} alt="Expand" />
-                      )}
-                    </span>
-                  </div>
-                  {openFaq === index && (
-                    <div className="faq--1--paragraph">
-                      <p>{faq.answer}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {faqs1.length > 7 && (
-                <div className="Sec2-btn-box">
-                  <button
-                    onClick={() => {
-                      setShowAll1(!showAll1);
-                      if (showAll1 && faqRef2.current) {
-                        faqRef2.current.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }}
-                  >
-                    {showAll1 ? t("buttons.showLess") : t("buttons.more")}
-                  </button>
-                </div>
-              )}
-            </div>
-          </TabPanel>
-
-          <TabPanel>
-            <div className="faqs--description" ref={faqRef3}>
-              {faqs2.slice(0, showAll2 ? faqs2.length : 7).map((faq, index) => (
-                <div key={index} className="faq--1">
-                  <div
-                    className="faq--item--heading"
-                    onClick={() => toggleFaq(index)}
-                  >
-                    <h1>{faq.question}</h1>
-                    <span>
-                      {openFaq === index ? (
-                        <img src={ClosedFaq} alt="Collapse" />
-                      ) : (
-                        <img src={Openedfaq} alt="Expand" />
-                      )}
-                    </span>
-                  </div>
-                  {openFaq === index && (
-                    <div className="faq--1--paragraph">
-                      <p>{faq.answer}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {faqs2.length > 7 && (
-                <div className="Sec2-btn-box">
-                  <button
-                    onClick={() => {
-                      setShowAll2(!showAll2);
-                      if (showAll2 && faqRef3.current) {
-                        faqRef3.current.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }}
-                  >
-                    {showAll2 ? t("buttons.showLess") : t("buttons.more")}
-                  </button>
-                </div>
-              )}
-            </div>
-          </TabPanel>
-
-          <TabPanel>
-            <div className="faqs--description" ref={faqRef4}>
-              {faqs3.slice(0, showAll3 ? faqs3.length : 7).map((faq, index) => (
-                <div key={index} className="faq--1">
-                  <div
-                    className="faq--item--heading"
-                    onClick={() => toggleFaq(index)}
-                  >
-                    <h1>{faq.question}</h1>
-                    <span>
-                      {openFaq === index ? (
-                        <img src={ClosedFaq} alt="Collapse" />
-                      ) : (
-                        <img src={Openedfaq} alt="Expand" />
-                      )}
-                    </span>
-                  </div>
-                  {openFaq === index && (
-                    <div className="faq--1--paragraph">
-                      <p>{faq.answer}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {faqs3.length > 7 && (
-                <div className="Sec2-btn-box">
-                  <button
-                    onClick={() => {
-                      setShowAll3(!showAll3);
-                      if (showAll3 && faqRef1.current) {
-                        faqRef1.current.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }}
-                  >
-                    {showAll3 ? t("buttons.showLess") : t("buttons.more")}
-                  </button>
-                </div>
-              )}
-            </div>
-          </TabPanel>
+              </TabPanel>
+            );
+          })}
         </div>
       </Tabs>
     </div>

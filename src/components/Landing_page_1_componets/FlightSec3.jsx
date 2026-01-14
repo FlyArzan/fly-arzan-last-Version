@@ -65,7 +65,8 @@ const FlightSec3 = forwardRef((props, ref) => {
                   <div className="Sec3-card-tital">
                     <span>
                       <h3>{t("Articlestitale.heading1")}</h3>
-                      <svg
+                      <Link target="_blank" to="https://www.lonelyplanet.com/brazil/rio-de-janeiro/botafogo-and-urca/attractions/pao-de-acucar/a/poi-sig/1012764/1327359">
+                        <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
@@ -89,6 +90,7 @@ const FlightSec3 = forwardRef((props, ref) => {
                           </clipPath>
                         </defs>
                       </svg>
+                      </Link>
                     </span>
                     <p> {t("Articlestitale.para1")}</p>
                   </div>
@@ -100,7 +102,8 @@ const FlightSec3 = forwardRef((props, ref) => {
                   <div className="Sec3-card-tital">
                     <span>
                       <h3>{t("Articlestitale.heading2")}</h3>
-                      <svg
+                      <Link target="_blank" to="https://www.lonelyplanet.com/spain/barcelona/leixample/attractions/la-sagrada-familia/a/poi-sig/374867/1320680">
+                        <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
@@ -124,6 +127,7 @@ const FlightSec3 = forwardRef((props, ref) => {
                           </clipPath>
                         </defs>
                       </svg>
+                      </Link>
                     </span>
                     <p> {t("Articlestitale.para2")}</p>
                   </div>

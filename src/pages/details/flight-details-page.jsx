@@ -6,13 +6,14 @@ import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 // import { RiStarFill, RiStarLine } from "react-icons/ri";
 import { FaqCollapsible } from "@/components/ui/faq-collapsible";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { openPartnerWithLoading } from "@/utils/popupRedirect";
 
 const FlightDetailsPage = () => {
   const navigate = useNavigate();
   const [flightData, setFlightData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const bookingRef = useRef(null);
 
   useEffect(() => {
     // Read flight data from session storage
@@ -344,7 +345,7 @@ const FlightDetailsPage = () => {
                 </div> */}
 
                 {/* Ticket List - Trip.com Redirect Section */}
-                <div className="tw:flex tw:flex-col tw:gap-4">
+                <div ref={bookingRef} className="tw:flex tw:flex-col tw:gap-4">
                   {ticketList.map((data) => (
                     <div
                       key={data.id}
@@ -387,7 +388,7 @@ const FlightDetailsPage = () => {
                 </div>
 
                 {/* Similar Flights Section */}
-                <SimilarFlights />
+                <SimilarFlights bookingRef={bookingRef} />
               </div>
 
               {/* Details */}

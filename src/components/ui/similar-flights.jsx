@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import {
   getSimilarFlights,
   switchSelectedFlight,
@@ -82,7 +83,7 @@ const generateRouteInfoFromFlight = (flight, tripType) => {
   return null;
 };
 
-const SimilarFlights = () => {
+const SimilarFlights = ({ bookingRef }) => {
   const [similarFlights, setSimilarFlights] = useState([]);
   const [selectedFlightDetails, setSelectedFlightDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -178,6 +179,20 @@ const SimilarFlights = () => {
           detail: { newFlightId: newSelectedFlightId },
         })
       );
+
+      // Smooth scroll to Trip.com booking section
+      if (bookingRef?.current) {
+        bookingRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      } else {
+        // Fallback to scrolling to top if ref is not available
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
     }
   };
 
@@ -185,7 +200,7 @@ const SimilarFlights = () => {
   if (loading) {
     return (
       <div className="tw:mt-6 tw:p-4 tw:bg-yellow-100 tw:rounded">
-        <p className="tw:!m-0">Loading similar flights...</p>
+        <p className="tw:m-0!">Loading similar flights...</p>
       </div>
     );
   }
@@ -193,7 +208,7 @@ const SimilarFlights = () => {
   if (!selectedFlightDetails) {
     return (
       <div className="tw:mt-6 tw:p-4 tw:bg-red-100 tw:rounded">
-        <p className="tw:!m-0">No flight details found</p>
+        <p className="tw:m-0!">No flight details found</p>
       </div>
     );
   }
@@ -201,7 +216,7 @@ const SimilarFlights = () => {
   if (!similarFlights.length) {
     return (
       <div className="tw:mt-6 tw:p-4 tw:bg-white tw:rounded">
-        <p className="tw:!m-0">No similar flights found</p>
+        <p className="tw:m-0!">No similar flights found</p>
       </div>
     );
   }
@@ -263,6 +278,10 @@ const SimilarFlights = () => {
       );
     };
 
+    FlightCardWrapper.propTypes = {
+      originalCard: PropTypes.elementType.isRequired,
+    };
+
     switch (tripType) {
       case "one-way":
         return <FlightCardWrapper key={key} originalCard={OneWayFlightCard} />;
@@ -280,7 +299,7 @@ const SimilarFlights = () => {
             className="tw:rounded-xl tw:bg-white tw:shadow tw:p-4 tw:flex tw:flex-col tw:md:flex-row tw:lg:flex-col tw:xl:flex-row tw:items-center tw:justify-between gap-4"
           >
             {/* Flight Details Section */}
-            <div className="tw:flex tw:flex-col tw:justify-between tw:grow tw:gap-4 tw:pl-[10px] tw:mb-8 tw:md:mb-0 tw:w-full">
+            <div className="tw:flex tw:flex-col tw:justify-between tw:grow tw:gap-4 tw:pl-2.5 tw:mb-8 tw:md:mb-0 tw:w-full">
               {flight.itineraries.map((segment, segmentIndex) => {
                 const flights = segment.flights;
                 const firstFlight = flights[0];
@@ -351,7 +370,7 @@ const SimilarFlights = () => {
                                       (airport, airportIndex) => (
                                         <strong
                                           key={airportIndex}
-                                          className="tw:text-[#5D586C] tw:!font-normal"
+                                          className="tw:text-[#5D586C] tw:font-normal!"
                                         >
                                           {airport}
                                           {airportIndex <
@@ -399,7 +418,7 @@ const SimilarFlights = () => {
 
               <button
                 onClick={() => handleFlightSwitch(flight.id)}
-                className="tw:w-full tw:md:w-fit tw:bg-primary tw:py-2 tw:px-[30px] tw:flex tw:flex-col tw:!text-white tw:!rounded-full hover:tw:bg-primary/90 tw:transition-colors tw:border-0 tw:cursor-pointer"
+                className="tw:w-full tw:md:w-fit tw:bg-primary tw:py-2 tw:px-[30px] tw:flex tw:flex-col tw:text-white! tw:rounded-full! hover:tw:bg-primary/90 tw:transition-colors tw:border-0 tw:cursor-pointer"
               >
                 <span className="tw:text-sm">Select</span>
                 <span className="tw:text-base tw:font-medium">
@@ -419,7 +438,7 @@ const SimilarFlights = () => {
   return (
     <div>
       <div className="tw:mb-4">
-        <h3 className="tw:!text-xl tw:font-semibold tw:text-[#00000B]">
+        <h3 className="tw:text-xl! tw:font-semibold tw:text-[#00000B]">
           Similar Flights
         </h3>
         <p className="tw:text-base tw:text-gray-500">
@@ -434,6 +453,10 @@ const SimilarFlights = () => {
       </div>
     </div>
   );
+};
+
+SimilarFlights.propTypes = {
+  bookingRef: PropTypes.object,
 };
 
 export default SimilarFlights;

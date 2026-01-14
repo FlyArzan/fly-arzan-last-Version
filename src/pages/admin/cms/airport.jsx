@@ -1,5 +1,5 @@
-import AirportForm from "./forms/AirportForm";
+import AirportHubForm from "./forms/AirportHubForm";
 
 export default function AirportPage() {
-  return <AirportForm />;
+  return <AirportHubForm />;
 }

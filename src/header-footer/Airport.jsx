@@ -1,12 +1,12 @@
 import Header from "./Header";
 import Footer from "./Footer";
-import Airportcomponet from "../components/COVID-page-componet/Airportcomponet";
+import AirportHubComponent from "../components/COVID-page-componet/AirportHubComponent";
 
 const Airport = () => {
   return (
     <>
       <Header />
-      <Airportcomponet />
+      <AirportHubComponent />
       <Footer />
     </>
   );

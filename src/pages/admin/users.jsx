@@ -474,7 +474,7 @@ export default function Users() {
                 You cannot change your own role.
               </Alert>
             )}
-            {["super", "admin", "moderator", "user"].map((role) => (
+            {["admin", "moderator", "user"].map((role) => (
               <Button
                 key={role}
                 fullWidth

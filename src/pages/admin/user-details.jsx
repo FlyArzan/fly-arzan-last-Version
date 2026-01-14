@@ -278,7 +278,7 @@ export default function UserDetails() {
 
                 <Typography sx={{ color: "#71717A", fontSize: 12, fontFamily: "Inter" }}>Change Role</Typography>
                 <Stack direction="row" spacing={1}>
-                  {["admin", "user"].map((role) => (
+                  {["admin", "moderator", "user"].map((role) => (
                     <Button
                       key={role}
                       size="small"

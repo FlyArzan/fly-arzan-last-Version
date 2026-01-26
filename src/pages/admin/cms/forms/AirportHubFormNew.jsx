@@ -23,6 +23,7 @@ import {
   DialogActions,
   Divider,
   InputAdornment,
+  Snackbar,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -32,7 +33,7 @@ import {
   Search as SearchIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import { useCmsPage, useSaveCmsPage } from "@/hooks/useCms";
+import { useCmsPage, useSaveCmsPage, usePaginatedAirports } from "@/hooks/useCms";
 
 const cardSx = {
   borderRadius: 2,
@@ -83,11 +84,20 @@ export default function AirportHubForm() {
   const [title, setTitle] = useState("Airport Information Hub");
   const [content, setContent] = useState(defaultContent);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAirport, setEditingAirport] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
+
+  // Server-side pagination
+  const { data: paginatedData, isLoading: isLoadingAirports } = usePaginatedAirports(
+    page,
+    rowsPerPage,
+    debouncedSearch
+  );
 
   useEffect(() => {
     if (data) {
@@ -96,6 +106,15 @@ export default function AirportHubForm() {
     }
   }, [data]);
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setPage(0); // Reset to first page on search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const updateHero = (field, value) => {
     setContent((prev) => ({
       ...prev,
@@ -103,22 +122,9 @@ export default function AirportHubForm() {
     }));
   };
 
-  // Filter airports based on search
-  const filteredAirports = (content.airports || []).filter((airport) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      airport.name?.toLowerCase().includes(query) ||
-      airport.iataCode?.toLowerCase().includes(query) ||
-      airport.city?.toLowerCase().includes(query) ||
-      airport.country?.toLowerCase().includes(query)
-    );
-  });
-
-  const paginatedAirports = filteredAirports.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  // Get airports and total from server-side pagination
+  const airports = paginatedData?.airports || [];
+  const totalAirports = paginatedData?.total || 0;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -135,9 +141,9 @@ export default function AirportHubForm() {
     setModalOpen(true);
   };
 
-  const openEditModal = (airport, index) => {
+  const openEditModal = (airport, actualIndex) => {
     setEditingAirport({ ...airport });
-    setEditingIndex(index);
+    setEditingIndex(actualIndex);
     setModalOpen(true);
   };
 
@@ -147,30 +153,82 @@ export default function AirportHubForm() {
     setEditingIndex(null);
   };
 
-  const saveAirport = () => {
+  const [isSavingAirport, setIsSavingAirport] = useState(false);
+
+  const saveAirport = async () => {
+    setIsSavingAirport(true);
+    // Get the full current airports list from content
+    const currentAirports = content.airports || [];
+    let updatedAirports;
+    
     if (editingIndex !== null) {
-      // Edit existing
-      setContent((prev) => {
-        const airports = [...(prev.airports || [])];
-        airports[editingIndex] = editingAirport;
-        return { ...prev, airports };
-      });
+      // Edit existing - editingIndex is the global index
+      updatedAirports = [...currentAirports];
+      updatedAirports[editingIndex] = editingAirport;
     } else {
       // Add new
-      setContent((prev) => ({
-        ...prev,
-        airports: [...(prev.airports || []), editingAirport],
-      }));
+      updatedAirports = [...currentAirports, editingAirport];
     }
-    closeModal();
+
+    // Save to backend immediately
+    try {
+      await saveMutation.mutateAsync({
+        slug,
+        payload: {
+          slug,
+          title,
+          content: { ...content, airports: updatedAirports },
+          status: "published",
+        },
+      });
+      setContent((prev) => ({ ...prev, airports: updatedAirports }));
+      setToast({
+        open: true,
+        message: editingIndex !== null ? "Airport updated successfully!" : "Airport added successfully!",
+        severity: "success",
+      });
+      closeModal();
+    } catch {
+      setToast({
+        open: true,
+        message: "Failed to save airport. Please try again.",
+        severity: "error",
+      });
+    } finally {
+      setIsSavingAirport(false);
+    }
   };
 
-  const deleteAirport = (index) => {
+  const deleteAirport = async (globalIndex) => {
     if (window.confirm("Are you sure you want to delete this airport?")) {
-      setContent((prev) => ({
-        ...prev,
-        airports: prev.airports?.filter((_, i) => i !== index) || [],
-      }));
+      // Get full airports list and remove by global index
+      const currentAirports = content.airports || [];
+      const updatedAirports = currentAirports.filter((_, i) => i !== globalIndex);
+      
+      // Save to backend immediately
+      try {
+        await saveMutation.mutateAsync({
+          slug,
+          payload: {
+            slug,
+            title,
+            content: { ...content, airports: updatedAirports },
+            status: "published",
+          },
+        });
+        setContent((prev) => ({ ...prev, airports: updatedAirports }));
+        setToast({
+          open: true,
+          message: "Airport deleted successfully!",
+          severity: "success",
+        });
+      } catch {
+        setToast({
+          open: true,
+          message: "Failed to delete airport. Please try again.",
+          severity: "error",
+        });
+      }
     }
   };
 
@@ -222,11 +280,24 @@ export default function AirportHubForm() {
     }));
   };
 
-  const onSave = () => {
-    saveMutation.mutate({
-      slug,
-      payload: { slug, title, content, status: "published" },
-    });
+  const onSave = async () => {
+    try {
+      await saveMutation.mutateAsync({
+        slug,
+        payload: { slug, title, content, status: "published" },
+      });
+      setToast({
+        open: true,
+        message: "Page settings saved successfully!",
+        severity: "success",
+      });
+    } catch {
+      setToast({
+        open: true,
+        message: "Failed to save page settings. Please try again.",
+        severity: "error",
+      });
+    }
   };
 
   if (isLoading) {
@@ -265,8 +336,6 @@ export default function AirportHubForm() {
       {/* Alerts */}
       {isError && <Alert severity="error">Failed to load page content. Please check your connection.</Alert>}
       {isNewPage && !isError && <Alert severity="info">This page has not been created yet. Fill in the content and save to create it.</Alert>}
-      {saveMutation.isError && <Alert severity="error">Failed to save changes</Alert>}
-      {saveMutation.isSuccess && <Alert severity="success">Changes saved successfully!</Alert>}
 
       {/* Page Settings */}
       <Card sx={cardSx}>
@@ -297,9 +366,20 @@ export default function AirportHubForm() {
       {/* Airports Table */}
       <Card sx={cardSx}>
         <CardHeader
-          title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Airports ({filteredAirports.length})</Typography>}
+          title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Airports ({totalAirports})</Typography>}
           action={
-            <Button size="small" startIcon={<AddIcon />} onClick={openAddModal} sx={{ color: "#3B82F6", textTransform: "none" }}>
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={openAddModal}
+              sx={{
+                bgcolor: "#3B82F6",
+                "&:hover": { bgcolor: "#2563EB" },
+                textTransform: "none",
+                fontWeight: 600,
+              }}
+            >
               Add Airport
             </Button>
           }
@@ -339,17 +419,26 @@ export default function AirportHubForm() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {paginatedAirports.length === 0 ? (
+                {isLoadingAirports ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ color: "#71717A", py: 4, borderColor: "rgba(255,255,255,0.08)" }}>
+                      Loading airports...
+                    </TableCell>
+                  </TableRow>
+                ) : airports.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} align="center" sx={{ color: "#71717A", py: 4, borderColor: "rgba(255,255,255,0.08)" }}>
                       {searchQuery ? "No airports found matching your search." : "No airports added yet. Click 'Add Airport' to get started."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedAirports.map((airport, index) => {
-                    const actualIndex = page * rowsPerPage + index;
+                  airports.map((airport, index) => {
+                    // Find global index by matching airport data
+                    const globalIndex = (content.airports || []).findIndex(
+                      (a) => a.name === airport.name && a.iataCode === airport.iataCode
+                    );
                     return (
-                      <TableRow key={actualIndex} hover>
+                      <TableRow key={`${airport.iataCode}-${index}`} hover>
                         <TableCell sx={{ color: "#e5e7eb", borderColor: "rgba(255,255,255,0.08)" }}>{airport.name || "-"}</TableCell>
                         <TableCell sx={{ color: "#3B82F6", fontWeight: 600, borderColor: "rgba(255,255,255,0.08)" }}>{airport.iataCode || "-"}</TableCell>
                         <TableCell sx={{ color: "#e5e7eb", borderColor: "rgba(255,255,255,0.08)" }}>{airport.city || "-"}</TableCell>
@@ -358,10 +447,10 @@ export default function AirportHubForm() {
                           {airport.country || "-"}
                         </TableCell>
                         <TableCell align="right" sx={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                          <IconButton size="small" onClick={() => openEditModal(airport, actualIndex)} sx={{ color: "#3B82F6", mr: 1 }}>
+                          <IconButton size="small" onClick={() => openEditModal(airport, globalIndex)} sx={{ color: "#3B82F6", mr: 1 }}>
                             <EditIcon fontSize="small" />
                           </IconButton>
-                          <IconButton size="small" onClick={() => deleteAirport(actualIndex)} sx={{ color: "#ef4444" }}>
+                          <IconButton size="small" onClick={() => deleteAirport(globalIndex)} sx={{ color: "#ef4444" }}>
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </TableCell>
@@ -374,10 +463,10 @@ export default function AirportHubForm() {
           </TableContainer>
 
           {/* Pagination */}
-          {filteredAirports.length > 0 && (
+          {totalAirports > 0 && (
             <TablePagination
               component="div"
-              count={filteredAirports.length}
+              count={totalAirports}
               page={page}
               onPageChange={handleChangePage}
               rowsPerPage={rowsPerPage}
@@ -523,14 +612,35 @@ export default function AirportHubForm() {
           )}
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={closeModal} sx={{ color: "#9ca3af", textTransform: "none" }}>
+          <Button onClick={closeModal} disabled={isSavingAirport} sx={{ color: "#9ca3af", textTransform: "none" }}>
             Cancel
           </Button>
-          <Button onClick={saveAirport} variant="contained" sx={{ bgcolor: "#3B82F6", "&:hover": { bgcolor: "#2563EB" }, textTransform: "none" }}>
-            {editingIndex !== null ? "Save Changes" : "Add Airport"}
+          <Button 
+            onClick={saveAirport} 
+            variant="contained" 
+            disabled={isSavingAirport}
+            sx={{ bgcolor: "#3B82F6", "&:hover": { bgcolor: "#2563EB" }, textTransform: "none" }}
+          >
+            {isSavingAirport ? "Saving..." : (editingIndex !== null ? "Save Changes" : "Add Airport")}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Toast Notification */}
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={4000}
+        onClose={() => setToast({ ...toast, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setToast({ ...toast, open: false })}
+          severity={toast.severity}
+          sx={{ width: "100%" }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

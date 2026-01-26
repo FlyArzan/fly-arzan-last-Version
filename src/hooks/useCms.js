@@ -84,6 +84,16 @@ export const useSaveCmsPage = () => {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["cms", data.slug] });
       qc.invalidateQueries({ queryKey: ["cms", "list"] });
+      qc.invalidateQueries({ queryKey: ["cms", "airports"] });
     },
+  });
+};
+
+export const usePaginatedAirports = (page = 0, limit = 10, search = "") => {
+  return useQuery({
+    queryKey: ["cms", "airports", page, limit, search],
+    queryFn: () => fetcher(`/admin/cms/airport_info/airports/paginated?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`),
+    staleTime: 1000 * 30,
+    keepPreviousData: true,
   });
 };

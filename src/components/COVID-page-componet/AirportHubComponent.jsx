@@ -1,43 +1,44 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { usePublicCmsPage } from "@/hooks/useCms";
-import { FiSearch, FiX } from "react-icons/fi";
+import { FiInfo, FiList, FiMapPin, FiX } from "react-icons/fi";
+import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxOption,
+  ComboboxOptions,
+} from "@/components/ui/combobox";
+import { useDebounceValue } from "usehooks-ts";
 
 const AirportHubComponent = () => {
   const { t } = useTranslation();
   const { data: cmsData, isLoading } = usePublicCmsPage("airport_info");
   const content = cmsData?.content;
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const airportsPerPage = 15;
+  const [query, setQuery] = useDebounceValue("", 300);
+  const [selectedAirport, setSelectedAirport] = useState(null);
 
   // Filter airports based on search query
-  const filteredAirports = (content?.airports || []).filter((airport) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      airport.name?.toLowerCase().includes(query) ||
-      airport.iataCode?.toLowerCase().includes(query) ||
-      airport.city?.toLowerCase().includes(query) ||
-      airport.country?.toLowerCase().includes(query)
-    );
-  });
+  const filteredAirports = query.trim()
+    ? (content?.airports || []).filter((airport) => {
+        const searchTerm = query.toLowerCase();
+        return (
+          airport.name?.toLowerCase().includes(searchTerm) ||
+          airport.iataCode?.toLowerCase().includes(searchTerm) ||
+          airport.city?.toLowerCase().includes(searchTerm) ||
+          airport.country?.toLowerCase().includes(searchTerm)
+        );
+      })
+    : [];
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredAirports.length / airportsPerPage);
-  const startIndex = (currentPage - 1) * airportsPerPage;
-  const endIndex = startIndex + airportsPerPage;
-  const currentAirports = filteredAirports.slice(startIndex, endIndex);
-
-  // Reset to page 1 when search query changes
-  const handleSearchChange = (value) => {
-    setSearchQuery(value);
-    setCurrentPage(1);
+  const handleAirportSelect = (airport) => {
+    if (airport) {
+      setSelectedAirport(airport);
+    }
   };
 
-  const clearSearch = () => {
-    setSearchQuery("");
-    setCurrentPage(1);
+  const closeModal = () => {
+    setSelectedAirport(null);
   };
 
   return (
@@ -56,323 +57,171 @@ const AirportHubComponent = () => {
                   {content?.hero?.title && <h3>{content.hero.title}</h3>}
                   {content?.hero?.subtitle && <p>{content.hero.subtitle}</p>}
 
-                  {/* Search Bar */}
-                  <div style={{ marginTop: "24px", marginBottom: "32px", position: "relative" }}>
-                    <div style={{ position: "relative" }}>
-                      <FiSearch
-                        style={{
-                          position: "absolute",
-                          left: "16px",
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          color: "#9ca3af",
-                          fontSize: "20px",
-                          pointerEvents: "none",
-                        }}
-                      />
-                      <input
-                        type="search"
-                        placeholder="Search airports by name, city, or IATA code..."
-                        value={searchQuery}
-                        onChange={(e) => handleSearchChange(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "12px 48px 12px 48px",
-                          fontSize: "16px",
-                          border: "1px solid #ddd",
-                          borderRadius: "8px",
-                          outline: "none",
-                          transition: "border-color 0.3s",
-                        }}
-                        onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                        onBlur={(e) => (e.target.style.borderColor = "#ddd")}
-                      />
-                      {searchQuery && (
-                        <button
-                          onClick={clearSearch}
-                          style={{
-                            position: "absolute",
-                            right: "16px",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            padding: "4px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "#9ca3af",
-                            fontSize: "20px",
-                          }}
-                          aria-label="Clear search"
-                        >
-                          <FiX />
-                        </button>
-                      )}
-                    </div>
-                    {searchQuery && (
-                      <p style={{ marginTop: "8px", color: "#666", fontSize: "14px" }}>
-                        Found {filteredAirports.length} airport{filteredAirports.length !== 1 ? "s" : ""}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Airports List */}
-                  {currentAirports.length > 0 ? (
-                    <>
-                      {currentAirports.map((airport, index) => (
-                        <div
-                          key={index}
-                          style={{
-                            backgroundColor: "#fff",
-                            border: "1px solid #e5e7eb",
-                            borderRadius: "12px",
-                            padding: "24px",
-                            marginBottom: "24px",
-                            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-                          }}
-                        >
-                          {/* City, Country & Flag */}
-                          {(airport.city || airport.country) && (
-                            <p
-                              style={{
-                                fontSize: "18px",
-                                fontWeight: "700",
-                                color: "#111827",
-                                marginBottom: "8px",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                              }}
-                            >
-                              {airport.city}
-                              {airport.city && airport.country && ", "}
-                              {airport.country}
-                              {airport.flag && (
-                                <span style={{ fontSize: "20px" }}>{airport.flag}</span>
-                              )}
-                            </p>
-                          )}
-
-                          {/* Airport Name & IATA Code */}
-                          <p
-                            style={{
-                              fontSize: "20px",
-                              fontWeight: "400",
-                              color: "#374151",
-                              marginBottom: "12px",
-                            }}
-                          >
-                            {airport.name}
-                            {airport.iataCode && (
-                              <span style={{ color: "#6b7280" }}>
-                                {" "}({airport.iataCode})
-                              </span>
-                            )}
-                          </p>
-
-                          {/* Introduction */}
-                          {airport.introduction && (
-                            <p
-                              style={{
-                                fontSize: "15px",
-                                color: "#6b7280",
-                                lineHeight: "1.6",
-                                marginBottom: "20px",
-                              }}
-                            >
-                              {airport.introduction}
-                            </p>
-                          )}
-
-                          {/* Information Sections */}
-                          {airport.sections && airport.sections.length > 0 && (
-                            <div style={{ marginTop: "20px" }}>
-                              <h4
-                                style={{
-                                  fontSize: "18px",
-                                  fontWeight: "500",
-                                  color: "#111827",
-                                  marginBottom: "16px",
-                                }}
-                              >
-                                Information Sections
-                              </h4>
-                              {airport.sections.map((section, sectionIndex) => (
-                                <div
-                                  key={sectionIndex}
-                                  style={{ marginBottom: "16px" }}
-                                >
-                                  {section.title && (
-                                    <p
-                                      style={{
-                                        fontSize: "16px",
-                                        fontWeight: "600",
-                                        color: "#374151",
-                                        marginBottom: "6px",
-                                      }}
-                                    >
-                                      {section.title}
-                                    </p>
-                                  )}
-                                  {section.content && (
-                                    <p
-                                      style={{
-                                        fontSize: "15px",
-                                        color: "#6b7280",
-                                        lineHeight: "1.6",
-                                      }}
-                                    >
-                                      {section.content}
-                                    </p>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Travel Tips */}
-                          {airport.tips && airport.tips.length > 0 && (
-                            <div style={{ marginTop: "20px" }}>
-                              <h4
-                                style={{
-                                  fontSize: "18px",
-                                  fontWeight: "500",
-                                  color: "#111827",
-                                  marginBottom: "12px",
-                                }}
-                              >
-                                Travel Tips
-                              </h4>
-                              <ul
-                                style={{
-                                  listStyleType: "disc",
-                                  paddingLeft: "24px",
-                                  margin: 0,
-                                }}
-                              >
-                                {airport.tips.map((tip, tipIndex) => (
-                                  <li
-                                    key={tipIndex}
-                                    style={{
-                                      fontSize: "15px",
-                                      color: "#6b7280",
-                                      lineHeight: "1.6",
-                                      marginBottom: "8px",
-                                    }}
-                                  >
-                                    {tip}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-
-                      {/* Pagination */}
-                      {totalPages > 1 && (
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "8px",
-                            marginTop: "32px",
-                            marginBottom: "32px",
-                          }}
-                        >
-                          <button
-                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            style={{
-                              padding: "8px 16px",
-                              fontSize: "14px",
-                              fontWeight: "500",
-                              color: currentPage === 1 ? "#9ca3af" : "#374151",
-                              backgroundColor: "#fff",
-                              border: "1px solid #e5e7eb",
-                              borderRadius: "6px",
-                              cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                              transition: "all 0.2s",
-                            }}
-                          >
-                            Previous
-                          </button>
-
-                          <div style={{ display: "flex", gap: "4px" }}>
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                              (page) => (
-                                <button
-                                  key={page}
-                                  onClick={() => setCurrentPage(page)}
-                                  style={{
-                                    padding: "8px 12px",
-                                    fontSize: "14px",
-                                    fontWeight: "500",
-                                    color: currentPage === page ? "#fff" : "#374151",
-                                    backgroundColor:
-                                      currentPage === page ? "#3B82F6" : "#fff",
-                                    border: "1px solid #e5e7eb",
-                                    borderRadius: "6px",
-                                    cursor: "pointer",
-                                    transition: "all 0.2s",
-                                  }}
-                                >
-                                  {page}
-                                </button>
-                              )
-                            )}
-                          </div>
-
-                          <button
-                            onClick={() =>
-                              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                            }
-                            disabled={currentPage === totalPages}
-                            style={{
-                              padding: "8px 16px",
-                              fontSize: "14px",
-                              fontWeight: "500",
-                              color:
-                                currentPage === totalPages ? "#9ca3af" : "#374151",
-                              backgroundColor: "#fff",
-                              border: "1px solid #e5e7eb",
-                              borderRadius: "6px",
-                              cursor:
-                                currentPage === totalPages ? "not-allowed" : "pointer",
-                              transition: "all 0.2s",
-                            }}
-                          >
-                            Next
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: "40px 20px",
-                        backgroundColor: "#f9fafb",
-                        borderRadius: "12px",
-                        border: "1px solid #e5e7eb",
-                      }}
+                  {/* Search Combobox */}
+                  <div style={{ marginTop: "24px", marginBottom: "32px" }}>
+                    <Combobox
+                      value={null}
+                      onChange={handleAirportSelect}
+                      onClose={() => setQuery("")}
                     >
-                      <p style={{ color: "#6b7280", fontSize: "16px", margin: 0 }}>
-                        {searchQuery
-                          ? "No airports found matching your search."
-                          : "No airport information available at this time."}
-                      </p>
-                    </div>
-                  )}
+                      <div className="tw:relative">
+                        <ComboboxInput
+                          displayValue={() => ""}
+                          onChange={(event) => setQuery(event.target.value)}
+                          placeholder="Search airports by name, city, or IATA code..."
+                          className="tw:w-full tw:py-3 tw:px-4 tw:text-base tw:border tw:border-gray-300 tw:rounded-lg tw:outline-none tw:transition-colors focus:tw:border-blue-500 focus:tw:ring-2 focus:tw:ring-blue-200"
+                        />
+                        <ComboboxOptions className="tw:w-[var(--input-width)]">
+                          {query.trim() === "" ? (
+                            <div className="tw:p-3 tw:text-center tw:text-sm tw:text-gray-500">
+                              Type to search airports...
+                            </div>
+                          ) : filteredAirports.length === 0 ? (
+                            <div className="tw:p-3 tw:text-center tw:text-sm tw:text-gray-500">
+                              No airports found.
+                            </div>
+                          ) : (
+                            filteredAirports.map((airport, index) => (
+                              <ComboboxOption key={index} value={airport}>
+                                <div className="tw:flex tw:items-start tw:gap-3 tw:w-full">
+                                  <FiMapPin className="tw:text-blue-500 tw:text-lg tw:shrink-0 tw:mt-1" />
+                                  <div className="tw:flex tw:flex-col tw:flex-1">
+                                    <div className="tw:font-semibold tw:text-gray-900">
+                                      {airport.name}
+                                      {airport.iataCode && (
+                                        <span className="tw:text-blue-500 tw:ml-2">
+                                          ({airport.iataCode})
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="tw:text-sm tw:text-gray-600 tw:flex tw:items-center tw:gap-1.5">
+                                      {airport.city}
+                                      {airport.city && airport.country && ", "}
+                                      {airport.country}
+                                      {airport.flag && (
+                                        <span className="tw:text-base">{airport.flag}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </ComboboxOption>
+                            ))
+                          )}
+                        </ComboboxOptions>
+                      </div>
+                    </Combobox>
+                  </div>
                 </>
               )}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Custom Modal for Airport Details */}
+      <Dialog
+        open={!!selectedAirport}
+        onClose={closeModal}
+        className="tw:relative tw:z-[99999]"
+      >
+        <DialogBackdrop className="tw:fixed tw:inset-0 tw:bg-black/50" />
+        <div className="tw:fixed tw:inset-0 tw:flex tw:items-center tw:justify-center tw:p-4">
+          <DialogPanel className="tw:w-full tw:max-w-4xl tw:max-h-[95vh] tw:bg-white tw:rounded-lg tw:shadow-xl tw:flex tw:flex-col tw:overflow-hidden">
+            {selectedAirport && (
+              <>
+                {/* Header with City/Country and Close Button */}
+                <div className="tw:flex tw:items-center tw:justify-between tw:px-6 tw:py-2 tw:border-b tw:border-gray-200 tw:shrink-0">
+                  <div className="tw:flex tw:items-center tw:gap-2">
+                    <h3 className="tw:text-xl! tw:font-bold tw:text-gray-900 tw:m-0">
+                      {selectedAirport.city}
+                      {selectedAirport.city && selectedAirport.country && ", "}
+                      {selectedAirport.country}
+                    </h3>
+                    {selectedAirport.flag && (
+                      <span className="tw:text-xl">{selectedAirport.flag}</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={closeModal}
+                    className="tw:p-2 tw:rounded-full hover:tw:bg-gray-100 tw:transition-colors"
+                    aria-label="Close"
+                  >
+                    <FiX className="tw:text-gray-600 tw:text-xl" />
+                  </button>
+                </div>
+
+                {/* Scrollable Body */}
+                <div className="tw:flex-1 tw:overflow-y-auto tw:px-6 tw:py-4">
+                  {/* Airport Name & IATA Code */}
+                  <p className="tw:text-xl tw:font-normal tw:text-gray-700 tw:mb-2!">
+                    {selectedAirport.name}
+                    {selectedAirport.iataCode && (
+                      <span className="tw:text-gray-500">
+                        {" "}({selectedAirport.iataCode})
+                      </span>
+                    )}
+                  </p>
+
+                  {/* Introduction */}
+                  {selectedAirport.introduction && (
+                    <p className="tw:text-base tw:text-gray-600 tw:mb-4!">
+                      {selectedAirport.introduction}
+                    </p>
+                  )}
+
+                  {/* Information Sections */}
+                  {selectedAirport.sections && selectedAirport.sections.length > 0 && (
+                    <div className="tw:mb-4">
+                      <div className="tw:flex tw:items-center tw:gap-2 tw:mb-2">
+                        <FiInfo className="tw:text-gray-600 tw:size-5" />
+                        <h4 className="tw:text-xl! tw:font-semibold tw:text-gray-900 tw:m-0">
+                          Information Sections
+                        </h4>
+                      </div>
+                      {selectedAirport.sections.map((section, sectionIndex) => (
+                        <div key={sectionIndex} className="tw:mb-5">
+                          {section.title && (
+                            <p className="tw:text-base tw:font-semibold tw:text-gray-700 tw:mb-2">
+                              {section.title}
+                            </p>
+                          )}
+                          {section.content && (
+                            <p className="tw:text-base tw:text-gray-600 tw:leading-relaxed">
+                              {section.content}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Travel Tips */}
+                  {selectedAirport.tips && selectedAirport.tips.length > 0 && (
+                    <div>
+                      <div className="tw:flex tw:items-center tw:gap-2 tw:mb-2">
+                        <FiList className="tw:text-gray-600 tw:size-5" />
+                        <h4 className="tw:text-xl! tw:font-semibold tw:text-gray-900 tw:m-0">
+                          Travel Tips
+                        </h4>
+                      </div>
+                      <ul className="tw:list-disc tw:pl-6 tw:m-0">
+                        {selectedAirport.tips.map((tip, tipIndex) => (
+                          <li
+                            key={tipIndex}
+                            className="tw:text-base tw:text-gray-600 tw:leading-relaxed tw:mb-2"
+                          >
+                            {tip}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </DialogPanel>
+        </div>
+      </Dialog>
     </>
   );
 };

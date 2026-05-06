@@ -1,5 +1,0 @@
-Sitemap: https://flyarzan.com/sitemap.xml
-
-User-agent: *
-Allow: / 
-Disallow: /cgi-bin/

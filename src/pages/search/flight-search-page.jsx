@@ -16,11 +16,18 @@ import { useFlightOffers } from "@/hooks/useFlightOffers";
 import { useMulticityFlightOffers } from "@/hooks/useMulticityFlightOffers";
 import { useFlexibleDates } from "@/hooks/useFlexibleDates";
 import { useEffect, useState, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { parseDateFromURL, formatDateForURL } from "@/lib/flight-utils";
 import { useSessionStorage } from "usehooks-ts";
 
 import OneWayFilter from "@/components/ui/one-way-filter";
 import RoundTripFilter from "@/components/ui/round-trip-filter";
+
+const FLIGHT_SEARCH_PAGE_URL = "https://flyarzan.com/search/flight";
+const OG_IMAGE =
+  "https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg";
+const FLIGHT_SEARCH_DESCRIPTION =
+  "Experience the best flight search with FlyArzan. Compare flights from top airlines, find the best deals, and book your next trip with ease. Travel smarter!";
 
 const FlightSearchPage = () => {
   const [initialValues, setInitialValues] = useState(null);
@@ -276,6 +283,31 @@ const FlightSearchPage = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Best Flight Search – Find the Best Deals | FlyArzan</title>
+        <meta name="description" content={FLIGHT_SEARCH_DESCRIPTION} />
+        <link rel="canonical" href={FLIGHT_SEARCH_PAGE_URL} />
+        <meta property="og:url" content={FLIGHT_SEARCH_PAGE_URL} />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content="Best Flight Search – Find the Best Deals | FlyArzan"
+        />
+        <meta property="og:description" content={FLIGHT_SEARCH_DESCRIPTION} />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content="flyarzan.com" />
+        <meta property="twitter:url" content={FLIGHT_SEARCH_PAGE_URL} />
+        <meta
+          name="twitter:title"
+          content="Best Flight Search – Find the Best Deals | FlyArzan"
+        />
+        <meta
+          name="twitter:description"
+          content={FLIGHT_SEARCH_DESCRIPTION}
+        />
+        <meta name="twitter:image" content={OG_IMAGE} />
+      </Helmet>
       <SidebarFilterProvider>
         <Header />
         <div className="tw:flex tw:flex-col tw:min-h-screen tw:mt-16 tw:md:mt-[92px]">

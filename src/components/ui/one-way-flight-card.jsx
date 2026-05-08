@@ -115,7 +115,7 @@ const OneWayFlightCard = memo(
               {getAirlineLogoUrl(itinerary.airlineCode) ? (
                 <img
                   src={getAirlineLogoUrl(itinerary.airlineCode)}
-                  alt={itinerary.flights?.[0]?.airline || itinerary.airlineCode}
+                  alt={`${itinerary.flights?.[0]?.airline || itinerary.airlineCode} airline logo`}
                   className="tw:w-[120px] tw:-mt-[35px]"
                 />
               ) : (

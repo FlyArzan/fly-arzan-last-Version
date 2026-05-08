@@ -450,7 +450,7 @@ const   Tab8 = () => {
                       
                       <div className="Select-departing-card" key={index}>
                         <div className="fly-box">
-                        <img src={new URL(`../../assets/Images/Airlines/Logos/Imeges/FZ.png`, import.meta.url).href} alt="Logo" />
+                        <img src={new URL(`../../assets/Images/Airlines/Logos/Imeges/FZ.png`, import.meta.url).href} alt={`${card.airline} airline logo`} />
                           <p>{card.airline}</p>
                           <p>{card.flightNumber}</p>
                         </div>
@@ -497,7 +497,12 @@ const   Tab8 = () => {
                           <div className="Select-departing-card" key={index}>
                             <div className="fly-box">
                               {/* <img src={flylogo} alt="" /> */}
-                              <img src={new URL(flylogo, import.meta.url).href} alt="Logo" />
+                              <img
+                                src={new URL(flylogo, import.meta.url).href}
+                                alt={`${
+                                  airlineNames[carrierCode] || carrierCode
+                                } airline logo`}
+                              />
                               <p>
                                 {airlineNames[carrierCode] ||
                                 carrierCode}

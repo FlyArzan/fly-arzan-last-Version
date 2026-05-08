@@ -30,7 +30,7 @@ const ReviewInner1 = () => {
 
                   <div className="trip-dital">
                     <div className="trip-dital-logo">
-                      <img src={flylogo} alt="" />
+                      <img src={flylogo} alt="flydubai airline logo" />
                       <p>flydubai</p>
                       <p> FZ-329</p>
                     </div>

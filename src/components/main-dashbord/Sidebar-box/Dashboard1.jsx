@@ -22,7 +22,7 @@ const Dashboard1 = () => {
 
             <div className="Dashboard-top-card">
               <div className="Dashboard-top-card-icon">
-                <img src={TotalBooking} alt="" />
+                <img src={TotalBooking} alt="Total bookings" />
               </div>
               <div className="Dashboard-top-card-tital">
                 <h2>8,565</h2>
@@ -31,7 +31,7 @@ const Dashboard1 = () => {
             </div>
             <div className="Dashboard-top-card">
               <div className="Dashboard-top-card-icon">
-                <img src={HotelBookings} alt="" />
+                <img src={HotelBookings} alt="Hotel bookings" />
               </div>
               <div className="Dashboard-top-card-tital">
                 <h2>8,565</h2>
@@ -40,7 +40,7 @@ const Dashboard1 = () => {
             </div>
             <div className="Dashboard-top-card">
               <div className="Dashboard-top-card-icon">
-                <img src={FlightReservations} alt="" />
+                <img src={FlightReservations} alt="Flight reservations" />
               </div>
               <div className="Dashboard-top-card-tital">
                 <h2>8,565</h2>
@@ -49,7 +49,7 @@ const Dashboard1 = () => {
             </div>
             <div className="Dashboard-top-card">
               <div className="Dashboard-top-card-icon">
-                <img src={CarRental} alt="" />
+                <img src={CarRental} alt="Car rentals" />
               </div>
               <div className="Dashboard-top-card-tital">
                 <h2>8,565</h2>

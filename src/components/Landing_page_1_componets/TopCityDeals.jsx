@@ -166,7 +166,7 @@ const TopCityDeals = () => {
               <div className="tw:aspect-[4/3] tw:overflow-hidden">
                 <img
                   src={city.image}
-                  alt={city.city}
+                  alt={`${city.city}, ${city.country}`}
                   className="tw:w-full tw:h-full tw:object-cover tw:transition-transform tw:duration-500 tw:ease-out tw:group-hover:scale-105"
                   onError={(e) => {
                     e.target.src = "/Pics/Airline wing/Air line wings 1.jpg";

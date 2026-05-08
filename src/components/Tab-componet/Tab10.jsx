@@ -223,7 +223,7 @@ const Tab10 = () => {
                     className="Select-departing-card responsiv-box-card"
                   >
                     <div className="fly-box-1">
-                      <img src={car?.vehicle?.imageURL} alt={car?.name} />
+                      <img src={car?.vehicle?.imageURL} alt={car?.name || "Rental vehicle"} />
                     </div>
                     <div className="Suggested-Hotels responsiv-box-hotels">
                       <h2>{car?.vehicle?.category}</h2>
@@ -436,7 +436,7 @@ const Tab10 = () => {
                   className="Select-departing-card responsiv-box-card"
                 >
                   <div className="fly-box-1">
-                    <img src={hotel.imgSrc} alt={hotel.name} />
+                    <img src={hotel.imgSrc} alt={hotel.name || "Hotel"} />
                   </div>
                   <div className="Suggested-Hotels responsiv-box-hotels">
                     <h2>{hotel.name}</h2>

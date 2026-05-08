@@ -105,7 +105,10 @@ const Flightsinner3 = () => {
                   {cardData.map((card, index) => (
                     <div className="Select-departing-card  height-auto" key={index}>
                       <div className="fly-box">
-                        <img src={card.flyLogo} alt="" />
+                        <img
+                          src={card.flyLogo}
+                          alt={`${card.airline} airline logo`}
+                        />
                         <p>{card.airline}</p>
                         <p>{card.flightNumber}</p>
                       </div>

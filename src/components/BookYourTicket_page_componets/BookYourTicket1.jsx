@@ -253,7 +253,7 @@ const BookYourTicket1 = () => {
                   <div className="Flight-Details-card">
                     <div className="Flight-Details-card-head">
                       <div className="Flight-Details-card-head-logo">
-                        <img src={dubai} alt="" />
+                        <img src={dubai} alt="flydubai airline" />
                         <p>FZ-329</p>
                       </div>
                       <div className="Flight-Details-card-head-time-box">
@@ -289,7 +289,7 @@ const BookYourTicket1 = () => {
                         />
                       </svg>
                       <div className="Flight-Details-fly-dubai">
-                        <img src={dubai} alt="" />
+                        <img src={dubai} alt="flydubai airline" />
                         <span>
                           <h2>07:45</h2> <p>Dubai (DXB)</p>
                         </span>
@@ -490,7 +490,9 @@ const BookYourTicket1 = () => {
                                   import.meta.url
                                 ).href
                               }
-                              alt="Logo"
+                              alt={`${
+                                FlightBookingData?.carrierCode || "Airline"
+                              } airline logo`}
                             />
                             <p>{FlightBookingData?.carrierCode}</p>
                           </div>
@@ -563,7 +565,9 @@ const BookYourTicket1 = () => {
                               />
                             </svg>
                             <div className="Flight-Details-fly-dubai">
-                              {segmentIndex === 0 && <img src={dubai} alt="" />}
+                              {segmentIndex === 0 && (
+                                <img src={dubai} alt="flydubai airline" />
+                              )}
                               <span>
                                 <h2>
                                   {new Date(

@@ -60,7 +60,7 @@ const Booking_Flights = () => {
               <div className="Booking_Details_body">
                 <div className="Booking_Details_body--right">
                   <div className="Booking_Details_body--right--img">
-                    <img src={Flydubia} alt="" />
+                    <img src={Flydubia} alt="flydubai airline logo" />
                   </div>
                   <div className="Booking_Details_body--right--details">
                     <span>
@@ -131,7 +131,7 @@ const Booking_Flights = () => {
               <div className="Booking_Details_body">
                 <div className="Booking_Details_body--right">
                   <div className="Booking_Details_body--right--img">
-                    <img src={Flydubia} alt="" />
+                    <img src={Flydubia} alt="flydubai airline logo" />
                   </div>
                   <div className="Booking_Details_body--right--details">
                     <span>

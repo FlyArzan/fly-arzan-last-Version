@@ -465,7 +465,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                                   src={getAirlineLogoUrl(
                                     firstFlight.airlineCode
                                   )}
-                                  alt={firstFlight.airline}
+                                  alt={`${firstFlight.airline || firstFlight.airlineCode} airline logo`}
                                   className="tw:w-[120px] tw:-mt-[35px]"
                                 />
                               ) : (

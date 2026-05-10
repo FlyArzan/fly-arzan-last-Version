@@ -1,5 +1,5 @@
 /**
- * Clean IP-based location detection using ipapi.co
+ * IP-based location detection via backend (BigDataCloud)
  */
 
 /**
@@ -96,7 +96,7 @@ const COUNTRY_TO_LANGUAGE = {
 };
 
 /**
- * Get user's location data from backend API (which uses paid ipapi.com)
+ * Get user's location data from backend API (uses BigDataCloud for geolocation)
  * Frontend should NOT call geo APIs directly - backend handles this securely
  */
 export async function getUserLocationFromIP() {
@@ -127,7 +127,7 @@ export async function getUserLocationFromIP() {
 }
 
 /**
- * Map ipapi.co response to regionalSettings format
+ * Map location data to regionalSettings format
  */
 export function mapLocationToRegionalSettings(locationData) {
   const countryCode = locationData.countryCode || "US";
@@ -268,7 +268,7 @@ export async function getNearestAirport() {
 
     const API_BASE_URL = import.meta.env.VITE_API_URL;
     const response = await fetch(
-      `${API_BASE_URL}/api/airports/nearest?lat=${locationData.lat}&lon=${locationData.lon}`
+      `${API_BASE_URL}/api/airports/nearest?lat=${locationData.lat}&lon=${locationData.lon}`,
     );
 
     if (!response.ok) {
@@ -334,7 +334,7 @@ export async function getNearestAirportCached() {
         JSON.stringify({
           airport,
           timestamp: Date.now(),
-        })
+        }),
       );
     }
 

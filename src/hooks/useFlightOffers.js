@@ -34,7 +34,7 @@ export const useFlightOffers = (queries) => {
 
   const { isLoading, error, data } = useQuery({
     queryKey: ["flight-offers", queries],
-
+    retry: 0,
     queryFn: () =>
       axios
         .get(`/flight-offers?${searchQueries.toString()}`)

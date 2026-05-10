@@ -262,22 +262,22 @@ const FlightSearchResults = ({ flightOffersData, error, searchContext }) => {
       "Something went wrong while searching for flights.";
     console.error("[FlightSearchResults] Rendering error state:", errMsg);
     return (
-      <div className="tw:flex tw:flex-col tw:items-center tw:justify-center tw:gap-6 tw:bg-white tw:rounded-xl tw:shadow tw:p-10 tw:min-h-[320px] tw:text-center">
-        <RiPlaneLine size={56} className="tw:text-primary tw:opacity-60" />
+      <div className="tw:flex tw:flex-col tw:items-center tw:justify-center tw:gap-4 tw:bg-white tw:rounded-xl tw:shadow-sm tw:p-10 tw:min-h-[280px] tw:text-center">
+        <RiPlaneLine size={40} className="tw:text-gray-300" />
         <div>
-          <h3 className="tw:text-xl tw:font-semibold tw:text-gray-800 tw:mb-2">
-            Route not found or something went wrong
+          <h3 className="tw:text-base tw:font-medium tw:text-gray-500 tw:mb-1">
+            No results found
           </h3>
-          <p className="tw:text-gray-500 tw:text-sm tw:max-w-md">{errMsg}</p>
-          <p className="tw:text-gray-400 tw:text-sm tw:mt-1">
-            Please change your route or dates and try again.
+          <p className="tw:text-gray-400 tw:text-xs tw:max-w-sm">
+            Try adjusting your route or travel dates and search again.
           </p>
         </div>
         <button
           onClick={() => window.history.back()}
-          className="tw:inline-flex tw:items-center tw:gap-2 tw:px-6 tw:py-2.5 tw:bg-primary tw:text-white tw:rounded-lg tw:font-medium tw:text-sm tw:hover:opacity-90 tw:transition"
+          className="tw:inline-flex tw:items-center tw:gap-1.5 tw:px-4 tw:py-1.5 tw:border tw:border-gray-200 tw:rounded-md tw:text-gray-400 tw:text-xs tw:font-medium tw:hover:text-gray-600 tw:hover:border-gray-300 tw:transition tw:bg-transparent"
         >
-          &larr; Go back and try again
+          <ArrowLeft size={13} />
+          Go back
         </button>
       </div>
     );

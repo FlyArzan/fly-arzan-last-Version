@@ -35,7 +35,7 @@ import {
   formatDateFromISO,
 } from "@/lib/flight-utils";
 
-const FlightSearchResults = ({ flightOffersData, searchContext }) => {
+const FlightSearchResults = ({ flightOffersData, error, searchContext }) => {
   const navigate = useNavigate();
   const { openMobile, setOpenMobile } = useSidebarFilter();
   const { regionalSettings, convertPrice, selectedCurrencySymbol } =
@@ -77,11 +77,11 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
 
       return data.data
         .map((offer, index) =>
-          processFlightOffer(offer, index, data.dictionaries)
+          processFlightOffer(offer, index, data.dictionaries),
         )
         .filter(Boolean);
     },
-    []
+    [],
   );
 
   const generateTimeCostFilters = useCallback(
@@ -117,13 +117,13 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
       }
 
       const cheapestOption = flights.reduce((prev, current) =>
-        prev.price < current.price ? prev : current
+        prev.price < current.price ? prev : current,
       );
 
       const fastestOption = flights.reduce((prev, current) =>
         prev.totalDurationMinutes < current.totalDurationMinutes
           ? prev
-          : current
+          : current,
       );
 
       // A more balanced "best" option: not the absolute cheapest if it's excessively long.
@@ -148,10 +148,10 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
           id: "cheapest",
           title: "Cheapest",
           duration: formatDurationFromMinutes(
-            cheapestOption.totalDurationMinutes
+            cheapestOption.totalDurationMinutes,
           ),
           price: `${selectedCurrencySymbol}${convertPrice(
-            cheapestOption.price
+            cheapestOption.price,
           )}`,
           icon: <RiPercentFill size={24} />,
           showInMobile: true,
@@ -160,17 +160,17 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
           id: "fastest",
           title: "Fastest",
           duration: formatDurationFromMinutes(
-            fastestOption.totalDurationMinutes
+            fastestOption.totalDurationMinutes,
           ),
           price: `${selectedCurrencySymbol}${convertPrice(
-            fastestOption.price
+            fastestOption.price,
           )}`,
           icon: <RiFlashlightFill size={24} />,
           showInMobile: true,
         },
       ]);
     },
-    [selectedCurrencySymbol, convertPrice]
+    [selectedCurrencySymbol, convertPrice],
   );
 
   useEffect(() => {
@@ -195,14 +195,14 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
     if (filters.stops.length > 0) {
       filtered = filtered.filter((flight) => {
         return flight.itineraries.every((itinerary) =>
-          filters.stops.includes(itinerary.flights.length - 1)
+          filters.stops.includes(itinerary.flights.length - 1),
         );
       });
     }
 
     if (filters.airlines.length > 0) {
       filtered = filtered.filter((flight) =>
-        flight.carrierCodes.some((code) => filters.airlines.includes(code))
+        flight.carrierCodes.some((code) => filters.airlines.includes(code)),
       );
     }
 
@@ -219,7 +219,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
     // Departure time filter
     filtered = filtered.filter((flight) => {
       const departureTime = timeToMinutes(
-        flight.itineraries[0].flights[0].departure.time
+        flight.itineraries[0].flights[0].departure.time,
       );
       return (
         departureTime >= filters.departureTime.min &&
@@ -231,7 +231,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
     filtered = filtered.filter(
       (flight) =>
         flight.totalDurationMinutes >= filters.journeyDuration.min &&
-        flight.totalDurationMinutes <= filters.journeyDuration.max
+        flight.totalDurationMinutes <= filters.journeyDuration.max,
     );
 
     let sorted = filtered;
@@ -244,7 +244,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
         (a, b) =>
           a.price +
           a.totalDurationMinutes * 0.5 -
-          (b.price + b.totalDurationMinutes * 0.5)
+          (b.price + b.totalDurationMinutes * 0.5),
       );
     }
     return sorted;
@@ -254,6 +254,34 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
   useEffect(() => {
     setVisibleCount(14);
   }, [selectedTimeCost]);
+
+  if (error) {
+    const errMsg =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Something went wrong while searching for flights.";
+    console.error("[FlightSearchResults] Rendering error state:", errMsg);
+    return (
+      <div className="tw:flex tw:flex-col tw:items-center tw:justify-center tw:gap-6 tw:bg-white tw:rounded-xl tw:shadow tw:p-10 tw:min-h-[320px] tw:text-center">
+        <RiPlaneLine size={56} className="tw:text-primary tw:opacity-60" />
+        <div>
+          <h3 className="tw:text-xl tw:font-semibold tw:text-gray-800 tw:mb-2">
+            Route not found or something went wrong
+          </h3>
+          <p className="tw:text-gray-500 tw:text-sm tw:max-w-md">{errMsg}</p>
+          <p className="tw:text-gray-400 tw:text-sm tw:mt-1">
+            Please change your route or dates and try again.
+          </p>
+        </div>
+        <button
+          onClick={() => window.history.back()}
+          className="tw:inline-flex tw:items-center tw:gap-2 tw:px-6 tw:py-2.5 tw:bg-primary tw:text-white tw:rounded-lg tw:font-medium tw:text-sm tw:hover:opacity-90 tw:transition"
+        >
+          &larr; Go back and try again
+        </button>
+      </div>
+    );
+  }
 
   if (!flightOffersData) {
     return (
@@ -317,7 +345,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                 "tw:snap-center tw:w-full tw:md:basis-[100px] tw:shrink-0 tw:items-center tw:!flex tw:justify-between tw:gap-1 tw:!py-3 tw:!px-[20px] tw:!mb-0 tw:cursor-pointer tw:grow tw:text-center tw:md:h-[57px] tw:first:rounded-t-md tw:md:first:rounded-t-none tw:last:rounded-b-md tw:md:last:rounded-b-none tw:md:first:rounded-l-md tw:md:last:rounded-r-md",
                 selectedTimeCost === data.id
                   ? "tw:bg-primary tw:text-white"
-                  : "tw:text-secondary"
+                  : "tw:text-secondary",
               )}
               onClick={() => setSelectedTimeCost(data.id)}
             >
@@ -410,7 +438,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
 
                 sessionStorage.setItem(
                   "selected-flight-details",
-                  JSON.stringify(flightDetailsData)
+                  JSON.stringify(flightDetailsData),
                 );
 
                 // Generate and store similar flights
@@ -451,7 +479,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                       const lastFlight = flights[flights.length - 1];
                       const totalDurationMinutes = flights.reduce(
                         (acc, flight) => acc + flight.durationMinutes,
-                        0
+                        0,
                       );
 
                       return (
@@ -463,7 +491,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                               {getAirlineLogoUrl(firstFlight.airlineCode) ? (
                                 <img
                                   src={getAirlineLogoUrl(
-                                    firstFlight.airlineCode
+                                    firstFlight.airlineCode,
                                   )}
                                   alt={`${firstFlight.airline || firstFlight.airlineCode} airline logo`}
                                   className="tw:w-[120px] tw:-mt-[35px]"
@@ -500,7 +528,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                                 <div className="tw:flex tw:flex-col tw:text-center tw:gap-1 tw:w-full">
                                   <span className="tw:text-sm tw:font-semibold">
                                     {formatDurationFromMinutes(
-                                      totalDurationMinutes
+                                      totalDurationMinutes,
                                     )}
                                   </span>
                                   <span className="tw:h-px tw:w-full tw:bg-secondary" />
@@ -513,7 +541,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                                       const stopAirports = flights
                                         .slice(0, stops)
                                         .map(
-                                          (flight) => flight.arrival.airport
+                                          (flight) => flight.arrival.airport,
                                         );
                                       return (
                                         <>
@@ -532,7 +560,7 @@ const FlightSearchResults = ({ flightOffersData, searchContext }) => {
                                                   ? ", "
                                                   : ""}
                                               </strong>
-                                            )
+                                            ),
                                           )}
                                         </>
                                       );
@@ -654,6 +682,7 @@ FlightSearchResults.propTypes = {
       carriers: PropTypes.object,
     }),
   }),
+  error: PropTypes.object,
   searchContext: PropTypes.shape({
     searchParams: PropTypes.object,
     adults: PropTypes.number,

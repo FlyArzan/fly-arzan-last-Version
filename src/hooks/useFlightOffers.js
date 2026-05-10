@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useAxios } from "./useAxios";
 import { formatDateForURL } from "@/lib/flight-utils";
 
@@ -26,7 +27,7 @@ export const useFlightOffers = (queries) => {
       (searchParams[key] === undefined ||
         searchParams[key] === null ||
         searchParams[key] === "") &&
-      delete searchParams[key]
+      delete searchParams[key],
   );
 
   const searchQueries = new URLSearchParams(searchParams);
@@ -45,6 +46,20 @@ export const useFlightOffers = (queries) => {
       !isNaN(queries.departureDate) &&
       (queries.adults || 0) > 0,
   });
+
+  useEffect(() => {
+    if (error) {
+      console.error("[FlightOffers] Failed to fetch flight offers:", error);
+      console.error("[FlightOffers] Request params:", {
+        originLocationCode: queries.originLocationCode,
+        destinationLocationCode: queries.destinationLocationCode,
+        departureDate: queries.departureDate,
+        adults: queries.adults,
+        children: queries.children,
+        travelClass: queries.travelClass,
+      });
+    }
+  }, [error]);
 
   return {
     isLoading,

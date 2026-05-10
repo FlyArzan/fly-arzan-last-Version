@@ -74,8 +74,12 @@ const FlightSearchPage = () => {
   }, [tripType, sessionData]);
 
   // Multi-city Flight Offers
-  const { mutate: searchMulticityFlights, isPending: isMulticityLoading } =
-    useMulticityFlightOffers();
+  const {
+    mutate: searchMulticityFlights,
+    isPending: isMulticityLoading,
+    isError: isMulticityError,
+    error: multicityError,
+  } = useMulticityFlightOffers();
 
   useEffect(() => {
     if (tripType === "multicity" && sessionData) {
@@ -146,7 +150,7 @@ const FlightSearchPage = () => {
                   departureDateTimeRange: {
                     ...od.departureDateTimeRange,
                   },
-                })
+                }),
               ),
               travelers: convertedData.travelers,
               sources: ["GDS"],
@@ -172,7 +176,7 @@ const FlightSearchPage = () => {
                   data?.warnings?.[0]?.title === "IncompleteSearchWarning"
                 ) {
                   toast.warning(
-                    "No complete trips were found for the selected cities and dates. Please try adjusting your search."
+                    "No complete trips were found for the selected cities and dates. Please try adjusting your search.",
                   );
                 }
                 setMulticityResults(data);
@@ -209,12 +213,15 @@ const FlightSearchPage = () => {
       children: sessionData?.travellers?.children || 0,
       travelClass: sessionData?.travelClass || "ECONOMY",
     }),
-    [initialValues, tripType, sessionData]
+    [initialValues, tripType, sessionData],
   );
 
   // Flight Offers (for one-way and round-way)
-  const { isLoading, data: flightOffersData } =
-    useFlightOffers(flightOffersParams);
+  const {
+    isLoading,
+    error: flightOffersError,
+    data: flightOffersData,
+  } = useFlightOffers(flightOffersParams);
 
   // Flexible dates with real API data - pass search params
   const flexibleDatesParams = useMemo(
@@ -227,7 +234,7 @@ const FlightSearchPage = () => {
       initialValues?.flyingFrom?.iataCode,
       initialValues?.flyingTo?.iataCode,
       tripType,
-    ]
+    ],
   );
 
   const {
@@ -302,10 +309,7 @@ const FlightSearchPage = () => {
           name="twitter:title"
           content="Best Flight Search – Find the Best Deals | FlyArzan"
         />
-        <meta
-          name="twitter:description"
-          content={FLIGHT_SEARCH_DESCRIPTION}
-        />
+        <meta name="twitter:description" content={FLIGHT_SEARCH_DESCRIPTION} />
         <meta name="twitter:image" content={OG_IMAGE} />
       </Helmet>
       <SidebarFilterProvider>
@@ -350,7 +354,7 @@ const FlightSearchPage = () => {
                               "IncompleteSearchWarning"
                           ) {
                             toast.warning(
-                              "No complete trips were found for the selected cities and dates. Please try adjusting your search."
+                              "No complete trips were found for the selected cities and dates. Please try adjusting your search.",
                             );
                           }
                           // Store results in state for FlightSearchResults component
@@ -359,7 +363,7 @@ const FlightSearchPage = () => {
                         onError: (error) => {
                           console.error("Multi-city search error:", error);
                           toast.error(
-                            "Failed to search flights. Please try again."
+                            "Failed to search flights. Please try again.",
                           );
                         },
                       });
@@ -404,6 +408,13 @@ const FlightSearchPage = () => {
                       tripType === "multicity"
                         ? multicityResults
                         : flightOffersData
+                    }
+                    error={
+                      tripType === "multicity"
+                        ? isMulticityError
+                          ? multicityError
+                          : null
+                        : flightOffersError
                     }
                     searchContext={searchContext}
                   />

@@ -11,7 +11,7 @@ const Aboutsec2 = ({ content }) => {
         <div className="container">
           <div className="Aboutsec2-main">
             <div className="Aboutsec2-img">
-              <img src={aboutsec2} alt="" />
+              <img src={aboutsec2} alt={t("AboutUssec1.heading")} />
             </div>
 
             <div className="Aboutsec2-tital-box">

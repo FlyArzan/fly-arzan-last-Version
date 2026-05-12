@@ -16,11 +16,18 @@ import { useFlightOffers } from "@/hooks/useFlightOffers";
 import { useMulticityFlightOffers } from "@/hooks/useMulticityFlightOffers";
 import { useFlexibleDates } from "@/hooks/useFlexibleDates";
 import { useEffect, useState, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { parseDateFromURL, formatDateForURL } from "@/lib/flight-utils";
 import { useSessionStorage } from "usehooks-ts";
 
 import OneWayFilter from "@/components/ui/one-way-filter";
 import RoundTripFilter from "@/components/ui/round-trip-filter";
+
+const FLIGHT_SEARCH_PAGE_URL = "https://flyarzan.com/search/flight";
+const OG_IMAGE =
+  "https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg";
+const FLIGHT_SEARCH_DESCRIPTION =
+  "Experience the best flight search with FlyArzan. Compare flights from top airlines, find the best deals, and book your next trip with ease. Travel smarter!";
 
 const FlightSearchPage = () => {
   const [initialValues, setInitialValues] = useState(null);
@@ -67,8 +74,12 @@ const FlightSearchPage = () => {
   }, [tripType, sessionData]);
 
   // Multi-city Flight Offers
-  const { mutate: searchMulticityFlights, isPending: isMulticityLoading } =
-    useMulticityFlightOffers();
+  const {
+    mutate: searchMulticityFlights,
+    isPending: isMulticityLoading,
+    isError: isMulticityError,
+    error: multicityError,
+  } = useMulticityFlightOffers();
 
   useEffect(() => {
     if (tripType === "multicity" && sessionData) {
@@ -139,7 +150,7 @@ const FlightSearchPage = () => {
                   departureDateTimeRange: {
                     ...od.departureDateTimeRange,
                   },
-                })
+                }),
               ),
               travelers: convertedData.travelers,
               sources: ["GDS"],
@@ -165,7 +176,7 @@ const FlightSearchPage = () => {
                   data?.warnings?.[0]?.title === "IncompleteSearchWarning"
                 ) {
                   toast.warning(
-                    "No complete trips were found for the selected cities and dates. Please try adjusting your search."
+                    "No complete trips were found for the selected cities and dates. Please try adjusting your search.",
                   );
                 }
                 setMulticityResults(data);
@@ -202,12 +213,15 @@ const FlightSearchPage = () => {
       children: sessionData?.travellers?.children || 0,
       travelClass: sessionData?.travelClass || "ECONOMY",
     }),
-    [initialValues, tripType, sessionData]
+    [initialValues, tripType, sessionData],
   );
 
   // Flight Offers (for one-way and round-way)
-  const { isLoading, data: flightOffersData } =
-    useFlightOffers(flightOffersParams);
+  const {
+    isLoading,
+    error: flightOffersError,
+    data: flightOffersData,
+  } = useFlightOffers(flightOffersParams);
 
   // Flexible dates with real API data - pass search params
   const flexibleDatesParams = useMemo(
@@ -220,7 +234,7 @@ const FlightSearchPage = () => {
       initialValues?.flyingFrom?.iataCode,
       initialValues?.flyingTo?.iataCode,
       tripType,
-    ]
+    ],
   );
 
   const {
@@ -276,6 +290,28 @@ const FlightSearchPage = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Best Flight Search – Find the Best Deals | FlyArzan</title>
+        <meta name="description" content={FLIGHT_SEARCH_DESCRIPTION} />
+        <link rel="canonical" href={FLIGHT_SEARCH_PAGE_URL} />
+        <meta property="og:url" content={FLIGHT_SEARCH_PAGE_URL} />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content="Best Flight Search – Find the Best Deals | FlyArzan"
+        />
+        <meta property="og:description" content={FLIGHT_SEARCH_DESCRIPTION} />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content="flyarzan.com" />
+        <meta property="twitter:url" content={FLIGHT_SEARCH_PAGE_URL} />
+        <meta
+          name="twitter:title"
+          content="Best Flight Search – Find the Best Deals | FlyArzan"
+        />
+        <meta name="twitter:description" content={FLIGHT_SEARCH_DESCRIPTION} />
+        <meta name="twitter:image" content={OG_IMAGE} />
+      </Helmet>
       <SidebarFilterProvider>
         <Header />
         <div className="tw:flex tw:flex-col tw:min-h-screen tw:mt-16 tw:md:mt-[92px]">
@@ -318,7 +354,7 @@ const FlightSearchPage = () => {
                               "IncompleteSearchWarning"
                           ) {
                             toast.warning(
-                              "No complete trips were found for the selected cities and dates. Please try adjusting your search."
+                              "No complete trips were found for the selected cities and dates. Please try adjusting your search.",
                             );
                           }
                           // Store results in state for FlightSearchResults component
@@ -327,7 +363,7 @@ const FlightSearchPage = () => {
                         onError: (error) => {
                           console.error("Multi-city search error:", error);
                           toast.error(
-                            "Failed to search flights. Please try again."
+                            "Failed to search flights. Please try again.",
                           );
                         },
                       });
@@ -372,6 +408,13 @@ const FlightSearchPage = () => {
                       tripType === "multicity"
                         ? multicityResults
                         : flightOffersData
+                    }
+                    error={
+                      tripType === "multicity"
+                        ? isMulticityError
+                          ? multicityError
+                          : null
+                        : flightOffersError
                     }
                     searchContext={searchContext}
                   />

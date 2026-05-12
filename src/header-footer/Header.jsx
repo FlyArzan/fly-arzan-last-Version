@@ -216,7 +216,11 @@ const Header = () => {
           <div className="container">
             <div className="tw:flex tw:items-center tw:justify-between">
               <Link to="/">
-                <img src="/logo.png" className="tw:w-[120px] tw:md:w-[195px]" />
+                <img
+                  src="/logo.png"
+                  alt="Fly Arzan"
+                  className="tw:w-[120px] tw:md:w-[195px]"
+                />
               </Link>
               <div className="tw:flex tw:justify-between tw:items-center tw:gap-3 tw:md:gap-6">
                 <button
@@ -258,7 +262,11 @@ const Header = () => {
                         {user?.image ? (
                           <img
                             src={user.image}
-                            alt={user.name}
+                            alt={
+                              user?.name
+                                ? `${user.name} profile photo`
+                                : "User profile photo"
+                            }
                             className="tw:w-8 tw:h-8 tw:rounded-full tw:object-cover"
                           />
                         ) : (
@@ -357,7 +365,7 @@ const Header = () => {
               <DrawerTitle className="text-xl font-medium sr-only">
                 Brand Logo
               </DrawerTitle>
-              <img src="/logo.png" className="tw:w-[140px]" />
+              <img src="/logo.png" alt="Fly Arzan" className="tw:w-[140px]" />
               <DrawerDescription className="sr-only">
                 Mobile sidebar navigation
               </DrawerDescription>
@@ -404,7 +412,11 @@ const Header = () => {
       {/* Auth Modal */}
       <Modal isOpen={openAuthModal} onClose={setAuthModal}>
         <div className="tw:flex tw:justify-between tw:items-start tw:text-secondary tw:mb-4">
-          <img src="/logo.png" className="tw:!w-[120px] tw:md:!w-[150px]" />
+          <img
+            src="/logo.png"
+            alt="Fly Arzan"
+            className="tw:!w-[120px] tw:md:!w-[150px]"
+          />
           <button onClick={() => setAuthModal(false)}>
             <LucideX />
           </button>

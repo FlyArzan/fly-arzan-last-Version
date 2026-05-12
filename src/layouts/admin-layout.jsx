@@ -474,7 +474,7 @@ const AdminLayoutDrawer = ({ onItemClick = () => {} }) => {
             textDecoration: "none",
           }}
         >
-          <img src="/logo.png" alt="Logo" style={{ height: 32 }} />
+          <img src="/logo.png" alt="Fly Arzan" style={{ height: 32 }} />
         </Link>
       </Box>
 

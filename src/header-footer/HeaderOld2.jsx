@@ -95,7 +95,7 @@ const Header = ({ onNavigate }) => {
         <div className="container">
           <nav className="nav-1">
             <div onClick={() => hanldeNavigate()} className="nav-logo">
-              <img src={logo} alt="" />
+              <img src={logo} alt="Fly Arzan" />
             </div>
             <div className="nav-box">
               <div onClick={() => setModal(true)} className="nav-btn-box">

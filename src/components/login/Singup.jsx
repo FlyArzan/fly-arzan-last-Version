@@ -16,7 +16,7 @@ const Singup = () => {
           <div className="Login-form-box">
             <div className="Login-form-logo">
               <Link to="/">
-                <img src={logo} alt="" />
+                <img src={logo} alt="Fly Arzan" />
               </Link>
             </div>
 
@@ -77,9 +77,13 @@ const Singup = () => {
                 <div className="Or-line"></div>
               </div>
               <div className="google-btn-box">
-                <button><img src={google} alt="" /></button>
+                <button type="button">
+                  <img src={google} alt="Continue with Google" />
+                </button>
                 <h2>or  </h2>
-                <button><img src={apple} alt="" /></button>
+                <button type="button">
+                  <img src={apple} alt="Continue with Apple" />
+                </button>
               </div>
               {/* <div className="an-account-box">
                 <p>Already have an account<Link to="/login">Log in</Link></p>

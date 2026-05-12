@@ -14,7 +14,7 @@ const FlightSec1 = () => {
           <div className="main-Sec1">
             <div className="Sec1-card">
               <div className="Sec1-card-icon">
-                <img src={Search} alt="" />
+                <img src={Search} alt={t("section2.Search_simply")} />
               </div>
               <h2>{t("section2.Search_simply")}</h2>
               <p>{t("section2.Search_simply_para")}</p>
@@ -22,7 +22,7 @@ const FlightSec1 = () => {
 
             <div className="Sec1-card">
               <div className="Sec1-card-icon">
-                <img src={Comparison} alt="" />
+                <img src={Comparison} alt={t("section2.Comparison")} />
               </div>
               <h2>{t("section2.Comparison")}</h2>
               <p>{t("section2.Comparison_para")}</p>
@@ -30,7 +30,7 @@ const FlightSec1 = () => {
 
             <div className="Sec1-card">
               <div className="Sec1-card-icon">
-                <img src={Maximize} alt="" />
+                <img src={Maximize} alt={t("section2.Maximize_Savings")} />
               </div>
               <h2>{t("section2.Maximize_Savings")} </h2>
               <p>{t("section2.Maximize_Savings_para")}              </p>

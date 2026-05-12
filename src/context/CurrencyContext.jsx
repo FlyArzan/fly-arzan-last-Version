@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import axios from "axios";
-import { CURR_API_KEY } from "../baseUrl";
 
 // Create Context
 const CurrencyContext = createContext();
@@ -8,40 +7,32 @@ const CurrencyContext = createContext();
 // Provider Component
 export const CurrencyProvider = ({ children }) => {
   const [rates, setRates] = useState({}); // Rates for different currencies
-  
-  const selectedLocalCurr = JSON.parse(localStorage.getItem("selectCurr"));
-  const [currency, setCurrency] = useState(selectedLocalCurr?.curr ||""); // Default USD rakho
-  const BASE_CURRENCY = "USD"; // Base currency
-  const BASE_URL = "https://openexchangerates.org/api/latest.json";
-  
 
-  // Fetch rates whenever component mounts
+  const selectedLocalCurr = JSON.parse(localStorage.getItem("selectCurr"));
+  const [currency, setCurrency] = useState(selectedLocalCurr?.curr || ""); // Default USD
+  const BASE_URL = `${import.meta.env.VITE_API_URL}/api/geo-currency`;
+
+  // Fetch rates from backend (which proxies Open Exchange Rates server-side)
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const response = await axios.get(BASE_URL, {
-          params: {
-            app_id: CURR_API_KEY,
-            base: BASE_CURRENCY, // Yeh Open Exchange Rates mein paid plan mein hota hai
-          },
-        });
-        const data = response.data.rates;
-        setRates(data);
+        const response = await axios.get(BASE_URL);
+        const data = response.data?.exchangeRate?.rates;
+        if (data) setRates(data);
       } catch (error) {
         console.error("Failed to fetch currency rates:", error.message);
       }
     };
 
     fetchRates();
-  }, [currency]);
+  }, []);
 
   // Convert Function
   const convertPrice = (amount, targetCurrency = currency) => {
     if (!rates[targetCurrency]) {
-      // console.warn(`Rate for ${targetCurrency} not found.`);
       return amount;
     }
-    
+
     const rate = rates[targetCurrency];
     const converted = amount * rate;
 

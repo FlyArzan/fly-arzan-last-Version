@@ -67,7 +67,7 @@ const UnifiedFlightSegment = memo(
             {getAirlineLogoUrl(airlineCode) ? (
               <img
                 src={getAirlineLogoUrl(airlineCode)}
-                alt={firstFlight.airline || airlineCode}
+                alt={`${firstFlight.airline || airlineCode} airline logo`}
                 className="tw:w-[120px] tw:-mt-[35px] tw:mr-4"
               />
             ) : (

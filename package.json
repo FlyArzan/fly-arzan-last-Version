@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "node server.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -56,6 +57,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "currency-symbol-map": "^5.1.0",
+    "express": "^4.21.2",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.12",
     "i18next": "^24.2.3",

@@ -312,7 +312,7 @@ function AddFlight() {
                       {imgUrl ? (
                         <img
                           src={imgUrl}
-                          alt="Selected"
+                          alt="Selected flight image preview"
                           style={{
                             width: "100%",
                             height: "100%",
@@ -321,7 +321,7 @@ function AddFlight() {
                         />
                       ) : (
                         <>
-                          <img src={uploadImg} alt="" />
+                          <img src={uploadImg} alt="Upload flight image" />
                           <p>Upload Image</p>
                           <p className="max">Max (10mb)</p>
                         </>

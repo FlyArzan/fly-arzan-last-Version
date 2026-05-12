@@ -11,7 +11,7 @@ const Bookingcomponets = () => {
 
         <div className="Bookingcomponets-card">
           <div className="Booking-car-card-img">
-            <img src={carimg} alt="" />
+            <img src={carimg} alt="Honda City rental car" />
           </div>
           <div className="Booking-car-card-tital">
             <h1>Honda City</h1>
@@ -39,7 +39,7 @@ const Bookingcomponets = () => {
 
         <div className="Bookingcomponets-card">
           <div className="hotal-crad-img">
-            <img src={HotelsInner1} alt="" />
+            <img src={HotelsInner1} alt="The George Hotel by Saffron Dubai Creek" />
           </div>
 
           <div className="hotal-crad-tital">
@@ -109,7 +109,7 @@ const Bookingcomponets = () => {
 
         <div className="Bookingcomponets-card">
           <div className="flight-card-img">
-            <img src={dubai} alt="" />
+            <img src={dubai} alt="flydubai airline" />
             <p>flydubai</p>
             <p>FZ-329</p>
           </div>

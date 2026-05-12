@@ -10,7 +10,7 @@ const Dashbordheader = () => {
       <header className="Dashbordheader">
         <div className="main-Dashbordheader">
           <div className="Dashbordheader-logo">
-            <img src={logo} alt="" />
+            <img src={logo} alt="Fly Arzan" />
           </div>
           <div className="Dashbordheader-box">
             <div className="Dashbordheader-tital">
@@ -25,7 +25,7 @@ const Dashbordheader = () => {
               </svg>
               <div className="Dashbordheader-Admin-dp-box">
                 <div className="Dashbordheader-Admin-dp">
-                  <img src={admindp} alt="" />
+                  <img src={admindp} alt="Administrator profile" />
                 </div>
                 <div className="Dashbordheader-Admin-id">
                   <Drophead />

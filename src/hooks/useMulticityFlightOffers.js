@@ -9,7 +9,11 @@ export const useMulticityFlightOffers = () => {
     mutationKey: ["multicity-data"],
     mutationFn: (multicityData) =>
       axios.post("/flight-offers", multicityData).then((res) => res.data),
-    onError: () => {
+    onError: (error) => {
+      console.error(
+        "[MultiCityFlightOffers] Failed to fetch multi-city offers:",
+        error,
+      );
       toast.error("Something went wrong");
     },
   });

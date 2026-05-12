@@ -17,7 +17,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         }`}
       >
         <div className="tw:flex tw:items-center tw:justify-center tw:py-4">
-          <img src="/logo.png" />
+          <img src="/logo.png" alt="Fly Arzan" />
         </div>
         <nav>
           <NavLink

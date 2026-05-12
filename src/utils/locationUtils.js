@@ -1,5 +1,5 @@
 /**
- * Clean IP-based location detection using ipapi.co
+ * IP-based location detection via backend (BigDataCloud)
  */
 
 /**
@@ -96,22 +96,25 @@ const COUNTRY_TO_LANGUAGE = {
 };
 
 /**
- * Get user's location data from backend API (which uses paid ipapi.com)
+ * Get user's location data from backend API (uses BigDataCloud for geolocation)
  * Frontend should NOT call geo APIs directly - backend handles this securely
  */
 export async function getUserLocationFromIP() {
   try {
     const API_BASE_URL = import.meta.env.VITE_API_URL;
+    console.log("[locationUtils] Fetching geo-currency from:", `${API_BASE_URL}/api/geo-currency`);
     const response = await fetch(`${API_BASE_URL}/api/geo-currency`);
 
     if (!response.ok) {
+      console.warn("[locationUtils] geo-currency failed with status:", response.status);
       return null;
     }
 
     const geoData = await response.json();
+    console.log("[locationUtils] geo-currency response:", JSON.stringify(geoData));
 
     // Map backend response to expected format
-    return {
+    const result = {
       status: "success",
       country: geoData.countryName,
       countryCode: geoData.countryCode,
@@ -121,13 +124,16 @@ export async function getUserLocationFromIP() {
       timezone: geoData.timeZone?.id,
       currency: geoData.currency?.code,
     };
-  } catch {
+    console.log("[locationUtils] Mapped location data:", JSON.stringify(result));
+    return result;
+  } catch (err) {
+    console.error("[locationUtils] getUserLocationFromIP error:", err);
     return null;
   }
 }
 
 /**
- * Map ipapi.co response to regionalSettings format
+ * Map location data to regionalSettings format
  */
 export function mapLocationToRegionalSettings(locationData) {
   const countryCode = locationData.countryCode || "US";
@@ -260,26 +266,28 @@ export async function getNearestAirport() {
   try {
     // First get user's location from IP
     const locationData = await getUserLocationFromIP();
+    console.log("[locationUtils] getNearestAirport - locationData:", JSON.stringify(locationData));
 
     if (!locationData || !locationData.lat || !locationData.lon) {
-      console.warn("Could not get user location for nearest airport");
+      console.warn("[locationUtils] Could not get user location for nearest airport - lat:", locationData?.lat, "lon:", locationData?.lon);
       return null;
     }
 
     const API_BASE_URL = import.meta.env.VITE_API_URL;
     const response = await fetch(
-      `${API_BASE_URL}/api/airports/nearest?lat=${locationData.lat}&lon=${locationData.lon}`
+      `${API_BASE_URL}/api/airports/nearest?lat=${locationData.lat}&lon=${locationData.lon}`,
     );
 
     if (!response.ok) {
-      console.warn("Failed to fetch nearest airport");
+      console.warn("[locationUtils] Failed to fetch nearest airport, status:", response.status);
       return null;
     }
 
     const data = await response.json();
+    console.log("[locationUtils] Nearest airport response:", JSON.stringify(data));
     return data.airport;
   } catch (error) {
-    console.error("Error getting nearest airport:", error);
+    console.error("[locationUtils] Error getting nearest airport:", error);
     return null;
   }
 }
@@ -334,7 +342,7 @@ export async function getNearestAirportCached() {
         JSON.stringify({
           airport,
           timestamp: Date.now(),
-        })
+        }),
       );
     }
 

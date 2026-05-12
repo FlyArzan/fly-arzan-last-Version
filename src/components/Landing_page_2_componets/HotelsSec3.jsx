@@ -17,7 +17,7 @@ const HotelsSec3 = forwardRef((props, ref) => {
             <div className="Sec3-card-box">
               <div className="Sec3-card">
                 <div className="Sec3-card-img">
-                  <img src={Useful1} alt="" />
+                  <img src={Useful1} alt={t("Articlestitale.heading1")} />
                 </div>
                 <div className="Sec3-card-tital">
                   <span>
@@ -53,7 +53,7 @@ const HotelsSec3 = forwardRef((props, ref) => {
 
               <div className="Sec3-card">
                 <div className="Sec3-card-img">
-                  <img src={Useful2} alt="" />
+                  <img src={Useful2} alt={t("Articlestitale.heading2")} />
                 </div>
                 <div className="Sec3-card-tital">
                   <span>
@@ -89,7 +89,7 @@ const HotelsSec3 = forwardRef((props, ref) => {
 
               <div className="Sec3-card">
                 <div className="Sec3-card-img">
-                  <img src={Useful3} alt="" />
+                  <img src={Useful3} alt={t("Articlestitale.heading3")} />
                 </div>
                 <div className="Sec3-card-tital">
                   <span>

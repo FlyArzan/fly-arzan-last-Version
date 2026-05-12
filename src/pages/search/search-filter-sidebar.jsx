@@ -25,7 +25,7 @@ const SearchFilterSidebar = ({ flightOffersData, FilterComponent }) => {
               <DrawerTitle className="text-xl font-medium sr-only">
                 Brand Logo
               </DrawerTitle>
-              <img src="/logo.png" />
+              <img src="/logo.png" alt="Fly Arzan" />
               <DrawerDescription className="sr-only">
                 Mobile sidebar navigation
               </DrawerDescription>

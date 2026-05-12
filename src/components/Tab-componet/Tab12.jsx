@@ -62,11 +62,11 @@ const Tab12 = () => {
                 <div className="Dashboard-itex-card">
                   <div className="Dashboard-itex-card-side">
                     <div className="Dashboard-itex-card-img">
-                      <img src={dpimg} alt="" />
+                      <img src={dpimg} alt="Hotel room preview" />
                     </div>
                     <div className="Dashboard-itex-card-tital">
                       <h2>Queen Bed A-12324</h2>
-                      <span><img src={dp} alt="" />
+                      <span><img src={dp} alt="Guest James Sukardi profile" />
                         <p>James Sukardi</p>
                         <p>12min ago</p>
                       </span>
@@ -78,11 +78,11 @@ const Tab12 = () => {
                 <div className="Dashboard-itex-card">
                   <div className="Dashboard-itex-card-side">
                     <div className="Dashboard-itex-card-img">
-                      <img src={dpimg} alt="" />
+                      <img src={dpimg} alt="Hotel room preview" />
                     </div>
                     <div className="Dashboard-itex-card-tital">
                       <h2>Queen Bed A-12324</h2>
-                      <span><img src={dp} alt="" />
+                      <span><img src={dp} alt="Guest James Sukardi profile" />
                         <p>James Sukardi</p>
                         <p>12min ago</p>
                       </span>

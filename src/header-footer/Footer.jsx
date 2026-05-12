@@ -43,7 +43,7 @@ const Footer = () => {
               <div className="Footer-main-1">
                 <div className="footer--logo">
                   <Link to="/">
-                    <img src={Footer_logo} alt="Footer_logo" />
+                    <img src={Footer_logo} alt="Fly Arzan" />
                   </Link>
                 </div>
 
@@ -81,10 +81,7 @@ const Footer = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <img
-                        src={youtube_logo}
-                        alt="LinkedIn (on YouTube icon)"
-                      />
+                      <img src={youtube_logo} alt="LinkedIn" />
                     </a>
                   </div>
                 </div>

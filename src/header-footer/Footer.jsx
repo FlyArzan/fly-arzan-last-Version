@@ -30,7 +30,6 @@ const Footer = () => {
     }
 
     // Success
-    console.log("Successfully Subscribed");
     toast.success("Thank you for your subscription");
   };
 
@@ -103,7 +102,7 @@ const Footer = () => {
                       <li>
                         {t(
                           "footer.quickLinks.termsAndConditions",
-                          "Terms & Conditions"
+                          "Terms & Conditions",
                         )}
                       </li>
                     </Link>

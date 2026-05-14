@@ -28,7 +28,6 @@ export const useWebSocket = (isAuthenticated = false) => {
 
         switch (data.type) {
           case "connected":
-            console.log("[WS] Connected:", data.message);
             break;
 
           case "notification":
@@ -45,8 +44,8 @@ export const useWebSocket = (isAuthenticated = false) => {
                 type === "warning"
                   ? "warning"
                   : type === "promo"
-                  ? "info"
-                  : "info";
+                    ? "info"
+                    : "info";
               toast[toastType](title || "New notification", {
                 position: "top-right",
                 autoClose: 5000,
@@ -59,13 +58,13 @@ export const useWebSocket = (isAuthenticated = false) => {
             break;
 
           default:
-            console.log("[WS] Unknown message type:", data.type);
+            break;
         }
       } catch (error) {
         console.error("[WS] Failed to parse message:", error);
       }
     },
-    [queryClient]
+    [queryClient],
   );
 
   // Connect to WebSocket
@@ -83,13 +82,10 @@ export const useWebSocket = (isAuthenticated = false) => {
       return;
     }
 
-    console.log("[WS] Connecting to", WS_URL);
-
     try {
       const ws = new WebSocket(WS_URL);
 
       ws.onopen = () => {
-        console.log("[WS] Connected");
         setIsConnected(true);
         reconnectDelayRef.current = INITIAL_RECONNECT_DELAY;
       };
@@ -97,7 +93,6 @@ export const useWebSocket = (isAuthenticated = false) => {
       ws.onmessage = handleMessage;
 
       ws.onclose = (event) => {
-        console.log("[WS] Disconnected:", event.code, event.reason);
         setIsConnected(false);
         wsRef.current = null;
 
@@ -109,12 +104,11 @@ export const useWebSocket = (isAuthenticated = false) => {
         // Schedule reconnection with exponential backoff
         if (isAuthenticated) {
           const delay = reconnectDelayRef.current;
-          console.log(`[WS] Reconnecting in ${delay}ms...`);
 
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectDelayRef.current = Math.min(
               reconnectDelayRef.current * RECONNECT_MULTIPLIER,
-              MAX_RECONNECT_DELAY
+              MAX_RECONNECT_DELAY,
             );
             connect();
           }, delay);

@@ -19,7 +19,7 @@ const HotelsSec4 = forwardRef((props, ref) => {
     endpoint,
     true, // fetchOnMount
     BackendUrl,
-    false // isFormData
+    false, // isFormData
   );
   // Tab data
   const tabs = {
@@ -74,9 +74,7 @@ const HotelsSec4 = forwardRef((props, ref) => {
     refetch();
   }, [activeTab, regionalSettings]);
 
-  const handleNavigate = (title) => {
-    console.log(title);
-  };
+  const handleNavigate = (title) => {};
   return (
     <section ref={ref} className="Sec4-sec" id="extended-hotel">
       <div className="container">

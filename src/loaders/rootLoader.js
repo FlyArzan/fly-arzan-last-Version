@@ -40,7 +40,7 @@ function cacheGeoData(data, backgroundImage, timePeriod, hour) {
     };
     localStorage.setItem(
       GEO_CACHE_KEY,
-      JSON.stringify({ data: cacheData, timestamp: Date.now() })
+      JSON.stringify({ data: cacheData, timestamp: Date.now() }),
     );
   } catch (e) {
     console.warn("Failed to cache geo data:", e);
@@ -52,21 +52,9 @@ function cacheGeoData(data, backgroundImage, timePeriod, hour) {
  */
 async function fetchGeoData() {
   try {
-    console.log("[rootLoader] Fetching geo data from:", `${API_BASE_URL}/api/geo-currency`);
     const response = await fetch(`${API_BASE_URL}/api/geo-currency`);
-    if (!response.ok) {
-      console.warn("[rootLoader] geo-currency failed, status:", response.status);
-      return null;
-    }
+    if (!response.ok) return null;
     const data = await response.json();
-    console.log("[rootLoader] geo-currency response:", JSON.stringify({
-      countryCode: data.countryCode,
-      city: data.city,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      nearestAirport: data.nearestAirport,
-      _debug: data._debug,
-    }));
     return data;
   } catch (err) {
     console.error("[rootLoader] fetchGeoData error:", err);

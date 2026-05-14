@@ -67,7 +67,7 @@ export default function Dashboard() {
 
   const { startDate, endDate } = useMemo(
     () => getRange(timeRange),
-    [timeRange]
+    [timeRange],
   );
 
   // Queries
@@ -97,9 +97,7 @@ export default function Dashboard() {
   // Monitoring (poll every 2 min via hooks)
   const { data: healthData } = useMonitoringHealth();
 
-  const handleExport = () => {
-    console.log("Exporting dashboard data");
-  };
+  const handleExport = () => {};
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -1031,18 +1029,18 @@ export default function Dashboard() {
                           service.status === "down"
                             ? "rgba(239,68,68,0.12)"
                             : service.status === "degraded"
-                            ? "rgba(234,179,8,0.12)"
-                            : service.status === "unknown"
-                            ? "rgba(107,114,128,0.12)"
-                            : "rgba(34, 197, 94, 0.1)",
+                              ? "rgba(234,179,8,0.12)"
+                              : service.status === "unknown"
+                                ? "rgba(107,114,128,0.12)"
+                                : "rgba(34, 197, 94, 0.1)",
                         color:
                           service.status === "down"
                             ? "#ef4444"
                             : service.status === "degraded"
-                            ? "#eab308"
-                            : service.status === "unknown"
-                            ? "#9ca3af"
-                            : "#22c55e",
+                              ? "#eab308"
+                              : service.status === "unknown"
+                                ? "#9ca3af"
+                                : "#22c55e",
                         fontFamily: "Inter",
                         fontSize: "0.75rem",
                         textTransform: "capitalize",

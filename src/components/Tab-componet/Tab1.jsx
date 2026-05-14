@@ -24,21 +24,21 @@ const Tab1 = ({ upperHeadingShow = true }) => {
   const { contextData, setContextData } = useContext(FlightContext);
 
   const [activeButton, setActiveButton] = useState(
-    contextData?.type || "One Way"
+    contextData?.type || "One Way",
   );
   const [selectedTab, setSelectedTab] = useState(
     contextData?.type == "Return"
       ? 1
       : contextData?.type == "Multi City"
-      ? 2
-      : 0
+        ? 2
+        : 0,
   );
 
   const [titleChange, setTitleChange] = useState(
-    contextData?.titleChange || false
+    contextData?.titleChange || false,
   );
   const [flyingFrom, setFlyingFrom] = useState(
-    contextData?.fromSearchVal || ""
+    contextData?.fromSearchVal || "",
   );
 
   const [searchFrom, setSearchFrom] = useState(""); // Stores input for API call
@@ -48,14 +48,13 @@ const Tab1 = ({ upperHeadingShow = true }) => {
   const [fromSuggestions, setFromSuggestions] = useState([]);
 
   const [toSuggestions, setToSuggestions] = useState([]);
-  console.log(contextData?.cabin,"contextData?.cabin");
-  
+
   const [cabin, setCabin] = useState(
-    contextData?.cabin || "Cabin_Class_Adults"
+    contextData?.cabin || "Cabin_Class_Adults",
   );
 
   const [DepartureDate, setDepartureDate] = useState(
-    contextData?.departureDate || null
+    contextData?.departureDate || null,
   );
   const [ReturnDate, setReturnDate] = useState(contextData?.returnDate || null);
   const [flightGroups, setFlightGroups] = useState([
@@ -76,12 +75,12 @@ const Tab1 = ({ upperHeadingShow = true }) => {
   const { data: suggestionFromData, refetch: FromSugFetch } = useGet(
     searchFrom
       ? `/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${searchFrom}`
-      : null
+      : null,
   );
   const { data: suggestionToData, refetch: ToSugFetch } = useGet(
     searchTo
       ? `/v1/reference-data/locations?subType=CITY,AIRPORT&keyword=${searchTo}`
-      : null
+      : null,
   );
 
   useEffect(() => {
@@ -109,7 +108,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
       setSearch(value);
       fetchSuggestions();
     },
-    150 // 500ms delay
+    150, // 500ms delay
   );
   const handleInputChangeForGroups = useMemo(
     () =>
@@ -123,8 +122,8 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                   [`search${type.charAt(0).toUpperCase() + type.slice(1)}`]:
                     value, // Update search term
                 }
-              : group
-          )
+              : group,
+          ),
         );
 
         // Active search update karein
@@ -134,7 +133,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
           setSearchTo(value); // ✅ Yeh zaroori hai taake `useEffect` trigger ho
         }
       }, 150),
-    []
+    [],
   );
 
   // Update state when data changes
@@ -245,8 +244,8 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                 [type]: `${cityName} (${iataCode})`,
                 [`iataCode${type}`]: iataCode,
               }
-            : group
-        )
+            : group,
+        ),
       );
     }
   };
@@ -520,7 +519,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                             handleSelectSuggestion(
                               airport.iataCode,
                               airport.name,
-                              "flyingFrom"
+                              "flyingFrom",
                             )
                           }
                         >
@@ -581,7 +580,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                             handleSelectSuggestion(
                               airport.iataCode,
                               airport.name,
-                              "flyingTo"
+                              "flyingTo",
                             )
                           }
                         >
@@ -869,7 +868,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                                 handleSelectSuggestion(
                                   airport.iataCode,
                                   airport.name,
-                                  "flyingTo"
+                                  "flyingTo",
                                 )
                               }
                             >
@@ -962,7 +961,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                                 handleSelectSuggestion(
                                   airport.iataCode,
                                   airport.name,
-                                  "flyingFrom"
+                                  "flyingFrom",
                                 )
                               }
                             >
@@ -1025,7 +1024,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                                 handleSelectSuggestion(
                                   airport.iataCode,
                                   airport.name,
-                                  "flyingFrom"
+                                  "flyingFrom",
                                 )
                               }
                             >
@@ -1118,7 +1117,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                                 handleSelectSuggestion(
                                   airport.iataCode,
                                   airport.name,
-                                  "flyingTo"
+                                  "flyingTo",
                                 )
                               }
                             >
@@ -1373,7 +1372,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                       ? fromSuggestions?.filter((airport) =>
                           airport.name
                             .toLowerCase()
-                            .includes(group.flyingFrom.toLowerCase())
+                            .includes(group.flyingFrom.toLowerCase()),
                         )
                       : [];
 
@@ -1382,7 +1381,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                       ? toSuggestions?.filter((airport) =>
                           airport.name
                             .toLowerCase()
-                            .includes(group.flyingTo.toLowerCase())
+                            .includes(group.flyingTo.toLowerCase()),
                         )
                       : [];
 
@@ -1441,7 +1440,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                                     airport.iataCode,
                                     airport.name,
                                     "flyingFrom",
-                                    group.id
+                                    group.id,
                                   )
                                 }
                               >
@@ -1506,7 +1505,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                                     airport.iataCode,
                                     airport.name,
                                     "flyingTo",
-                                    group.id
+                                    group.id,
                                   )
                                 }
                               >
@@ -1609,11 +1608,11 @@ const Tab1 = ({ upperHeadingShow = true }) => {
                                         ...g,
                                         DepartureDate: format(
                                           date,
-                                          "yyyy-MM-dd"
+                                          "yyyy-MM-dd",
                                         ),
                                       }
-                                    : g
-                                )
+                                    : g,
+                                ),
                               );
                             }}
                             className="form__field more-short-withd"

@@ -42,10 +42,8 @@ const Login = ({ setShowPopup }) => {
   const { t } = useTranslation();
 
   const onSubmit = async (data) => {
-    console.log("Form submitted with data:", data);
     try {
       if (isSignup) {
-        console.log("Attempting signup...");
         await signUpMutation.mutateAsync({
           name: data.email.split("@")[0],
           email: data.email,
@@ -54,13 +52,11 @@ const Login = ({ setShowPopup }) => {
         toast.success("Account created successfully!");
         setIsSignup(false);
       } else {
-        console.log("Attempting login...");
         const response = await signInMutation.mutateAsync({
           email: data.email,
           password: data.password,
           rememberMe, // Pass rememberMe option
         });
-        console.log("Login response:", response);
 
         // Use confirmedUser from session polling, fallback to response.user
         const user = response?.confirmedUser || response?.user;
@@ -449,8 +445,8 @@ const Login = ({ setShowPopup }) => {
                 ? t(`Logsec.btn5`)
                 : t(`Logsec.btn3`)
               : isSignup
-              ? t(`Logsec.btn2`)
-              : t(`Logsec.btn1`)}
+                ? t(`Logsec.btn2`)
+                : t(`Logsec.btn1`)}
           </button>
 
           {/* Divider */}

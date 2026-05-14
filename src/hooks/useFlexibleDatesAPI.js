@@ -42,14 +42,14 @@ const fetchFlexiblePrices = async ({
   }
 
   const response = await fetch(
-    `${API_BASE_URL}/api/flight-offers/flexible-prices?${params.toString()}`
+    `${API_BASE_URL}/api/flight-offers/flexible-prices?${params.toString()}`,
   );
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(
       errorData.message ||
-        `Failed to fetch flexible prices: ${response.statusText}`
+        `Failed to fetch flexible prices: ${response.statusText}`,
     );
   }
 
@@ -68,7 +68,7 @@ export const getFlexibleDatesFromAPI = (
   selectedDate,
   priceData,
   daysBeforeAfter = 3,
-  isLoading = false
+  isLoading = false,
 ) => {
   const dates = [];
   const today = startOfDay(new Date());
@@ -127,9 +127,6 @@ export const useFlexibleDatesAPI = (searchParams, enabled = true) => {
       oneWay,
     ],
     queryFn: async () => {
-      console.log(
-        `[FlexibleDates] Fetching prices for ${origin} → ${destination}, range: ${departureDate} to ${endDate}`
-      );
       try {
         const result = await fetchFlexiblePrices({
           origin,
@@ -139,11 +136,6 @@ export const useFlexibleDatesAPI = (searchParams, enabled = true) => {
           oneWay,
           viewBy: "DATE",
         });
-        console.log(
-          `[FlexibleDates] Got prices for ${
-            Object.keys(result?.data || {}).length
-          } dates (source: ${result?.meta?.source || "unknown"})`
-        );
         return result;
       } catch (error) {
         console.error("[FlexibleDates] API Error:", error);

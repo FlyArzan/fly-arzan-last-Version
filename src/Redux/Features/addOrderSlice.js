@@ -3,22 +3,20 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BaseUrl } from "../../baseUrl";
- 
-
 
 export const addOrder = createAsyncThunk(
   "addorder",
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BaseUrl}/create-order`, credentials, {
-        headers: {
-          "Content-Type": "application/json",
+      const response = await axios.post(
+        `${BaseUrl}/create-order`,
+        credentials,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
-
-
-
-
+      );
 
       // Axios automatically parses the response data, so no need to call `.json()`
       return response.data;
@@ -36,27 +34,22 @@ export const addOrder = createAsyncThunk(
         return rejectWithValue(error.message || "Something went wrong");
       }
     }
-  }
+  },
 );
-
 
 export const SingleOrder = createAsyncThunk(
   "singleorder",
   async (args, { rejectWithValue }) => {
-    const response = await fetch(
-      `${BaseUrl}/getorderdetails/${args}`
-    );
+    const response = await fetch(`${BaseUrl}/getorderdetails/${args}`);
 
     try {
       const result = await response.json();
-      console.log(result);
       return result;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
-
 
 export const allOrders = createAsyncThunk(
   "allorders",
@@ -66,8 +59,7 @@ export const allOrders = createAsyncThunk(
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-        }
-
+        },
       });
 
       // Check if the response status is not ok (like 400 or 500 status codes)
@@ -83,11 +75,8 @@ export const allOrders = createAsyncThunk(
       // Handle network errors or unexpected errors
       return rejectWithValue(error.message || "Network error occurred");
     }
-  }
+  },
 );
-
-
-
 
 export const updateorder = createAsyncThunk(
   "updateorder",
@@ -114,33 +103,22 @@ export const updateorder = createAsyncThunk(
       // Handle network errors or unexpected errors
       return rejectWithValue(error.message || "Network error occurred");
     }
-  }
+  },
 );
-
-
-
-
 
 export const ordersbyEmail = createAsyncThunk(
   "ordersbyemail",
   async (args, { rejectWithValue }) => {
-    const response = await fetch(
-      `${BaseUrl}/ordersbyemail/${args}`
-    );
+    const response = await fetch(`${BaseUrl}/ordersbyemail/${args}`);
 
     try {
       const result = await response.json();
-      console.log(result);
       return result;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
-
-
-
-
 
 // Define your slice
 export const addorderSlice = createSlice({
@@ -152,9 +130,7 @@ export const addorderSlice = createSlice({
 
     allOrders: [],
 
-    emailOrders: []
-
-
+    emailOrders: [],
   },
   reducers: {
     logout: (state) => {
@@ -164,9 +140,6 @@ export const addorderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
-
-
 
       .addCase(addOrder.pending, (state) => {
         state.loading = true;
@@ -180,9 +153,6 @@ export const addorderSlice = createSlice({
         state.error = action.payload;
       })
 
-
-
-
       .addCase(SingleOrder.pending, (state) => {
         state.loading = true;
       })
@@ -194,10 +164,6 @@ export const addorderSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-
-
-
 
       .addCase(allOrders.pending, (state) => {
         state.loading = true;
@@ -211,45 +177,31 @@ export const addorderSlice = createSlice({
         state.error = action.payload;
       })
 
-
-
       .addCase(updateorder.pending, (state) => {
         state.loading = true;
       })
       .addCase(updateorder.fulfilled, (state, action) => {
         state.loading = false;
-
       })
       .addCase(updateorder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-
-
-
-
       .addCase(ordersbyEmail.pending, (state) => {
         state.loading = true;
       })
       .addCase(ordersbyEmail.fulfilled, (state, action) => {
         state.loading = false;
-        state.emailOrders = action.payload.Orders
+        state.emailOrders = action.payload.Orders;
       })
       .addCase(ordersbyEmail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      })
-
-
-
-
-
-
+      });
   },
 });
 
 // Export actions and reducers
 export const { logout } = addorderSlice.actions;
 export default addorderSlice.reducer;
-

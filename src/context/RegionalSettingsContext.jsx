@@ -8,6 +8,7 @@ import {
 } from "react";
 import { useGeoCurrency } from "../hooks/useGeoCurrency";
 import { getExchangeRateFromDollar } from "../utils/exchangeRateUtils";
+import { getLanguageForCountry } from "../utils/locationUtils";
 import PropTypes from "prop-types";
 
 const RegionalSettingsContext = createContext();
@@ -17,7 +18,7 @@ export const useRegionalSettings = () => {
   const context = useContext(RegionalSettingsContext);
   if (!context) {
     throw new Error(
-      "useRegionalSettings must be used within RegionalSettingsProvider"
+      "useRegionalSettings must be used within RegionalSettingsProvider",
     );
   }
   return context;
@@ -50,11 +51,9 @@ const DEFAULT_SETTINGS = {
 const getPrefetchedSettings = () => {
   try {
     const stored = localStorage.getItem("regionalSettings");
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (e) {
-    console.warn("Failed to get prefetched settings:", e);
+    if (stored) return JSON.parse(stored);
+  } catch {
+    // ignore
   }
   return null;
 };
@@ -66,49 +65,14 @@ export const RegionalSettingsProvider = ({ children }) => {
     return prefetched || DEFAULT_SETTINGS;
   });
 
-  // Mark as loaded immediately if we have prefetched data
+  // Only treat as "loaded" (skip geo auto-detection) if the user explicitly chose preferences.
+  // Auto-detected ("ip") or fallback settings must be refreshed from fresh geo data on every load.
   const [isLoaded, setIsLoaded] = useState(() => {
     const prefetched = getPrefetchedSettings();
-    return !!prefetched;
+    return prefetched?.setBy === "user";
   });
 
   const { isLoading, data: geoData, refetch } = useGeoCurrency();
-
-  // Map country to language
-  const getLanguageForCountry = (countryCode) => {
-    const langMap = {
-      US: { label: "English (USA)", code: "en-US" },
-      CA: { label: "English (USA)", code: "en-US" },
-      GB: { label: "English (UK)", code: "en-GB" },
-      AU: { label: "English (USA)", code: "en-US" },
-      DE: { label: "Deutsch (German)", code: "de" },
-      FR: { label: "Français (French)", code: "fr" },
-      ES: { label: "Español (Spanish)", code: "es" },
-      IT: { label: "Italiano (Italian)", code: "it" },
-      NL: { label: "Nederlands (Dutch)", code: "nl" },
-      PT: { label: "Português (Portuguese)", code: "pt-PT" },
-      RU: { label: "Русский (Russian)", code: "ru" },
-      CN: { label: "中文 (Simplified Chinese)", code: "zh-CN" },
-      TW: { label: "中文 (Traditional Chinese)", code: "zh-TW" },
-      JP: { label: "日本語 (Japanese)", code: "ja-JP" },
-      KR: { label: "한국어 (Korean)", code: "ko-KR" },
-      ID: { label: "Bahasa Indonesia (Indonesian)", code: "id" },
-      TR: { label: "Türkçe (Turkish)", code: "tr" },
-      PL: { label: "Polski (Polish)", code: "pl" },
-      SE: { label: "Svenska (Swedish)", code: "sv" },
-      AR: { label: "Español (Spanish)", code: "es" },
-      BR: { label: "Português (Portuguese)", code: "pt-PT" },
-      MX: { label: "Español (Spanish)", code: "es" },
-      AE: { label: "العربية (Arabic)", code: "ar" },
-      SA: { label: "العربية (Arabic)", code: "ar" },
-      EG: { label: "العربية (Arabic)", code: "ar" },
-      GR: { label: "Ελληνικά (Greek)", code: "el" },
-      BD: { label: "English (USA)", code: "en-US" }, // Bangladesh
-      IN: { label: "English (USA)", code: "en-US" }, // India
-      PK: { label: "English (USA)", code: "en-US" }, // Pakistan
-    };
-    return langMap[countryCode] || { label: "English (USA)", code: "en-US" };
-  };
 
   // Only fetch if we don't have prefetched data and user hasn't set preferences
   useEffect(() => {
@@ -137,6 +101,7 @@ export const RegionalSettingsProvider = ({ children }) => {
           base: "USD",
           rates: { USD: 1 },
         },
+        nearestAirport: geoData.nearestAirport || null,
         setBy: "ip",
         detectedAt: new Date().toISOString(),
       };
@@ -150,7 +115,7 @@ export const RegionalSettingsProvider = ({ children }) => {
       setRegionalSettings(fallbackSettings);
       localStorage.setItem(
         "regionalSettings",
-        JSON.stringify(fallbackSettings)
+        JSON.stringify(fallbackSettings),
       );
       setIsLoaded(true);
     }
@@ -166,7 +131,7 @@ export const RegionalSettingsProvider = ({ children }) => {
         refetch();
       }
     },
-    [refetch]
+    [refetch],
   );
 
   // Get selected currency from regionalSettings
@@ -180,11 +145,11 @@ export const RegionalSettingsProvider = ({ children }) => {
       const convertedAmount = getExchangeRateFromDollar(
         usdAmount,
         selectedCurrency,
-        rates
+        rates,
       );
       return parseFloat(convertedAmount).toFixed(2);
     },
-    [regionalSettings, selectedCurrency]
+    [regionalSettings, selectedCurrency],
   );
 
   const value = useMemo(
@@ -207,7 +172,7 @@ export const RegionalSettingsProvider = ({ children }) => {
       selectedCurrencySymbol,
       convertPrice,
       refetch,
-    ]
+    ],
   );
 
   return (

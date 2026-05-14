@@ -15,7 +15,7 @@ const signIn = async (credentials) => {
   // Pass rememberMe option (default true if not specified)
   formData.append(
     "rememberMe",
-    credentials.rememberMe !== false ? "true" : "false"
+    credentials.rememberMe !== false ? "true" : "false",
   );
 
   const response = await fetch(`${API_BASE_URL}/api/auth/custom/sign-in`, {
@@ -146,15 +146,11 @@ export const useResetPassword = () => {
 // Google Sign In - uses better-auth social sign in
 // This function triggers a redirect to Google OAuth
 export const signInWithGoogle = async (callbackURL = "/dashboard") => {
-  console.log("[Google Sign In] Starting...");
-
   const result = await authClient.signIn.social({
     provider: "google",
     callbackURL,
     errorCallbackURL: "/Login?error=google_auth_failed",
   });
-
-  console.log("[Google Sign In] Result:", result);
 
   // Check if there's an error in the response
   if (result?.error) {
@@ -164,10 +160,8 @@ export const signInWithGoogle = async (callbackURL = "/dashboard") => {
 
   // If the client didn't auto-redirect and returned a URL, redirect manually
   if (result?.data?.url) {
-    console.log("[Google Sign In] Redirecting to:", result.data.url);
     window.location.href = result.data.url;
   } else if (result?.url) {
-    console.log("[Google Sign In] Redirecting to:", result.url);
     window.location.href = result.url;
   }
 

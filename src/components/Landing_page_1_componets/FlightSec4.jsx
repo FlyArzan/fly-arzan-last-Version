@@ -15,14 +15,14 @@ const FlightSec4 = forwardRef((props, ref) => {
 
   // Fetch data when activeTab changes
   const endpoint = regionalSettings?.country?.name
-    ? `/category-flight/${activeTab}/${regionalSettings.country.name}`
+    ? `/api/airports/category-flight/${activeTab}/${regionalSettings.country.name}`
     : null;
 
   const { data, loading, refetch } = useGet(
     endpoint,
     true, // fetchOnMount
     BackendUrl,
-    false // isFormData
+    false, // isFormData
   );
 
   //  refetch when tab changes

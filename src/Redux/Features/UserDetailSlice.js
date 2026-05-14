@@ -1,12 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { BaseUrl } from "../../baseUrl";
- 
 
 //create action
 export const createUser = createAsyncThunk(
   "createUser",
   async (data, { rejectWithValue }) => {
-    console.log("data", data);
     const response = await fetch(
       "https://641dd63d945125fff3d75742.mockapi.io/crud",
       {
@@ -15,7 +13,7 @@ export const createUser = createAsyncThunk(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }
+      },
     );
 
     try {
@@ -24,7 +22,7 @@ export const createUser = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 //read action
@@ -32,17 +30,16 @@ export const showUser = createAsyncThunk(
   "showUser",
   async (args, { rejectWithValue }) => {
     const response = await fetch(
-      "https://brokerbulletins-54871d77d1d8.herokuapp.com/getallbrands"
+      "https://brokerbulletins-54871d77d1d8.herokuapp.com/getallbrands",
     );
 
     try {
       const result = await response.json();
-      console.log(result);
       return result;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 //delete action
@@ -51,17 +48,16 @@ export const deleteUser = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     const response = await fetch(
       `https://641dd63d945125fff3d75742.mockapi.io/crud/${id}`,
-      { method: "DELETE" }
+      { method: "DELETE" },
     );
 
     try {
       const result = await response.json();
-      console.log(result);
       return result;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 //update action
@@ -76,7 +72,7 @@ export const updateUser = createAsyncThunk(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      }
+      },
     );
 
     try {
@@ -85,7 +81,7 @@ export const updateUser = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 // create-signup
@@ -94,17 +90,13 @@ export const updateUser = createAsyncThunk(
 export const signup = createAsyncThunk(
   "signup",
   async (data, { rejectWithValue }) => {
-    console.log("data", data);
-    const response = await fetch(
-      `${BaseUrl}/signup`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(`${BaseUrl}/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
     try {
       const result = await response.json();
@@ -112,25 +104,22 @@ export const signup = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 //read action
 export const getemails = createAsyncThunk(
   "getemails",
   async (args, { rejectWithValue }) => {
-    const response = await fetch(
-      `${BaseUrl}/get-emails`
-    );
+    const response = await fetch(`${BaseUrl}/get-emails`);
 
     try {
       const result = await response.json();
-      console.log(result);
       return result;
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const userDetail = createSlice({
@@ -143,7 +132,6 @@ export const userDetail = createSlice({
   },
   reducers: {
     searchUser: (state, action) => {
-      console.log(action.payload);
       state.searchData = action.payload;
     },
   },
@@ -202,7 +190,7 @@ export const userDetail = createSlice({
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
         state.users = state.users.map((ele) =>
-          ele.id === action.payload.id ? action.payload : ele
+          ele.id === action.payload.id ? action.payload : ele,
         );
       })
       .addCase(updateUser.rejected, (state, action) => {

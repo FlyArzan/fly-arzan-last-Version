@@ -128,7 +128,7 @@ export const useSetUserRole = () => {
       if (role === "super") {
         toast.success(
           `Role changed to ${role} successfully. Note: Super admins are hidden from the user list for security.`,
-          { autoClose: 6000 }
+          { autoClose: 6000 },
         );
       } else {
         toast.success(`Role changed to ${role} successfully`);
@@ -250,7 +250,6 @@ export const useImpersonateUser = () => {
   return useMutation({
     mutationFn: async ({ userId }) => {
       // This would need backend implementation
-      console.log("Impersonate user:", userId);
       return { success: true };
     },
   });

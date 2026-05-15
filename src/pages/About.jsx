@@ -9,7 +9,7 @@ import Aboutsec4 from "../components/About_page_componets/Aboutsec4";
 import FlightSec4 from "../components/Landing_page_1_componets/FlightSec4";
 import { usePublicCmsPage } from "../hooks/useCms";
 
-const ABOUT_PAGE_URL = "https://flyarzan.com/about-us";
+const ABOUT_PAGE_URL = "https://flyarzan.com/About";
 const OG_IMAGE =
   "https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg";
 const ABOUT_DESCRIPTION =

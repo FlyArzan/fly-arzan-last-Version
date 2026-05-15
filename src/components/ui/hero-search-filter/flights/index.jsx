@@ -62,7 +62,7 @@ const HeroSearchFilter = () => {
       >
         <div className="container">
           <div className="hero-tital tw:hidden tw:md:block tw:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">
-            <h2> {t("upperSection.Cheap_flights_para")}</h2>
+            <h1> {t("upperSection.Cheap_flights_para")}</h1>
             <p> {t("upperSection.Our_search")}</p>
           </div>
           <div className="">

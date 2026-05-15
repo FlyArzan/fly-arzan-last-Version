@@ -12,7 +12,7 @@ const FaqInnerhero = ({ content }) => {
       <div className="container">
         <div className="FaqInnerhero-main">
           <div className="FaqInnerhero-tital">
-            <h2>{title}</h2>
+            <h1>{title}</h1>
             {subtitle && <p className="faq-subtitle">{subtitle}</p>}
           </div>
           <div className="FaqInnerhero-Search-box">

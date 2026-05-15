@@ -11,7 +11,7 @@ const HeroHotels = () => {
         <div className="container">
           <div className="main-hero">
             <div className="hero-tital">
-              <h2>{t("hotel_section.Cheap_hotels_para")}</h2>
+              <h1>{t("hotel_section.Cheap_hotels_para")}</h1>
               <p> {t("hotel_section.Our_search")}</p>
             </div>
             <div className="Flights-box">

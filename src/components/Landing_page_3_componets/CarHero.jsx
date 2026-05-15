@@ -12,7 +12,7 @@ const CarHero = () => {
         <div className="container">
           <div className="main-hero">
             <div className="hero-tital">
-              <h2> {t(`carsection.Find_the_best_car`)}</h2>
+              <h1> {t(`carsection.Find_the_best_car`)}</h1>
               <p> {t(`carsection.Our_search`)}</p>
             </div>
             <div className="Flights-box">

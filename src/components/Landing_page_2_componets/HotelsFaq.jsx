@@ -105,7 +105,7 @@ const HotelsFaq = forwardRef((props, ref) => {
       <div className="container">
         <div className="main-hero">
           <div className="faq--heading">
-            <h1>{t("hotelFaqs.heading")}</h1>
+            <h2>{t("hotelFaqs.heading")}</h2>
           </div>
 
           <div className="faqs--description">
@@ -115,7 +115,7 @@ const HotelsFaq = forwardRef((props, ref) => {
                   className="faq--item--heading"
                   onClick={() => toggleFaq(index)}
                 >
-                  <h1>{faq.question}</h1>
+                  <h3>{faq.question}</h3>
                   <span>
                     {openFaq === index ? (
                       <img src={ClosedFaq} alt="Collapse" />

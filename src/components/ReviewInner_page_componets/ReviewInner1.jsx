@@ -114,7 +114,7 @@ const ReviewInner1 = () => {
 
                   <div className="ReviewInner-part-2-bottom">
                     <h2>Price you pay</h2>
-                    <h1>£ 450.00</h1>
+                    <p className="ReviewInner-part-2-bottom-price">£ 450.00</p>
                   </div>
                 </div>
 

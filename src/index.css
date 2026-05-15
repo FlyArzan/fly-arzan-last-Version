@@ -369,7 +369,7 @@ section.CarHero-sec {
   width: 100%;
 }
 
-.hero-tital h2 {
+.hero-tital h1 {
   color: #fff;
   font-family: "Rubik";
   font-size: 40px;
@@ -1112,7 +1112,7 @@ section.faq--flight--sec {
   padding: 80px 0px 75px 0px;
 }
 
-.faq--heading h1 {
+.faq--heading h2 {
   font-family: "Rubik";
   font-size: 32px;
   font-weight: 700;
@@ -2301,7 +2301,7 @@ section.FaqInnerhero-sec {
   width: 100%;
 }
 
-.FaqInnerhero-tital h2 {
+.FaqInnerhero-tital h1 {
   color: #fff;
   text-align: center;
   font-family: "Rubik";
@@ -2438,7 +2438,7 @@ section.FaqInner-sec2 {
   background: transparent;
 }
 
-.faq--item--heading h1 {
+.faq--item--heading h3 {
   color: #272727;
   font-family: "Rubik";
   font-size: 20px;
@@ -2738,7 +2738,8 @@ section.ReviewInner {
   line-height: normal;
 }
 
-.ReviewInner-part-2-bottom h1 {
+.ReviewInner-part-2-bottom-price {
+  margin: 0;
   color: #50add8;
   font-family: "Rubik";
   font-size: 40px;
@@ -6573,7 +6574,7 @@ section.Bookingcomponets {
 .Booking-car-card-tital {
 }
 
-.Booking-car-card-tital h1 {
+.Booking-car-card-tital h3 {
   color: #272727;
   font-family: Rubik;
   font-size: 24px;
@@ -6638,7 +6639,7 @@ input {
   text-align: start !important;
 }
 
-.hotal-crad-tital h1 {
+.hotal-crad-tital h3 {
   color: #272727;
   font-family: Rubik;
   font-size: 18.448px;
@@ -7364,7 +7365,7 @@ h2.react-datepicker__current-month {
     padding: 25px 25px 0px 25px;
   }
 
-  .hero-tital h2 {
+  .hero-tital h1 {
     font-size: 35px;
   }
 
@@ -7594,7 +7595,7 @@ h2.react-datepicker__current-month {
     padding: 70px 0px 75px 0px;
   }
 
-  .faq--heading h1 {
+  .faq--heading h2 {
     font-size: 28px;
   }
 
@@ -7606,7 +7607,7 @@ h2.react-datepicker__current-month {
     padding: 25px 25px 30px 25px;
   }
 
-  .faq--item--heading h1 {
+  .faq--item--heading h3 {
     color: #272727;
     font-family: "Rubik";
     font-size: 16px;
@@ -7744,7 +7745,7 @@ h2.react-datepicker__current-month {
     padding: 120px 0px;
   }
 
-  .FaqInnerhero-tital h2 {
+  .FaqInnerhero-tital h1 {
     font-size: 40px;
   }
 
@@ -8301,7 +8302,7 @@ h2.react-datepicker__current-month {
     height: 170px;
   }
 
-  .Booking-car-card-tital h1 {
+  .Booking-car-card-tital h3 {
     font-size: 20px;
   }
 
@@ -8330,7 +8331,7 @@ h2.react-datepicker__current-month {
     width: 180px;
   }
 
-  .hotal-crad-tital h1 {
+  .hotal-crad-tital h3 {
     font-size: 18px;
   }
 
@@ -8506,7 +8507,7 @@ h2.react-datepicker__current-month {
     width: 220px;
   }
 
-  .hero-tital h2 {
+  .hero-tital h1 {
     font-size: 35px;
   }
 
@@ -8657,7 +8658,7 @@ h2.react-datepicker__current-month {
     padding-bottom: 60px;
   }
 
-  .faq--heading h1 {
+  .faq--heading h2 {
     font-size: 25px;
   }
 
@@ -8801,7 +8802,7 @@ h2.react-datepicker__current-month {
     padding: 190px 0px 230px;
   }
 
-  .FaqInnerhero-tital h2 {
+  .FaqInnerhero-tital h1 {
     font-size: 35px;
   }
 
@@ -9139,7 +9140,7 @@ h2.react-datepicker__current-month {
   .Tab-body {
     padding-top: 35px;
   }
-  .hero-tital h2 {
+  .hero-tital h1 {
     font-size: 30px;
   }
 
@@ -9206,7 +9207,7 @@ h2.react-datepicker__current-month {
     width: 180px;
   }
 
-  .hero-tital h2 {
+  .hero-tital h1 {
     font-size: 30px;
   }
 
@@ -9352,7 +9353,7 @@ h2.react-datepicker__current-month {
     width: 18px;
   }
 
-  .faq--heading h1 {
+  .faq--heading h2 {
     font-size: 25px;
   }
 
@@ -9590,7 +9591,7 @@ h2.react-datepicker__current-month {
     padding: 90px 0px;
   }
 
-  .FaqInnerhero-tital h2 {
+  .FaqInnerhero-tital h1 {
     font-size: 30px;
   }
 
@@ -9891,7 +9892,7 @@ h2.react-datepicker__current-month {
     padding: 20px;
   }
 
-  .Booking-car-card-tital h1 {
+  .Booking-car-card-tital h3 {
     font-size: 18px;
   }
 
@@ -9908,7 +9909,7 @@ h2.react-datepicker__current-month {
     font-size: 14px;
   }
 
-  .hotal-crad-tital h1 {
+  .hotal-crad-tital h3 {
     font-size: 16px;
   }
 
@@ -10191,7 +10192,7 @@ h2.react-datepicker__current-month {
     top: 2px !important;
   }
 
-  .hero-tital h2 {
+  .hero-tital h1 {
     font-size: 25px;
   }
 
@@ -10536,7 +10537,7 @@ h2.react-datepicker__current-month {
     height: 8px;
   }
 
-  .FaqInnerhero-tital h2 {
+  .FaqInnerhero-tital h1 {
     font-size: 28px;
   }
 
@@ -11251,7 +11252,7 @@ h2.react-datepicker__current-month {
     gap: 3px;
   }
 
-  .hero-tital h2 {
+  .hero-tital h1 {
     font-size: 24px;
     text-align: center;
   }
@@ -11385,7 +11386,7 @@ h2.react-datepicker__current-month {
     padding-top: 15px;
   }
 
-  .faq--heading h1 {
+  .faq--heading h2 {
     font-size: 20px;
     text-align: center;
   }
@@ -11402,7 +11403,7 @@ h2.react-datepicker__current-month {
     width: 55%;
   }
 
-  .faq--item--heading h1 {
+  .faq--item--heading h3 {
     font-size: 12px;
   }
 
@@ -11592,7 +11593,7 @@ h2.react-datepicker__current-month {
     padding: 140px 0px 160px;
   }
 
-  .FaqInnerhero-tital h2 {
+  .FaqInnerhero-tital h1 {
     font-size: 22px;
   }
 
@@ -12049,7 +12050,7 @@ h2.react-datepicker__current-month {
     padding: 20px;
   }
 
-  .Booking-car-card-tital h1 {
+  .Booking-car-card-tital h3 {
     font-size: 16px;
   }
 

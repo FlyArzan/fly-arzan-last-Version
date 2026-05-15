@@ -106,7 +106,7 @@ const BookYourTicket1 = () => {
                             className="faq--item--heading"
                             onClick={() => toggleFaq(index)}
                           >
-                            <h1>{faq.question}</h1>
+                            <h3>{faq.question}</h3>
                             <span>
                               {openFaq === index ? (
                                 <img src={ClosedFaq} alt="Collapse" />
@@ -359,7 +359,7 @@ const BookYourTicket1 = () => {
                             className="faq--item--heading"
                             onClick={() => toggleFaq(index)}
                           >
-                            <h1>{faq.question}</h1>
+                            <h3>{faq.question}</h3>
                             <span>
                               {openFaq === index ? (
                                 <img src={ClosedFaq} alt="Collapse" />

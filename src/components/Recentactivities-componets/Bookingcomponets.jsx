@@ -14,7 +14,7 @@ const Bookingcomponets = () => {
             <img src={carimg} alt="Honda City rental car" />
           </div>
           <div className="Booking-car-card-tital">
-            <h1>Honda City</h1>
+            <h3>Honda City</h3>
             <p>Lorem ipsum dolor sit amet consectetur adipis
               cing elit congue senectus sem</p>
 
@@ -43,7 +43,7 @@ const Bookingcomponets = () => {
           </div>
 
           <div className="hotal-crad-tital">
-            <h1>The George Hotel by Saffron Dubai Creek</h1>
+            <h3>The George Hotel by Saffron Dubai Creek</h3>
             <p>Baniyas Rd, Deira, Dubai, United Arab Emirates, 3944s</p>
             <div className="0 5-box">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">

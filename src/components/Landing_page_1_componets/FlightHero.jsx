@@ -19,7 +19,7 @@ const FlightHero = () => {
         <div className="container">
           <div className="main-hero">
             <div className="hero-tital">
-              <h2> {t("upperSection.Cheap_flights_para")}</h2>
+              <h1> {t("upperSection.Cheap_flights_para")}</h1>
               <p> {t("upperSection.Our_search")}</p>
             </div>
             <div className="Flights-box">

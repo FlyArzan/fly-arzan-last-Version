@@ -1,10 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss" prefix(tw);
 @import "tailwind-scrollbar-hide/v4";
 @import "tw-animate-css";
 @plugin "@tailwindcss/forms";
 
-/* Import Inter font from Google Fonts */
+/* Inter is linked from index.html (single Google Fonts request). */
 
 @utility container {
   margin-inline: auto;
@@ -42,6 +41,7 @@ body.admin-loading {
   --secondary-color: #a5a2ad;
   --muted-color: #dbdade;
 }
+
 
 @theme inline {
   --color-primary: var(--primary-color);
@@ -89,6 +89,7 @@ body.admin-loading {
   src: url("../src/assets/font/Rubik-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 /* width */

@@ -23,6 +23,7 @@ function InitialLoader() {
       <img
         src="/logo.svg"
         alt="FlyArzan"
+        fetchPriority="high"
         style={{ width: "120px", marginBottom: "24px" }}
         onError={(e) => {
           e.target.style.display = "none";

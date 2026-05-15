@@ -20,15 +20,6 @@ function InitialLoader() {
         background: "linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%)",
       }}
     >
-      <img
-        src="/logo.svg"
-        alt="FlyArzan"
-        fetchPriority="high"
-        style={{ width: "120px", marginBottom: "24px" }}
-        onError={(e) => {
-          e.target.style.display = "none";
-        }}
-      />
       <div
         style={{
           width: "40px",

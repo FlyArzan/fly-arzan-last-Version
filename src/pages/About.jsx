@@ -23,6 +23,7 @@ const About = () => {
     <>
       <Helmet>
         <title>Affordable Travel Search Engine - FlyArzan</title>
+        <link rel="canonical" href={ABOUT_PAGE_URL} />
         <meta name="description" content={ABOUT_DESCRIPTION} />
         <meta property="og:url" content={ABOUT_PAGE_URL} />
         <meta property="og:type" content="website" />

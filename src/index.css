@@ -346,12 +346,25 @@ button.swich svg {
 }
 
 section.hero-sec {
+  position: relative;
+  overflow: hidden;
   width: 100%;
-  /* background-image is set dynamically via useTimeBasedBackground hook */
   padding: 60px 0;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+}
+
+section.hero-sec .hero-sec__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+section.hero-sec > .container {
+  position: relative;
+  z-index: 1;
 }
 
 section.hero-sec.HeroHotels-sec {

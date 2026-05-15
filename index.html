@@ -4,6 +4,59 @@
     <meta charset="UTF-8" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- FLYARZAN_HERO_LCP_PRELOAD: keep logic in sync with src/utils/timeBasedHeroImage.js -->
+    <script>
+      (function () {
+        var P = {
+          day: {
+            s: 6,
+            e: 17,
+            i: [
+              "/Pics/Airline wing/Air line wings 1.jpg",
+              "/Pics/Airline wing/Air line wings 2.jpg",
+              "/Pics/Airline wing/Air line wings 3.jpg",
+              "/Pics/Airline wing/Air line wings 4.jpg",
+              "/Pics/Airline wing/Air line wings 6.jpg",
+              "/Pics/Airline wing/Air line wings 8.jpg",
+              "/Pics/Airline wing/Air line wings 10.jpg",
+              "/Pics/Airline wing/Air line wings 11.jpg",
+            ],
+          },
+          evening: {
+            s: 18,
+            e: 20,
+            i: [
+              "/Pics/Airline wing/Air line wings 5.jpg",
+              "/Pics/Airline wing/Air line wings 7.jpg",
+            ],
+          },
+          night: {
+            s: 21,
+            e: 5,
+            i: ["/Pics/Airline wing/Air line wings 9.jpg"],
+          },
+        };
+        function period(h) {
+          if (h >= P.day.s && h <= P.day.e) return "day";
+          if (h >= P.evening.s && h <= P.evening.e) return "evening";
+          return "night";
+        }
+        function image(periodKey) {
+          var imgs = P[periodKey].i;
+          var d = new Date();
+          var seed =
+            d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+          return imgs[seed % imgs.length];
+        }
+        var href = encodeURI(image(period(new Date().getHours())));
+        var link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "image";
+        link.href = href;
+        link.setAttribute("fetchpriority", "high");
+        document.head.appendChild(link);
+      })();
+    </script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"

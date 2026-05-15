@@ -52,15 +52,20 @@ const HeroSearchFilter = () => {
           </div>
         </div>
       </Modal>
-      <div
-        className="tw:bg-cover top-margin tw:bg-center tw:bg-no-repeat tw:!py-[60px]"
-        style={{
-          backgroundImage: `url(${encodeURI(
+      <div className="tw:relative tw:overflow-hidden tw:bg-cover tw:bg-center tw:bg-no-repeat tw:!py-[60px] top-margin">
+        <img
+          src={encodeURI(
             backgroundImage || "/Pics/Airline wing/Air line wings 8.jpg"
-          )})`,
-        }}
-      >
-        <div className="container">
+          )}
+          alt=""
+          width={1920}
+          height={1080}
+          decoding="async"
+          fetchPriority="high"
+          className="tw:pointer-events-none tw:absolute tw:inset-0 tw:h-full tw:w-full tw:object-cover tw:object-center tw:z-0"
+          aria-hidden
+        />
+        <div className="container tw:relative tw:z-[1]">
           <div className="hero-tital tw:hidden tw:md:block tw:[text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">
             <h1> {t("upperSection.Cheap_flights_para")}</h1>
             <p> {t("upperSection.Our_search")}</p>

@@ -6,12 +6,17 @@ const FlightHeroinner1 = () => {
 
   return (
     <>
-      <section
-        className="hero-sec"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-        }}
-      >
+      <section className="hero-sec">
+        <img
+          src={encodeURI(backgroundImage)}
+          alt=""
+          className="hero-sec__bg"
+          width={1920}
+          height={1080}
+          decoding="async"
+          fetchPriority="high"
+          aria-hidden
+        />
         <div className="container">
           <div className="main-hero">
             <div className="Flights-box">

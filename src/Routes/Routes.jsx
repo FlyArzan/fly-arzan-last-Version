@@ -78,6 +78,7 @@ import { rootLoader } from "../loaders/rootLoader";
 import NotFound from "../pages/NotFound";
 
 // Create router with data loaders for prefetching
+// When changing route paths, update spa-route-allowlist.mjs so the server keeps correct 404s.
 // Future flags to silence React Router v7 deprecation warnings
 export const router = createBrowserRouter(
   [

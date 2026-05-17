@@ -10,6 +10,9 @@ export const useCityLocation = (keyword) => {
     queryFn: () =>
       axios.get(`/locations?keyword=${keyword}`).then((res) => res.data),
     enabled: !!keyword,
+    // Reuse cached results for 5 min so deleting/retyping the same prefix is instant
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   return {

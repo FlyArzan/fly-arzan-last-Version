@@ -72,7 +72,14 @@ export const RegionalSettingsProvider = ({ children }) => {
     return prefetched?.setBy === "user";
   });
 
-  const { isLoading, data: geoData, refetch } = useGeoCurrency();
+  const {
+    isLoading,
+    data: geoData,
+    refetch,
+  } = useGeoCurrency({
+    // Skip the hook fetch entirely if we already have user-set or prefetched data
+    enabled: !isLoaded,
+  });
 
   // Only fetch if we don't have prefetched data and user hasn't set preferences
   useEffect(() => {

@@ -14,6 +14,8 @@ const FlightDetailsPage = () => {
   const [flightData, setFlightData] = useState(null);
   const [loading, setLoading] = useState(true);
   const bookingRef = useRef(null);
+  const flightDetailsRef = useRef(null);
+  const [isHighlighted, setIsHighlighted] = useState(false);
 
   useEffect(() => {
     // Read flight data from session storage
@@ -60,6 +62,10 @@ const FlightDetailsPage = () => {
         try {
           const parsedData = JSON.parse(storedData);
           setFlightData(parsedData);
+          // Trigger highlight animation on the right panel
+          setIsHighlighted(false);
+          requestAnimationFrame(() => setIsHighlighted(true));
+          setTimeout(() => setIsHighlighted(false), 1200);
         } catch {
           // Handle invalid data silently
         }
@@ -242,7 +248,7 @@ const FlightDetailsPage = () => {
 
     return `${total} ${travelerText} • ${actualTripType.replace(
       "-",
-      " "
+      " ",
     )} • ${cabinClass} class`;
   };
 
@@ -388,11 +394,17 @@ const FlightDetailsPage = () => {
                 </div>
 
                 {/* Similar Flights Section */}
-                <SimilarFlights bookingRef={bookingRef} />
+                <SimilarFlights
+                  bookingRef={bookingRef}
+                  flightDetailsRef={flightDetailsRef}
+                />
               </div>
 
               {/* Details */}
-              <div className="tw:w-full tw:lg:w-[468px] tw:order-1 tw:lg:order-2 tw:shrink-0">
+              <div
+                ref={flightDetailsRef}
+                className="tw:w-full tw:lg:w-[468px] tw:order-1 tw:lg:order-2 tw:shrink-0"
+              >
                 <div className="tw:flex tw:items-end tw:justify-between tw:gap-2 tw:mb-6">
                   <div className="tw:flex tw:flex-col tw:gap-2">
                     <h4 className="tw:text-xl tw:font-medium">
@@ -403,7 +415,9 @@ const FlightDetailsPage = () => {
                     All times are local
                   </span>
                 </div>
-                <div className="tw:bg-white tw:p-6 tw:rounded-xl tw:flex tw:flex-col tw:gap-6 tw:shadow">
+                <div
+                  className={`tw:bg-white tw:p-6 tw:rounded-xl tw:flex tw:flex-col tw:gap-6 tw:shadow${isHighlighted ? " flight-panel-updated" : ""}`}
+                >
                   {/* Dynamic Flight Segments */}
                   {flightData.flightOffer.itineraries?.length > 0 ? (
                     flightData.flightOffer.itineraries.map((segment, index) => (

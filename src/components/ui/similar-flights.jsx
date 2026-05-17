@@ -83,7 +83,7 @@ const generateRouteInfoFromFlight = (flight, tripType) => {
   return null;
 };
 
-const SimilarFlights = ({ bookingRef }) => {
+const SimilarFlights = ({ bookingRef, flightDetailsRef }) => {
   const [similarFlights, setSimilarFlights] = useState([]);
   const [selectedFlightDetails, setSelectedFlightDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -140,7 +140,7 @@ const SimilarFlights = ({ bookingRef }) => {
       // Generate updated route info based on the new selected flight
       const updatedRouteInfo = generateRouteInfoFromFlight(
         newSelectedFlight,
-        selectedFlightDetails.tripType
+        selectedFlightDetails.tripType,
       );
 
       // Update the selected flight details in session storage
@@ -157,7 +157,7 @@ const SimilarFlights = ({ bookingRef }) => {
 
       sessionStorage.setItem(
         "selected-flight-details",
-        JSON.stringify(updatedFlightDetails)
+        JSON.stringify(updatedFlightDetails),
       );
 
       // Update local state immediately - no reload needed!
@@ -170,21 +170,25 @@ const SimilarFlights = ({ bookingRef }) => {
           key: "selected-flight-details",
           newValue: JSON.stringify(updatedFlightDetails),
           storageArea: sessionStorage,
-        })
+        }),
       );
 
       // Also dispatch a custom event for the flight details page to listen to
       window.dispatchEvent(
         new CustomEvent("flightSwitched", {
           detail: { newFlightId: newSelectedFlightId },
-        })
+        }),
       );
 
-      // Smooth scroll to Trip.com booking section
-      if (bookingRef?.current) {
-        bookingRef.current.scrollIntoView({
+      // Scroll to the flight details panel (right side) so user sees the update
+      const scrollTarget = flightDetailsRef?.current || bookingRef?.current;
+      if (scrollTarget) {
+        const headerOffset = 104; // sticky header height + breathing room
+        const elementTop =
+          scrollTarget.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({
+          top: elementTop - headerOffset,
           behavior: "smooth",
-          block: "start",
         });
       } else {
         // Fallback to scrolling to top if ref is not available
@@ -306,7 +310,7 @@ const SimilarFlights = ({ bookingRef }) => {
                 const lastFlight = flights[flights.length - 1];
                 const totalDurationMinutes = flights.reduce(
                   (acc, f) => acc + f.durationMinutes,
-                  0
+                  0,
                 );
 
                 return (
@@ -378,7 +382,7 @@ const SimilarFlights = ({ bookingRef }) => {
                                             ? ", "
                                             : ""}
                                         </strong>
-                                      )
+                                      ),
                                     )}
                                   </>
                                 );
@@ -448,7 +452,7 @@ const SimilarFlights = ({ bookingRef }) => {
 
       <div className="tw:flex tw:flex-col tw:gap-4">
         {similarFlights.map((flight, index) =>
-          renderSimilarFlightCard(flight, index)
+          renderSimilarFlightCard(flight, index),
         )}
       </div>
     </div>
@@ -457,6 +461,7 @@ const SimilarFlights = ({ bookingRef }) => {
 
 SimilarFlights.propTypes = {
   bookingRef: PropTypes.object,
+  flightDetailsRef: PropTypes.object,
 };
 
 export default SimilarFlights;

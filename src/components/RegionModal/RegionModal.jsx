@@ -42,10 +42,8 @@ function RegionModal({ setModal }) {
         curr: regionalSettings?.currency?.curr || "USD",
         symbol: regionalSettings?.currency?.symbol || "$",
       });
-      // Don't set country name here — wait for the countries list to load
-      // so we always show the short name.common, never the raw BigDataCloud name.
       setSelectCountry({
-        country: "",
+        country: regionalSettings?.country?.name || "United States",
         countryCode: regionalSettings?.country?.countryCode || "US",
         flag:
           regionalSettings?.country?.flag || "https://flagcdn.com/w320/us.png",
@@ -103,24 +101,6 @@ function RegionModal({ setModal }) {
   useEffect(() => {
     setCountriesData(memoizedCountries);
   }, [memoizedCountries]);
-
-  // Once the countries list loads, resolve the short common name by country code.
-  // BigDataCloud returns long UN names (e.g. "United Kingdom of Great Britain and
-  // Northern Ireland") — we replace it with restcountries' short name.common ("United Kingdom").
-  useEffect(() => {
-    if (countriesData.length === 0) return;
-    const code =
-      selectCountry.countryCode || regionalSettings?.country?.countryCode;
-    if (!code) return;
-    const match = countriesData.find((c) => c.cca2 === code);
-    if (match) {
-      setSelectCountry((prev) => ({
-        ...prev,
-        country: match.name.common,
-        flag: match.flags?.png || match.flags?.svg || prev.flag,
-      }));
-    }
-  }, [countriesData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCountrySelect = (name, countryCode, flag) => {
     setSelectCountry({

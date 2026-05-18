@@ -8,7 +8,10 @@ import {
 } from "react";
 import { useGeoCurrency } from "../hooks/useGeoCurrency";
 import { getExchangeRateFromDollar } from "../utils/exchangeRateUtils";
-import { getLanguageForCountry } from "../utils/locationUtils";
+import {
+  getLanguageForCountry,
+  getCountryDisplayName,
+} from "../utils/locationUtils";
 import PropTypes from "prop-types";
 
 const RegionalSettingsContext = createContext();
@@ -90,7 +93,10 @@ export const RegionalSettingsProvider = ({ children }) => {
       const settings = {
         language: getLanguageForCountry(geoData.countryCode || "US"),
         country: {
-          name: geoData.countryName || "United States",
+          name: getCountryDisplayName(
+            geoData.countryCode || "US",
+            "United States",
+          ),
           countryCode: geoData.countryCode || "US",
           flag: geoData.countryFlag || "https://flagcdn.com/w320/us.png",
         },

@@ -63,6 +63,20 @@ async function fetchGeoData() {
 }
 
 /**
+ * Resolve short country name from ISO code via Intl.DisplayNames.
+ */
+function getCountryDisplayName(countryCode, fallback) {
+  try {
+    const name = new Intl.DisplayNames(["en"], { type: "region" }).of(
+      countryCode,
+    );
+    return name || fallback || countryCode;
+  } catch {
+    return fallback || countryCode;
+  }
+}
+
+/**
  * Map country code to language
  */
 function getLanguageForCountry(countryCode) {
@@ -201,7 +215,10 @@ export async function rootLoader() {
         regionalSettings: {
           language,
           country: {
-            name: cachedGeo.countryName || "United States",
+            name: getCountryDisplayName(
+              cachedGeo.countryCode || "US",
+              "United States",
+            ),
             countryCode: cachedGeo.countryCode || "US",
             flag: cachedGeo.countryFlag || "https://flagcdn.com/w320/us.png",
           },
@@ -278,7 +295,10 @@ export async function rootLoader() {
     const regionalSettings = {
       language,
       country: {
-        name: geoData.countryName || "United States",
+        name: getCountryDisplayName(
+          geoData.countryCode || "US",
+          "United States",
+        ),
         countryCode: geoData.countryCode || "US",
         flag: geoData.countryFlag || "https://flagcdn.com/w320/us.png",
       },

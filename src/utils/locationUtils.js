@@ -3,6 +3,22 @@
  */
 
 /**
+ * Resolve a short country display name from an ISO 3166-1 alpha-2 code.
+ * Uses the built-in Intl.DisplayNames API — zero network requests, instant.
+ * e.g. "GB" → "United Kingdom", "US" → "United States"
+ */
+export function getCountryDisplayName(countryCode, fallback) {
+  try {
+    const name = new Intl.DisplayNames(["en"], { type: "region" }).of(
+      countryCode,
+    );
+    return name || fallback || countryCode;
+  } catch {
+    return fallback || countryCode;
+  }
+}
+
+/**
  * Currency code to symbol mapping
  */
 const CURRENCY_SYMBOLS = {

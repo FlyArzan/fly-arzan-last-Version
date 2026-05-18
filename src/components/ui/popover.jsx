@@ -47,7 +47,6 @@ function Popover({ open: controlledOpen, onOpenChange, children, className }) {
     }
   }, [open]);
 
-
   // Clone children and pass necessary props
   const childrenWithProps = React.Children.map(children, (child) => {
     if (!React.isValidElement(child)) return child;
@@ -105,7 +104,7 @@ const PopoverTrigger = React.forwardRef(
         {children}
       </div>
     );
-  }
+  },
 );
 
 PopoverTrigger.displayName = "PopoverTrigger";
@@ -132,10 +131,12 @@ const PopoverContent = React.forwardRef(
       onClose,
       ...props
     },
-    ref
+    ref,
   ) => {
     const isMobile = useMediaQuery("(max-width: 767px)");
-    const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1279px)");
+    const isTablet = useMediaQuery(
+      "(min-width: 768px) and (max-width: 1279px)",
+    );
     // Local ref to read DOM metrics while still forwarding parent ref
     const innerRef = React.useRef(null);
     const setRefs = (node) => {
@@ -163,7 +164,6 @@ const PopoverContent = React.forwardRef(
       setTimeout(checkOverflow, 0);
       window.addEventListener("resize", checkOverflow);
       return () => window.removeEventListener("resize", checkOverflow);
-       
     }, [open, align]);
 
     // Body scroll lock and focus trap for mobile modal
@@ -177,18 +177,18 @@ const PopoverContent = React.forwardRef(
       const getFocusable = () => {
         if (!innerRef.current) return [];
         const selectors = [
-          'a[href]',
-          'area[href]',
-          'input:not([disabled])',
-          'select:not([disabled])',
-          'textarea:not([disabled])',
-          'button:not([disabled])',
-          'iframe',
-          'object',
-          'embed',
-          '[contenteditable]',
+          "a[href]",
+          "area[href]",
+          "input:not([disabled])",
+          "select:not([disabled])",
+          "textarea:not([disabled])",
+          "button:not([disabled])",
+          "iframe",
+          "object",
+          "embed",
+          "[contenteditable]",
           '[tabindex]:not([tabindex="-1"])',
-        ].join(',');
+        ].join(",");
         return Array.from(innerRef.current.querySelectorAll(selectors));
       };
 
@@ -198,12 +198,12 @@ const PopoverContent = React.forwardRef(
       if (focusables.length) {
         focusables[0].focus();
       } else if (innerRef.current) {
-        innerRef.current.setAttribute('tabindex', '-1');
+        innerRef.current.setAttribute("tabindex", "-1");
         innerRef.current.focus();
       }
 
       const onKeyDown = (e) => {
-        if (e.key !== 'Tab') return;
+        if (e.key !== "Tab") return;
         const items = getFocusable();
         if (items.length === 0) return;
         const first = items[0];
@@ -221,11 +221,11 @@ const PopoverContent = React.forwardRef(
         }
       };
 
-      innerRef.current?.addEventListener('keydown', onKeyDown);
+      innerRef.current?.addEventListener("keydown", onKeyDown);
 
       return () => {
         document.body.style.overflow = originalOverflow;
-        innerRef.current?.removeEventListener('keydown', onKeyDown);
+        innerRef.current?.removeEventListener("keydown", onKeyDown);
         if (previouslyFocused && previouslyFocused instanceof HTMLElement) {
           previouslyFocused.focus();
         }
@@ -239,13 +239,13 @@ const PopoverContent = React.forwardRef(
         <div
           data-slot="popover-mobile-root"
           className={cn(
-            "tw:fixed tw:inset-0 tw:pt-[64px] tw:z-[60] tw:flex tw:items-end tw:justify-center tw:pointer-events-auto"
+            "tw:fixed tw:inset-0 tw:pt-[64px] tw:z-[60] tw:flex tw:items-end tw:justify-center tw:pointer-events-auto",
           )}
         >
           <div
             data-slot="popover-overlay"
             className={cn(
-              "tw:absolute tw:inset-0 tw:bg-black/40 tw:transition-opacity tw:duration-200 tw:ease-out tw:animate-in tw:fade-in-0"
+              "tw:absolute tw:inset-0 tw:bg-black/40 tw:transition-opacity tw:duration-200 tw:ease-out tw:animate-in tw:fade-in-0",
             )}
             onClick={onClose}
           />
@@ -257,14 +257,12 @@ const PopoverContent = React.forwardRef(
             tabIndex={-1}
             className={cn(
               "tw:relative tw:w-full tw:max-h-full tw:bg-white tw:rounded-t-2xl tw:shadow-2xl tw:flex tw:flex-col",
-              "tw:animate-in tw:slide-in-from-bottom-full tw:duration-300 tw:ease-out"
+              "tw:animate-in tw:slide-in-from-bottom-full tw:duration-300 tw:ease-out",
             )}
           >
             {/* Header - fixed */}
             <div className="tw:flex-shrink-0 tw:bg-white tw:border-b tw:border-muted tw:px-4 tw:py-3 tw:flex tw:items-center tw:mb-4 tw:md:mb-0 tw:justify-between tw:md:rounded-t-2xl">
-              <div className="tw:text-base tw:font-semibold">
-                {mobileTitle}
-              </div>
+              <div className="tw:text-base tw:font-semibold">{mobileTitle}</div>
               <button
                 type="button"
                 aria-label="Close"
@@ -295,13 +293,13 @@ const PopoverContent = React.forwardRef(
         <div
           data-slot="popover-modal-root"
           className={cn(
-            "tw:fixed tw:inset-0 tw:z-[60] tw:flex tw:items-center tw:justify-center tw:pointer-events-auto tw:p-4"
+            "tw:fixed tw:inset-0 tw:z-[60] tw:flex tw:items-center tw:justify-center tw:pointer-events-auto tw:p-4",
           )}
         >
           <div
             data-slot="popover-overlay"
             className={cn(
-              "tw:absolute tw:inset-0 tw:bg-black/40 tw:transition-opacity tw:duration-200 tw:ease-out tw:animate-in tw:fade-in-0"
+              "tw:absolute tw:inset-0 tw:bg-black/40 tw:transition-opacity tw:duration-200 tw:ease-out tw:animate-in tw:fade-in-0",
             )}
             onClick={onClose}
           />
@@ -312,14 +310,12 @@ const PopoverContent = React.forwardRef(
             aria-modal="true"
             tabIndex={-1}
             className={cn(
-              "tw:relative tw:w-auto tw:max-w-[95vw] tw:bg-white tw:rounded-2xl tw:shadow-2xl tw:transition tw:duration-200 tw:ease-out tw:animate-in tw:zoom-in-95 tw:fade-in-0 tw:flex tw:flex-col"
+              "tw:relative tw:w-auto tw:max-w-[95vw] tw:bg-white tw:rounded-2xl tw:shadow-2xl tw:transition tw:duration-200 tw:ease-out tw:animate-in tw:zoom-in-95 tw:fade-in-0 tw:flex tw:flex-col",
             )}
           >
             {/* Header */}
             <div className="tw:flex-shrink-0 tw:bg-white tw:border-b tw:border-muted tw:px-4 tw:py-2 tw:flex tw:items-center tw:justify-between tw:rounded-t-2xl">
-              <div className="tw:text-base tw:font-semibold">
-                {mobileTitle}
-              </div>
+              <div className="tw:text-base tw:font-semibold">{mobileTitle}</div>
               <button
                 type="button"
                 aria-label="Close"
@@ -352,12 +348,12 @@ const PopoverContent = React.forwardRef(
         tabIndex={-1}
         style={{ marginTop: `${sideOffset}px` }}
         className={cn(
-          "tw:absolute tw:min-w-[320px] tw:!w-max tw:border tw:border-muted tw:data-[state=open]:animate-in tw:data-[state=closed]:animate-out tw:data-[state=closed]:fade-out-0 tw:data-[state=open]:fade-in-0 tw:data-[state=closed]:zoom-out-95 tw:data-[state=open]:zoom-in-95 tw:data-[side=bottom]:slide-in-from-top-2 tw:data-[side=left]:slide-in-from-right-2 tw:data-[side=right]:slide-in-from-left-2 tw:data-[side=top]:slide-in-from-bottom-2 tw:bg-white tw:shadow-lg tw:rounded-lg tw:z-50 tw:p-3 tw:outline-none",
+          "tw:absolute tw:min-w-[320px] tw:!w-max tw:border tw:border-muted tw:data-[state=open]:animate-in tw:data-[state=closed]:animate-out tw:data-[state=closed]:fade-out-0 tw:data-[state=open]:fade-in-0 tw:data-[state=closed]:zoom-out-95 tw:data-[state=open]:zoom-in-95 tw:data-[side=bottom]:slide-in-from-top-2 tw:data-[side=left]:slide-in-from-right-2 tw:data-[side=right]:slide-in-from-left-2 tw:data-[side=top]:slide-in-from-bottom-2 tw:bg-white tw:shadow-lg tw:rounded-lg tw:z-[9999] tw:p-3 tw:outline-none",
           (desktopAlign || align) === "start" && "tw:left-0 tw:origin-top-left",
           (desktopAlign || align) === "center" &&
             "tw:left-1/2 tw:transform tw:-translate-x-1/2 tw:origin-top",
           (desktopAlign || align) === "end" && "tw:right-0 tw:origin-top-right",
-          className
+          className,
         )}
         {...props}
       >
@@ -369,7 +365,7 @@ const PopoverContent = React.forwardRef(
         ) : null}
       </div>
     );
-  }
+  },
 );
 
 PopoverContent.displayName = "PopoverContent";

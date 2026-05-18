@@ -52,10 +52,10 @@ const HeroSearchFilter = () => {
           </div>
         </div>
       </Modal>
-      <div className="tw:relative tw:overflow-hidden tw:bg-cover tw:bg-center tw:bg-no-repeat tw:!py-[60px] top-margin">
+      <div className="tw:relative tw:z-[10] tw:bg-cover tw:bg-center tw:bg-no-repeat tw:!py-[60px] top-margin">
         <img
           src={encodeURI(
-            backgroundImage || "/Pics/Airline wing/Air line wings 8.jpg"
+            backgroundImage || "/Pics/Airline wing/Air line wings 8.jpg",
           )}
           alt=""
           width={1920}

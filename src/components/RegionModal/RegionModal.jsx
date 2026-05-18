@@ -10,7 +10,8 @@ import { useCurrencies } from "../../hooks/useCurrencies";
 import PropTypes from "prop-types";
 
 function RegionModal({ setModal }) {
-  const { regionalSettings, updateRegionalSettings, isLoaded } = useRegionalSettings();
+  const { regionalSettings, updateRegionalSettings, isLoaded } =
+    useRegionalSettings();
   const { currencies, isLoading: isCurrenciesLoading } = useCurrencies();
 
   const { i18n } = useTranslation();
@@ -41,10 +42,13 @@ function RegionModal({ setModal }) {
         curr: regionalSettings?.currency?.curr || "USD",
         symbol: regionalSettings?.currency?.symbol || "$",
       });
+      // Don't set country name here — wait for the countries list to load
+      // so we always show the short name.common, never the raw BigDataCloud name.
       setSelectCountry({
-        country: regionalSettings?.country?.name || "United States",
+        country: "",
         countryCode: regionalSettings?.country?.countryCode || "US",
-        flag: regionalSettings?.country?.flag || "https://flagcdn.com/w320/us.png",
+        flag:
+          regionalSettings?.country?.flag || "https://flagcdn.com/w320/us.png",
       });
       setSelectLang({
         label: regionalSettings?.language?.label || "English (USA)",
@@ -85,12 +89,12 @@ function RegionModal({ setModal }) {
     "https://restcountries.com/v3.1/all?fields=name,flags,cca2",
     true,
     "",
-    false
+    false,
   );
   const memoizedCountries = useMemo(() => {
     if (Array.isArray(countries) && countries.length > 0) {
       return [...countries].sort((a, b) =>
-        a.name.common.localeCompare(b.name.common)
+        a.name.common.localeCompare(b.name.common),
       );
     }
     return [];
@@ -99,6 +103,24 @@ function RegionModal({ setModal }) {
   useEffect(() => {
     setCountriesData(memoizedCountries);
   }, [memoizedCountries]);
+
+  // Once the countries list loads, resolve the short common name by country code.
+  // BigDataCloud returns long UN names (e.g. "United Kingdom of Great Britain and
+  // Northern Ireland") — we replace it with restcountries' short name.common ("United Kingdom").
+  useEffect(() => {
+    if (countriesData.length === 0) return;
+    const code =
+      selectCountry.countryCode || regionalSettings?.country?.countryCode;
+    if (!code) return;
+    const match = countriesData.find((c) => c.cca2 === code);
+    if (match) {
+      setSelectCountry((prev) => ({
+        ...prev,
+        country: match.name.common,
+        flag: match.flags?.png || match.flags?.svg || prev.flag,
+      }));
+    }
+  }, [countriesData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCountrySelect = (name, countryCode, flag) => {
     setSelectCountry({
@@ -123,24 +145,28 @@ function RegionModal({ setModal }) {
     const newRegionalSettings = {
       language: {
         label: selectLang?.label || regionalSettings?.language?.label,
-        code: selectLang?.code || regionalSettings?.language?.code
+        code: selectLang?.code || regionalSettings?.language?.code,
       },
       country: {
         name: selectCountry?.country || regionalSettings?.country?.name,
-        countryCode: selectCountry?.countryCode || regionalSettings?.country?.countryCode,
-        flag: selectCountry?.flag || regionalSettings?.country?.flag
+        countryCode:
+          selectCountry?.countryCode || regionalSettings?.country?.countryCode,
+        flag: selectCountry?.flag || regionalSettings?.country?.flag,
       },
       currency: {
         curr: selectCurr?.curr || regionalSettings?.currency?.curr,
-        symbol: selectCurr?.symbol || regionalSettings?.currency?.symbol
+        symbol: selectCurr?.symbol || regionalSettings?.currency?.symbol,
       },
       location: regionalSettings?.location || {
         latitude: null,
         longitude: null,
-        timezone: "America/New_York"
+        timezone: "America/New_York",
       },
-      exchangeRate: regionalSettings?.exchangeRate || { base: "USD", rates: { USD: 1 } },
-      setBy: "user"
+      exchangeRate: regionalSettings?.exchangeRate || {
+        base: "USD",
+        rates: { USD: 1 },
+      },
+      setBy: "user",
     };
 
     // Update regional settings (this will trigger refetch if currency changed)
@@ -174,7 +200,9 @@ function RegionModal({ setModal }) {
             aria-expanded={openLang}
             onClick={() => setOpenLang((v) => !v)}
           >
-            {selectLang?.label || regionalSettings?.language?.label || "Select Language"}
+            {selectLang?.label ||
+              regionalSettings?.language?.label ||
+              "Select Language"}
           </button>
 
           {openLang && (
@@ -230,19 +258,24 @@ function RegionModal({ setModal }) {
             aria-haspopup="true"
             aria-expanded={openCountry}
             onClick={() => setOpenCountry((v) => !v)}
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textAlign: "left" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              textAlign: "left",
+            }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               {(selectCountry?.flag || regionalSettings?.country?.flag) && (
                 <img
                   src={selectCountry?.flag || regionalSettings?.country?.flag}
-                  alt={selectCountry?.country || regionalSettings?.country?.name}
+                  alt={
+                    selectCountry?.country || regionalSettings?.country?.name
+                  }
                   style={{ width: "20px", height: "15px", objectFit: "cover" }}
                 />
               )}
-              <span>{selectCountry?.country ||
-                regionalSettings?.country?.name ||
-                "Select Country"}</span>
+              <span>{selectCountry?.country || "Select Country"}</span>
             </div>
           </button>
 
@@ -276,7 +309,7 @@ function RegionModal({ setModal }) {
                       handleCountrySelect(
                         country.name.common,
                         country.cca2,
-                        country.flags.png
+                        country.flags.png,
                       );
                     }}
                   >
@@ -315,9 +348,7 @@ function RegionModal({ setModal }) {
           >
             {(() => {
               const code =
-                selectCurr?.curr ||
-                regionalSettings?.currency?.curr ||
-                "";
+                selectCurr?.curr || regionalSettings?.currency?.curr || "";
               const name =
                 code && currencies && currencies[code] ? currencies[code] : "";
               const sym =

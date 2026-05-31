@@ -1,10 +1,26 @@
-# Fly Arzan
+# FlyArzan
 
-## Overview
-[Fly Arzan](https://flyarzan.com/): Fly Arzan is an airline service that offers various travel options and services for passengers. The airline focuses on providing a seamless travel experience with a commitment to safety and customer satisfaction.
+> FlyArzan is a worldwide flight search and comparison platform that helps travelers find the best flight deals to top destinations. With a single search, users can compare fares across airlines and routes, book with confidence, and maximize their savings.
 
-## Contact Information
-[Contact Us - Fly Arzan](https://flyarzan.com/Contact): This page provides essential contact details for Fly Arzan, including customer service phone numbers, email addresses, and office locations. Passengers can reach out for inquiries, support, or feedback regarding their travel experiences.
+FlyArzan makes finding flights simple: search a route, compare the available deals, and book the option with the best value. The links below point AI tools and language models to the platform's key pages.
 
-## Health and Safety
-[COVID-19 Travel Information - Fly Arzan](https://flyarzan.com/COVID): This section outlines the latest travel guidelines and safety measures implemented by Fly Arzan in response to the COVID-19 pandemic. It includes information on health protocols, travel restrictions, and recommendations for passengers to ensure a safe journey.
+## Main pages
+
+- [Home](https://flyarzan.com/): Search and compare the best flight deals to destinations worldwide.
+
+## About & support
+
+- [About](https://flyarzan.com/About): Overview of FlyArzan, what the platform offers, and how it works.
+- [FAQ](https://flyarzan.com/Faq): Answers to common questions about searching, comparing, and booking flights.
+- [Contact](https://flyarzan.com/Contact): Customer support and contact details for booking help and inquiries.
+
+## Travel resources
+
+- [COVID-19 Travel Information](https://flyarzan.com/COVID): COVID-19 travel updates and health-related requirements for trips.
+- [Visa Requirements](https://flyarzan.com/VisaRequirements): Visa and entry-document information for international destinations.
+- [Airport Information](https://flyarzan.com/Airport): Airport details and guidance for travelers.
+
+## Optional
+
+- [Privacy Policy](https://flyarzan.com/PrivacyPolicy): How FlyArzan collects, uses, and protects personal data.
+- [Terms and Conditions](https://flyarzan.com/TermsAndConditions): Terms governing use of the FlyArzan platform.

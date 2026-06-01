@@ -12,7 +12,6 @@ import {
   Tab,
   Divider,
   Alert,
-  CircularProgress,
   IconButton,
   InputAdornment,
   Dialog,
@@ -35,6 +34,7 @@ import {
   Warning as WarningIcon,
 } from "@mui/icons-material";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import FullPageLoader from "@/components/ui/FullPageLoader";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -306,19 +306,7 @@ const UserDashboard = () => {
   };
 
   if (sessionLoading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          bgcolor: "#f5f5f5",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+    return <FullPageLoader />;
   }
 
   return (

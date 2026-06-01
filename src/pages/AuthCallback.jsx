@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Loader2 } from "lucide-react";
 import { useSession } from "@/hooks/useAuth";
+import FullPageLoader from "@/components/ui/FullPageLoader";
 
 /**
  * Post-OAuth landing page.
@@ -35,23 +35,7 @@ const AuthCallback = () => {
         <title>Signing you in… | FlyArzan</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-      <div
-        style={{
-          minHeight: "70vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "16px",
-        }}
-      >
-        <Loader2
-          size={40}
-          style={{ animation: "spin 1s linear infinite", color: "#312e81" }}
-        />
-        <p style={{ color: "#6b7280", fontSize: "15px" }}>Signing you in…</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
+      <FullPageLoader message="Signing you in…" />
     </>
   );
 };

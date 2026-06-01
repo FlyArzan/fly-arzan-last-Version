@@ -5,6 +5,7 @@
 import { Outlet, useLoaderData } from "react-router-dom";
 import { createContext, useContext, useMemo, Suspense } from "react";
 import Scroll from "../ScrollToTop/Scroll";
+import FullPageLoader from "@/components/ui/FullPageLoader";
 
 // Context for prefetched data
 const PrefetchedDataContext = createContext(null);
@@ -44,13 +45,7 @@ const RootLayout = () => {
   return (
     <PrefetchedDataContext.Provider value={value}>
       <Scroll />
-      <Suspense
-        fallback={
-          <div className="tw:flex tw:items-center tw:justify-center tw:min-h-screen">
-            <div className="tw:w-10 tw:h-10 tw:rounded-full tw:border-4 tw:border-gray-200 tw:border-t-blue-500 tw:animate-spin" />
-          </div>
-        }
-      >
+      <Suspense fallback={<FullPageLoader />}>
         <Outlet />
       </Suspense>
     </PrefetchedDataContext.Provider>

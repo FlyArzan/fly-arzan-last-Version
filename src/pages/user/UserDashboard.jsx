@@ -381,6 +381,8 @@ const UserDashboard = () => {
           }}
         >
           <Avatar
+            src={user?.image || undefined}
+            alt={user?.name || "User"}
             sx={{
               width: 80,
               height: 80,

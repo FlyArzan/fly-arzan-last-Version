@@ -11,6 +11,19 @@
   max-width: 1260px;
 }
 
+/*
+ * Tailwind v4 dropped the default `cursor: pointer` on buttons (they now use
+ * `cursor: default`). Restore the pointer for all enabled buttons / button-role
+ * elements so clickable controls feel right. Disabled controls keep their own
+ * cursor (e.g. `cursor-not-allowed`).
+ */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 html {
   scrollbar-gutter: stable;
 }

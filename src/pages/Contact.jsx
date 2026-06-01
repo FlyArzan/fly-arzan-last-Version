@@ -22,6 +22,7 @@ const Contact = () => {
       <Helmet>
         <title>Contact FlyArzan | We&apos;re Here to Help</title>
         <meta name="description" content={CONTACT_DESCRIPTION} />
+        <link rel="canonical" href="https://flyarzan.com/Contact" />
         <meta property="og:url" content={CONTACT_PAGE_URL} />
         <meta property="og:type" content="website" />
         <meta

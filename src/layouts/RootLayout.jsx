@@ -3,7 +3,7 @@
  * Uses React Router v6 loader data for instant access (no loading state)
  */
 import { Outlet, useLoaderData } from "react-router-dom";
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext, useMemo, Suspense } from "react";
 import Scroll from "../ScrollToTop/Scroll";
 
 // Context for prefetched data
@@ -44,7 +44,15 @@ const RootLayout = () => {
   return (
     <PrefetchedDataContext.Provider value={value}>
       <Scroll />
-      <Outlet />
+      <Suspense
+        fallback={
+          <div className="tw:flex tw:items-center tw:justify-center tw:min-h-screen">
+            <div className="tw:w-10 tw:h-10 tw:rounded-full tw:border-4 tw:border-gray-200 tw:border-t-blue-500 tw:animate-spin" />
+          </div>
+        }
+      >
+        <Outlet />
+      </Suspense>
     </PrefetchedDataContext.Provider>
   );
 };

@@ -1,5 +1,7 @@
+import { Helmet } from "react-helmet-async";
 import Footer from "@/header-footer/Footer";
 import Header from "@/header-footer/Header";
+import FlightSchema from "@/components/Schemas/FlightSchema";
 import UnifiedFlightSegment from "@/components/ui/unified-flight-segment";
 import SimilarFlights from "@/components/ui/similar-flights";
 import { ChevronLeft } from "lucide-react";
@@ -293,8 +295,37 @@ const FlightDetailsPage = () => {
   //   return stars;
   // };
 
+  // Build FlightSchema data from the first itinerary's first flight segment
+  const firstFlight = flightData?.flightOffer?.itineraries?.[0]?.flights?.[0];
+  const lastFlight = flightData?.flightOffer?.itineraries?.[0]?.flights?.slice(-1)?.[0];
+  const schemaFlight = firstFlight ? {
+    flightNumber: firstFlight.flightNumber,
+    airline: { name: firstFlight.airline?.name, code: firstFlight.airline?.iataCode },
+    departure: {
+      airportName: firstFlight.departure?.airport,
+      code: firstFlight.departure?.iataCode,
+      city: firstFlight.departure?.city,
+      country: firstFlight.departure?.country,
+    },
+    arrival: {
+      airportName: lastFlight?.arrival?.airport,
+      code: lastFlight?.arrival?.iataCode,
+      city: lastFlight?.arrival?.city,
+      country: lastFlight?.arrival?.country,
+    },
+    departureTime: firstFlight.departure?.time,
+    arrivalTime: lastFlight?.arrival?.time,
+    price: flightData?.flightOffer?.price?.total,
+    currency: flightData?.flightOffer?.price?.currency,
+  } : null;
+
   return (
     <>
+      <Helmet>
+        <title>{getRouteDisplay()} | FlyArzan</title>
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
+      {schemaFlight && <FlightSchema flight={schemaFlight} />}
       <Header />
       <div className="tw:flex tw:flex-col tw:min-h-screen tw:mt-16 tw:md:mt-[92px] tw:animate-in tw:fade-in tw:duration-300">
         <div className="tw:py-6 tw:bg-[#F2FAFF]">
@@ -381,8 +412,7 @@ const FlightDetailsPage = () => {
                               partnerLogo: data.icon,
                             });
                           } else {
-                            // Fallback to old behavior if no forward URL
-                            navigate("/loader");
+                            navigate("/search/flight");
                           }
                         }}
                         className="tw:w-auto tw:bg-[#50ADD8]! tw:no-underline! tw:text-white! tw:rounded-full! tw:px-5! tw:sm:px-6! tw:py-2 tw:text-sm hover:tw:!bg-[#4A9BC4] tw:transition-colors! tw:duration-200 tw:border-0 tw:cursor-pointer"

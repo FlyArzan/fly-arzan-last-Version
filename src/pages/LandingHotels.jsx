@@ -9,6 +9,7 @@ import FlightSec1 from "../components/Landing_page_1_componets/FlightSec1";
 import CarsSec4 from "../components/Landing_page_3_componets/CarsSec4";
 import HotelsSec4 from "../components/Landing_page_2_componets/HotelsSec4";
 import { useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 
 const LandingHotels = () => {
   const location = useLocation();
@@ -49,6 +50,41 @@ const LandingHotels = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Find Best Hotel Deals Worldwide | FlyArzan</title>
+        <meta
+          name="description"
+          content="Search and compare hotel prices worldwide with FlyArzan. Find the best accommodation deals and book your perfect stay with confidence."
+        />
+        <link rel="canonical" href="https://flyarzan.com/Hotels" />
+        <meta
+          property="og:title"
+          content="Best Hotel Deals Worldwide - FlyArzan"
+        />
+        <meta
+          property="og:description"
+          content="Search and compare hotel prices worldwide with FlyArzan. Find the best accommodation deals and book your perfect stay with confidence."
+        />
+        <meta property="og:url" content="https://flyarzan.com/Hotels" />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:image"
+          content="https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg"
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content="Best Hotel Deals Worldwide - FlyArzan"
+        />
+        <meta
+          name="twitter:description"
+          content="Search and compare hotel prices worldwide with FlyArzan."
+        />
+        <meta
+          name="twitter:image"
+          content="https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg"
+        />
+      </Helmet>
       <Header />
       <HeroHotels />
       <FlightSec1 />

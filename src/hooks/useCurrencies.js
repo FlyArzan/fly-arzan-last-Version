@@ -1,12 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAxios } from "./useAxios";
+import api from "../lib/axios";
 
 export const useCurrencies = () => {
-  const axios = useAxios();
-
   const { isLoading, error, data } = useQuery({
     queryKey: ["currencies"],
-    queryFn: () => axios.get(`/geo-currency/currencies`).then((res) => res.data),
+    queryFn: () => api.get(`/geo-currency/currencies`).then((res) => res.data),
     gcTime: Infinity, // Cache forever
     staleTime: Infinity, // Never refetch
   });

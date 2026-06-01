@@ -1,273 +1,277 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+    <head>
+        <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- FLYARZAN_HERO_LCP_PRELOAD: keep logic in sync with src/utils/timeBasedHeroImage.js -->
-    <script>
-      (function () {
-        var P = {
-          day: {
-            s: 6,
-            e: 17,
-            i: [
-              "/Pics/Airline wing/Air line wings 1.jpg",
-              "/Pics/Airline wing/Air line wings 2.jpg",
-              "/Pics/Airline wing/Air line wings 3.jpg",
-              "/Pics/Airline wing/Air line wings 4.jpg",
-              "/Pics/Airline wing/Air line wings 6.jpg",
-              "/Pics/Airline wing/Air line wings 8.jpg",
-              "/Pics/Airline wing/Air line wings 10.jpg",
-              "/Pics/Airline wing/Air line wings 11.jpg",
-            ],
-          },
-          evening: {
-            s: 18,
-            e: 20,
-            i: [
-              "/Pics/Airline wing/Air line wings 5.jpg",
-              "/Pics/Airline wing/Air line wings 7.jpg",
-            ],
-          },
-          night: {
-            s: 21,
-            e: 5,
-            i: ["/Pics/Airline wing/Air line wings 9.jpg"],
-          },
-        };
-        function period(h) {
-          if (h >= P.day.s && h <= P.day.e) return "day";
-          if (h >= P.evening.s && h <= P.evening.e) return "evening";
-          return "night";
-        }
-        function image(periodKey) {
-          var imgs = P[periodKey].i;
-          var d = new Date();
-          var seed =
-            d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-          return imgs[seed % imgs.length];
-        }
-        var href = encodeURI(image(period(new Date().getHours())));
-        var link = document.createElement("link");
-        link.rel = "preload";
-        link.as = "image";
-        link.href = href;
-        link.setAttribute("fetchpriority", "high");
-        document.head.appendChild(link);
-      })();
-    </script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-      crossorigin="anonymous"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-      rel="stylesheet"
-    />
-    <title>Search For Best Flight Deals Worldwide with FlyArzan</title>
-    <meta
-      name="description"
-      content="Find the best flight deals to top destinations with FlyArzan. Compare prices, book with confidence, and maximize your savings with just one simple search. "
-    />
-    <!-- Facebook Meta Tags -->
-    <meta property="og:url" content="https://flyarzan.com/" />
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:title"
-      content="Best Flight Deals Worldwide - Compare & Save with FlyArzan"
-    />
-    <meta
-      property="og:description"
-      content="Find the best flight deals to top destinations with FlyArzan. Compare prices, book with confidence, and maximize your savings with just one simple search. "
-    />
-    <meta
-      property="og:image"
-      content="https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg"
-    />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#7C3AED" />
+        <!-- FLYARZAN_HERO_LCP_PRELOAD: keep logic in sync with src/utils/timeBasedHeroImage.js -->
+        <script>
+            (function () {
+                var P = {
+                    day: {
+                        s: 6,
+                        e: 17,
+                        i: [
+                            "/Pics/Airline wing/Air line wings 1.jpg",
+                            "/Pics/Airline wing/Air line wings 2.jpg",
+                            "/Pics/Airline wing/Air line wings 3.jpg",
+                            "/Pics/Airline wing/Air line wings 4.jpg",
+                            "/Pics/Airline wing/Air line wings 6.jpg",
+                            "/Pics/Airline wing/Air line wings 8.jpg",
+                            "/Pics/Airline wing/Air line wings 10.jpg",
+                            "/Pics/Airline wing/Air line wings 11.jpg",
+                        ],
+                    },
+                    evening: {
+                        s: 18,
+                        e: 20,
+                        i: [
+                            "/Pics/Airline wing/Air line wings 5.jpg",
+                            "/Pics/Airline wing/Air line wings 7.jpg",
+                        ],
+                    },
+                    night: {
+                        s: 21,
+                        e: 5,
+                        i: ["/Pics/Airline wing/Air line wings 9.jpg"],
+                    },
+                };
+                function period(h) {
+                    if (h >= P.day.s && h <= P.day.e) return "day";
+                    if (h >= P.evening.s && h <= P.evening.e) return "evening";
+                    return "night";
+                }
+                function image(periodKey) {
+                    var imgs = P[periodKey].i;
+                    var d = new Date();
+                    var seed =
+                        d.getFullYear() * 10000 +
+                        (d.getMonth() + 1) * 100 +
+                        d.getDate();
+                    return imgs[seed % imgs.length];
+                }
+                var href = encodeURI(image(period(new Date().getHours())));
+                var link = document.createElement("link");
+                link.rel = "preload";
+                link.as = "image";
+                link.href = href;
+                link.setAttribute("fetchpriority", "high");
+                document.head.appendChild(link);
+            })();
+        </script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+        />
+        <title>Search For Best Flight Deals Worldwide with FlyArzan</title>
+        <meta
+            name="description"
+            content="Find the best flight deals to top destinations with FlyArzan. Compare prices, book with confidence, and maximize your savings with just one simple search."
+        />
+        <!-- Facebook Meta Tags -->
+        <meta property="og:url" content="https://flyarzan.com/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="FlyArzan" />
+        <meta
+            property="og:title"
+            content="Best Flight Deals Worldwide - Compare & Save with FlyArzan"
+        />
+        <meta
+            property="og:description"
+            content="Find the best flight deals to top destinations with FlyArzan. Compare prices, book with confidence, and maximize your savings with just one simple search. "
+        />
+        <meta
+            property="og:image"
+            content="https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta
+            property="og:image:alt"
+            content="FlyArzan - Find Best Flight Deals"
+        />
 
-    <!-- Twitter Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta property="twitter:domain" content="flyarzan.com" />
-    <meta property="twitter:url" content="https://flyarzan.com/" />
-    <meta
-      name="twitter:title"
-      content="Best Flight Deals Worldwide - Compare & Save with FlyArzan"
-    />
-    <meta
-      name="twitter:description"
-      content="Find the best flight deals to top destinations with FlyArzan. Compare prices, book with confidence, and maximize your savings with just one simple search. "
-    />
-    <meta
-      name="twitter:image"
-      content="https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg"
-    />
+        <!-- Twitter Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content="flyarzan.com" />
+        <meta property="twitter:url" content="https://flyarzan.com/" />
+        <meta
+            name="twitter:title"
+            content="Best Flight Deals Worldwide - Compare & Save with FlyArzan"
+        />
+        <meta
+            name="twitter:description"
+            content="Find the best flight deals to top destinations with FlyArzan. Compare prices, book with confidence, and maximize your savings with just one simple search. "
+        />
+        <meta
+            name="twitter:image"
+            content="https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg"
+        />
+        <meta
+            name="twitter:image:alt"
+            content="FlyArzan - Find Best Flight Deals"
+        />
 
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "url": "https://flyarzan.com/",
+                "name": "Fly Arzan",
+                "description": "Fly Arzan helps you find the best flight deals, hotels, and car rentals all in one place. Compare prices, book confidently, and save on your travels.",
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": "https://flyarzan.com/?search={search_term}",
+                    "query-input": "required name=search_term"
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "Fly Arzan",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "https://flyarzan.com/logo.png"
+                    }
+                }
+            }
+        </script>
 
-    
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "url": "https://flyarzan.com/",
-  "name": "Fly Arzan",
-  "description": "Fly Arzan helps you find the best flight deals, hotels, and car rentals all in one place. Compare prices, book confidently, and save on your travels.",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://flyarzan.com/?search={search_term}",
-    "query-input": "required name=search_term"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Fly Arzan",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://flyarzan.com/logo.png"
-    }
-  }
-}
-</script>
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "How do I search for flights on your website?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "To search for flights, simply enter your departure and destination locations, along with your travel dates and number of passengers. Our search engine will show you the best available options."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can I book a flight directly on your website?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "No, we are a travel search engine. We help you find the best flight options, but bookings are made directly with airlines or other travel providers."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Are the flight prices shown in real-time?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes, the flight prices are updated in real-time, reflecting the latest available fares from airlines."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Do your flight prices include taxes and fees?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Our flight prices include taxes and fees unless otherwise stated. You will see a breakdown of all costs before confirming your booking."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Can I search for one-way, round-trip, or multi-city flights?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes, you can search for one-way, round-trip, or multi-city flights using our search engine, depending on your travel preferences."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Do you offer flexible date search options?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes, our search engine allows you to choose flexible dates to find the best deals that fit your travel schedule."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "How can I filter flights by airline, price, or duration?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "You can filter flights by airline, price range, or duration using the filter options provided in the search results."
+                        }
+                    }
+                ]
+            }
+        </script>
 
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "How do I search for flights on your website?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "To search for flights, simply enter your departure and destination locations, along with your travel dates and number of passengers. Our search engine will show you the best available options."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Can I book a flight directly on your website?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No, we are a travel search engine. We help you find the best flight options, but bookings are made directly with airlines or other travel providers."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Are the flight prices shown in real-time?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes, the flight prices are updated in real-time, reflecting the latest available fares from airlines."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Do your flight prices include taxes and fees?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Our flight prices include taxes and fees unless otherwise stated. You will see a breakdown of all costs before confirming your booking."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Can I search for one-way, round-trip, or multi-city flights?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes, you can search for one-way, round-trip, or multi-city flights using our search engine, depending on your travel preferences."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Do you offer flexible date search options?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes, our search engine allows you to choose flexible dates to find the best deals that fit your travel schedule."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How can I filter flights by airline, price, or duration?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "You can filter flights by airline, price range, or duration using the filter options provided in the search results."
-      }
-    }
-  ]
-}
-</script>
+        <!-- Favicons -->
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
 
-    
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <!-- Apple Touch Icon -->
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
 
-    <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <!-- Android / PWA -->
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="192x192"
+            href="/android-chrome-192x192.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="512x512"
+            href="/android-chrome-512x512.png"
+        />
 
-    <!-- Android / PWA -->
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="192x192"
-      href="/android-chrome-192x192.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="512x512"
-      href="/android-chrome-512x512.png"
-    />
+        <!-- Web App Manifest -->
+        <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="/site.webmanifest" />
-
-    <!-- Google Translate Script -->
-    <script type="text/javascript">
-      function googleTranslateElementInit() {
-        new google.translate.TranslateElement(
-          { pageLanguage: "en" },
-          "google_translate_element",
-        );
-      }
-    </script>
-    <script
-      type="text/javascript"
-      src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-      defer
-    ></script>
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-Q7VLHPJTM6"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-Q7VLHPJTM6");
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-    <script
-      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
-      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+        <!-- Google Translate Script -->
+        <script type="text/javascript">
+            function googleTranslateElementInit() {
+                new google.translate.TranslateElement(
+                    { pageLanguage: "en" },
+                    "google_translate_element",
+                );
+            }
+        </script>
+        <script
+            type="text/javascript"
+            src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+            defer
+        ></script>
+        <!-- Google tag (gtag.js) -->
+        <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-Q7VLHPJTM6"
+        ></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+            gtag("config", "G-Q7VLHPJTM6");
+        </script>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="/src/main.jsx"></script>
+    </body>
 </html>

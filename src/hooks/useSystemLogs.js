@@ -37,7 +37,7 @@ export const useSystemLogs = ({ limit = 50, offset = 0, level = "all", service =
         service,
         search,
       });
-      return adminFetch(`/monitoring/system-logs?${params}`);
+      return adminFetch(`/system-logs?${params}`);
     },
   });
 };
@@ -46,7 +46,7 @@ export const useSystemLogStats = () => {
   return useQuery({
     queryKey: ["admin", "system-logs", "stats"],
     queryFn: async () => {
-      return adminFetch("/monitoring/system-logs/stats");
+      return adminFetch("/system-logs/stats");
     },
   });
 };

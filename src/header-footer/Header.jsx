@@ -362,11 +362,11 @@ const Header = () => {
         >
           <DrawerHeader>
             <div className="flex flex-col">
-              <DrawerTitle className="text-xl font-medium sr-only">
+              <DrawerTitle className="tw:sr-only">
                 Brand Logo
               </DrawerTitle>
               <img src="/logo.png" alt="Fly Arzan" className="tw:w-[140px]" />
-              <DrawerDescription className="sr-only">
+              <DrawerDescription className="tw:sr-only">
                 Mobile sidebar navigation
               </DrawerDescription>
             </div>

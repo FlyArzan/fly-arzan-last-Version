@@ -1,5 +1,24 @@
-Sitemap: https://flyarzan.com/sitemap.xml
-
 User-agent: *
-Allow: / 
-Disallow: /cgi-bin/
+Allow: /
+
+# Block admin panel (authentication required, not for indexing)
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin-login
+
+# Block user dashboard (authentication required)
+Disallow: /dashboard
+Disallow: /dashboard/
+
+# Block auth & internal pages (no indexable content)
+Disallow: /Login
+Disallow: /signup
+Disallow: /Singup
+Disallow: /reset-password
+Disallow: /loader
+
+# Block booking flow (session-gated, not for indexing)
+Disallow: /FlightsBooking
+Disallow: /BookYourTicket
+
+Sitemap: https://flyarzan.com/sitemap.xml

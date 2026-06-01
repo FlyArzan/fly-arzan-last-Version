@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:8787/ws";
 
@@ -47,8 +47,7 @@ export const useWebSocket = (isAuthenticated = false) => {
                     ? "info"
                     : "info";
               toast[toastType](title || "New notification", {
-                position: "top-right",
-                autoClose: 5000,
+                duration: 5000,
               });
             }
             break;

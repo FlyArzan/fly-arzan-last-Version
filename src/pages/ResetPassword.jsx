@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useResetPassword } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Loader2, Eye, EyeOff, CheckCircle, XCircle, Lock } from "lucide-react";
 import logo from "../assets/Images/loginlogo.png";
 
@@ -63,7 +64,7 @@ const ResetPassword = () => {
         onError: (err) => {
           toast.error(err.message || "Failed to reset password");
         },
-      }
+      },
     );
   };
 
@@ -236,6 +237,10 @@ const ResetPassword = () => {
         padding: "24px 16px",
       }}
     >
+      <Helmet>
+        <title>Reset Password | FlyArzan</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div
         style={{
           width: "100%",

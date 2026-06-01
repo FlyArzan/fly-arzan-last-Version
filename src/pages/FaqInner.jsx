@@ -6,7 +6,7 @@ import FaqInnerhero from "../components/FaqInner_page_componets/FaqInnerhero";
 import FaqInnersec2 from "../components/FaqInner_page_componets/FaqInnersec2";
 import { usePublicCmsPage } from "../hooks/useCms";
 
-const FAQ_CANONICAL = "https://flyarzan.com/faq";
+const FAQ_CANONICAL = "https://flyarzan.com/Faq";
 const FAQ_OG_URL = "https://flyarzan.com/Faq";
 const OG_IMAGE =
   "https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg";

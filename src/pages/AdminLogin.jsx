@@ -1,11 +1,20 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useSignIn, useForgotPassword } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
-import { Loader2, Eye, EyeOff, Shield, Mail, ArrowLeft, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
+import {
+  Loader2,
+  Eye,
+  EyeOff,
+  Shield,
+  Mail,
+  ArrowLeft,
+  CheckCircle,
+} from "lucide-react";
 import logo from "../assets/Images/loginlogo.png";
 
 const adminLoginSchema = yup.object({
@@ -68,7 +77,7 @@ const AdminLogin = () => {
           setEmailSent(true);
           toast.success("If an account exists, a reset email has been sent.");
         },
-      }
+      },
     );
   };
 
@@ -105,7 +114,7 @@ const AdminLogin = () => {
         onError: (error) => {
           toast.error(error.message || "Login failed. Please try again.");
         },
-      }
+      },
     );
   };
 
@@ -142,6 +151,11 @@ const AdminLogin = () => {
   }
 
   return (
+    <>
+      <Helmet>
+        <title>Admin Login | FlyArzan</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
     <div
       style={{
         minHeight: "100vh",
@@ -202,13 +216,32 @@ const AdminLogin = () => {
                 >
                   Check your email
                 </h3>
-                <p style={{ fontSize: "14px", color: "#6b7280", marginBottom: "8px" }}>
+                <p
+                  style={{
+                    fontSize: "14px",
+                    color: "#6b7280",
+                    marginBottom: "8px",
+                  }}
+                >
                   We sent a password reset link to
                 </p>
-                <p style={{ fontSize: "14px", fontWeight: "500", color: "#111827", marginBottom: "24px" }}>
+                <p
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    color: "#111827",
+                    marginBottom: "24px",
+                  }}
+                >
                   {sentEmail}
                 </p>
-                <p style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "24px" }}>
+                <p
+                  style={{
+                    fontSize: "12px",
+                    color: "#9ca3af",
+                    marginBottom: "24px",
+                  }}
+                >
                   Didn&apos;t receive the email? Check your spam folder or{" "}
                   <button
                     type="button"
@@ -337,7 +370,9 @@ const AdminLogin = () => {
                         border: "none",
                         fontWeight: "500",
                         fontSize: "16px",
-                        cursor: forgotPasswordMutation.isPending ? "not-allowed" : "pointer",
+                        cursor: forgotPasswordMutation.isPending
+                          ? "not-allowed"
+                          : "pointer",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -391,7 +426,8 @@ const AdminLogin = () => {
                   width: "56px",
                   height: "56px",
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background:
+                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -417,192 +453,202 @@ const AdminLogin = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)}>
-          <fieldset
-            disabled={isLoading}
-            style={{ border: "none", padding: 0, margin: 0 }}
-          >
-            {/* Email */}
-            <div style={{ marginBottom: "16px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: "#374151",
-                  marginBottom: "6px",
-                }}
+              <fieldset
+                disabled={isLoading}
+                style={{ border: "none", padding: 0, margin: 0 }}
               >
-                Email Address
-              </label>
-              <input
-                {...register("email")}
-                type="email"
-                autoComplete="off"
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  border: errors.email
-                    ? "1px solid #ef4444"
-                    : "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "14px",
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
-              />
-              {errors.email && (
-                <span
+                {/* Email */}
+                <div style={{ marginBottom: "16px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      color: "#374151",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    {...register("email")}
+                    type="email"
+                    autoComplete="off"
+                    style={{
+                      width: "100%",
+                      padding: "12px 16px",
+                      border: errors.email
+                        ? "1px solid #ef4444"
+                        : "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  {errors.email && (
+                    <span
+                      style={{
+                        color: "#ef4444",
+                        fontSize: "12px",
+                        marginTop: "4px",
+                      }}
+                    >
+                      {errors.email.message}
+                    </span>
+                  )}
+                </div>
+
+                {/* Password */}
+                <div style={{ marginBottom: "16px" }}>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      color: "#374151",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    Password
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      {...register("password")}
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="off"
+                      style={{
+                        width: "100%",
+                        padding: "12px 48px 12px 16px",
+                        border: errors.password
+                          ? "1px solid #ef4444"
+                          : "1px solid #e5e7eb",
+                        borderRadius: "8px",
+                        fontSize: "14px",
+                        outline: "none",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: "absolute",
+                        right: "12px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        color: "#9ca3af",
+                      }}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <span
+                      style={{
+                        color: "#ef4444",
+                        fontSize: "12px",
+                        marginTop: "4px",
+                      }}
+                    >
+                      {errors.password.message}
+                    </span>
+                  )}
+                </div>
+
+                {/* Remember Me & Forgot Password */}
+                <div
                   style={{
-                    color: "#ef4444",
-                    fontSize: "12px",
-                    marginTop: "4px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: "24px",
                   }}
                 >
-                  {errors.email.message}
-                </span>
-              )}
-            </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      id="rememberMe"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        cursor: "pointer",
+                      }}
+                    />
+                    <label
+                      htmlFor="rememberMe"
+                      style={{
+                        fontSize: "14px",
+                        color: "#4b5563",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Remember me
+                    </label>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      fontSize: "14px",
+                      color: "#667eea",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
 
-            {/* Password */}
-            <div style={{ marginBottom: "16px" }}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  color: "#374151",
-                  marginBottom: "6px",
-                }}
-              >
-                Password
-              </label>
-              <div style={{ position: "relative" }}>
-                <input
-                  {...register("password")}
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="off"
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
                   style={{
                     width: "100%",
-                    padding: "12px 48px 12px 16px",
-                    border: errors.password
-                      ? "1px solid #ef4444"
-                      : "1px solid #e5e7eb",
+                    padding: "12px 24px",
+                    background: isLoading
+                      ? "#9ca3af"
+                      : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    color: "#fff",
                     borderRadius: "8px",
-                    fontSize: "14px",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: "12px",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "none",
                     border: "none",
-                    cursor: "pointer",
-                    color: "#9ca3af",
+                    fontWeight: "500",
+                    fontSize: "16px",
+                    cursor: isLoading ? "not-allowed" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
                   }}
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {isLoading ? (
+                    <>
+                      <Loader2
+                        size={18}
+                        style={{ animation: "spin 1s linear infinite" }}
+                      />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign in to Admin"
+                  )}
                 </button>
-              </div>
-              {errors.password && (
-                <span
-                  style={{
-                    color: "#ef4444",
-                    fontSize: "12px",
-                    marginTop: "4px",
-                  }}
-                >
-                  {errors.password.message}
-                </span>
-              )}
-            </div>
-
-            {/* Remember Me & Forgot Password */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: "24px",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <input
-                type="checkbox"
-                id="rememberMe"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                style={{ width: "16px", height: "16px", cursor: "pointer" }}
-              />
-              <label
-                htmlFor="rememberMe"
-                style={{
-                  fontSize: "14px",
-                  color: "#4b5563",
-                  cursor: "pointer",
-                }}
-              >
-                Remember me
-              </label>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowForgotPassword(true)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  fontSize: "14px",
-                  color: "#667eea",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
-              >
-                Forgot password?
-              </button>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                width: "100%",
-                padding: "12px 24px",
-                background: isLoading
-                  ? "#9ca3af"
-                  : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                color: "#fff",
-                borderRadius: "8px",
-                border: "none",
-                fontWeight: "500",
-                fontSize: "16px",
-                cursor: isLoading ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-              }}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2
-                    size={18}
-                    style={{ animation: "spin 1s linear infinite" }}
-                  />
-                  Signing in...
-                </>
-              ) : (
-                "Sign in to Admin"
-              )}
-            </button>
-          </fieldset>
-        </form>
+              </fieldset>
+            </form>
 
             {/* Back to home */}
             <div style={{ textAlign: "center", marginTop: "24px" }}>
@@ -627,6 +673,7 @@ const AdminLogin = () => {
         `}</style>
       </div>
     </div>
+    </>
   );
 };
 

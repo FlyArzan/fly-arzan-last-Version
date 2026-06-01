@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signInSchema } from "@/schema/authSchema";
 import { useSignIn, signInWithGoogle } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import ForgotPasswordForm from "./forgot-password-form";
 
 const NewLoginForm = ({ onSuccess }) => {
@@ -70,7 +70,7 @@ const NewLoginForm = ({ onSuccess }) => {
         onError: (error) => {
           toast.error(error.message || "Login failed. Please try again.");
         },
-      }
+      },
     );
   };
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSession, useSignOut } from "@/hooks/useAuth";
 import {
@@ -235,6 +236,9 @@ const AdminLayout = () => {
           "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
       }}
     >
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <CssBaseline />
 
       <AppBar

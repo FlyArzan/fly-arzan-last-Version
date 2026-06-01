@@ -1,82 +1,68 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 
 const TravelAgencySchema = () => {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
-    "name": "Fly Arzan",
-    "url": "https://flyarzan.com",
-    "logo": "https://flyarzan.com/logo.png",
-    "description": "Book cheap flights, hotels, and car rentals worldwide. Compare prices and find the best travel deals.",
-    "address": {
+    name: "Fly Arzan",
+    url: "https://flyarzan.com",
+    logo: "https://flyarzan.com/logo.png",
+    description:
+      "Book cheap flights, hotels, and car rentals worldwide. Compare prices and find the best travel deals.",
+    address: {
       "@type": "PostalAddress",
-      "addressCountry": "AE"
+      addressCountry: "AE",
     },
-    "contactPoint": {
+    contactPoint: {
       "@type": "ContactPoint",
-      "contactType": "customer service",
-      "availableLanguage": ["English", "Arabic", "French", "German", "Spanish"]
+      contactType: "customer service",
+      availableLanguage: ["English", "Arabic", "French", "German", "Spanish"],
     },
-    "sameAs": [
+    sameAs: [
       "https://facebook.com/flyarzan",
       "https://twitter.com/flyarzan",
-      "https://instagram.com/flyarzan"
+      "https://instagram.com/flyarzan",
     ],
-    "makesOffer": [
+    makesOffer: [
       {
         "@type": "Offer",
-        "itemOffered": {
+        itemOffered: {
           "@type": "Service",
-          "name": "Flight Booking",
-          "description": "Book flights worldwide at competitive prices"
-        }
-      },
-      {
-        "@type": "Offer", 
-        "itemOffered": {
-          "@type": "Service",
-          "name": "Hotel Reservation",
-          "description": "Reserve hotels and accommodations globally"
-        }
+          name: "Flight Booking",
+          description: "Book flights worldwide at competitive prices",
+        },
       },
       {
         "@type": "Offer",
-        "itemOffered": {
-          "@type": "Service", 
-          "name": "Car Rental",
-          "description": "Rent cars for your travel needs"
-        }
+        itemOffered: {
+          "@type": "Service",
+          name: "Hotel Reservation",
+          description: "Reserve hotels and accommodations globally",
+        },
       },
       {
         "@type": "Offer",
-        "itemOffered": {
+        itemOffered: {
           "@type": "Service",
-          "name": "Travel Planning",
-          "description": "Complete travel planning and booking services"
-        }
-      }
-    ]
-  };
-
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Fly Arzan",
-    "url": "https://flyarzan.com",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://flyarzan.com/search?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
+          name: "Car Rental",
+          description: "Rent cars for your travel needs",
+        },
+      },
+      {
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: "Travel Planning",
+          description: "Complete travel planning and booking services",
+        },
+      },
+    ],
   };
 
   return (
     <Helmet>
       <script type="application/ld+json">
         {JSON.stringify(organizationSchema)}
-      </script>
-      <script type="application/ld+json">
-        {JSON.stringify(websiteSchema)}
       </script>
     </Helmet>
   );

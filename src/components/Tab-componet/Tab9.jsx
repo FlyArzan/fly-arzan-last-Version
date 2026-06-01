@@ -423,7 +423,7 @@ const Tab9 = () => {
                             </svg>
                             {t(`buttons.Save`)} £ 35.00
                           </span>
-<Link to="/loader">
+<Link to="/">
                           <button>
                             <p>{t(`buttons.BookNow`)}</p>
                             <h3>

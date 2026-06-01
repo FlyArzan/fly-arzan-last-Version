@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -203,7 +203,7 @@ export const useSendBulkNotification = () => {
         }
       } else {
         toast.warning(
-          "No users received the notification (all have notifications disabled)"
+          "No users received the notification (all have notifications disabled)",
         );
       }
       queryClient.invalidateQueries({ queryKey: ["admin", "notifications"] });
@@ -228,7 +228,7 @@ export const useAdminNotifications = ({ page = 1, limit = 50 } = {}) => {
       });
 
       const data = await apiFetch(
-        `/notifications/admin/all?${params.toString()}`
+        `/notifications/admin/all?${params.toString()}`,
       );
 
       return {
@@ -293,7 +293,7 @@ export const useSendBulkEmail = () => {
         }
       } else {
         toast.warning(
-          "No users received the email (all have newsletter disabled)"
+          "No users received the email (all have newsletter disabled)",
         );
       }
       queryClient.invalidateQueries({ queryKey: ["admin", "email"] });
@@ -324,13 +324,19 @@ export const useSendToAllSubscribers = () => {
         toast.warning(data.message || "No newsletter subscribers found");
       } else if (data.sent > 0 && data.failed === 0) {
         // All emails sent successfully
-        toast.success(`Email sent to ${data.sent} subscriber${data.sent > 1 ? 's' : ''}`);
+        toast.success(
+          `Email sent to ${data.sent} subscriber${data.sent > 1 ? "s" : ""}`,
+        );
       } else if (data.sent > 0 && data.failed > 0) {
         // Some emails sent, some failed
-        toast.warning(`Email sent to ${data.sent} subscriber${data.sent > 1 ? 's' : ''}, ${data.failed} failed`);
+        toast.warning(
+          `Email sent to ${data.sent} subscriber${data.sent > 1 ? "s" : ""}, ${data.failed} failed`,
+        );
       } else if (data.failed > 0) {
         // All emails failed
-        toast.error(`Failed to send emails to ${data.failed} subscriber${data.failed > 1 ? 's' : ''}`);
+        toast.error(
+          `Failed to send emails to ${data.failed} subscriber${data.failed > 1 ? "s" : ""}`,
+        );
       } else {
         // Campaign created but no emails to send (edge case)
         toast.info("Campaign created");
@@ -357,7 +363,7 @@ export const useEmailCampaigns = ({ page = 1, limit = 20 } = {}) => {
       });
 
       const data = await apiFetch(
-        `/admin/email/campaigns?${params.toString()}`
+        `/admin/email/campaigns?${params.toString()}`,
       );
 
       return {

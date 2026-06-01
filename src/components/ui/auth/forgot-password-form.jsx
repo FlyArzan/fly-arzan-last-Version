@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useForgotPassword } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Loader2, Mail, ArrowLeft, CheckCircle } from "lucide-react";
 
 const forgotPasswordSchema = yup.object({
@@ -43,7 +43,7 @@ const ForgotPasswordForm = ({ onBack }) => {
           setEmailSent(true);
           toast.success("If an account exists, a reset email has been sent.");
         },
-      }
+      },
     );
   };
 

@@ -52,7 +52,7 @@ export const logSearchEvent = async (data) => {
   const sid = ensureSessionId();
   const utm = pickUtmFromLocation();
   try {
-    await fetch(`${API_BASE_URL}/api/admin/analytics/search`, {
+    await fetch(`${API_BASE_URL}/api/events/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -83,7 +83,7 @@ export const logClickOutEvent = async (data) => {
   const sid = ensureSessionId();
   const utm = pickUtmFromLocation();
   try {
-    await fetch(`${API_BASE_URL}/api/admin/analytics/clickout`, {
+    await fetch(`${API_BASE_URL}/api/events/clickout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

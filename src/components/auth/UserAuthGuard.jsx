@@ -1,4 +1,5 @@
 import { useState, useLayoutEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { useSession } from "@/lib/auth-client";
@@ -68,7 +69,14 @@ const UserAuthGuard = ({ children }) => {
   }
 
   // Authenticated regular user - render children
-  return children;
+  return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      {children}
+    </>
+  );
 };
 
 export default UserAuthGuard;

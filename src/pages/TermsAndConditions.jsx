@@ -1,4 +1,5 @@
 // Terms & Conditions page with CMS integration
+import { Helmet } from "react-helmet-async";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import FlightSec4 from "../components/Landing_page_1_componets/FlightSec4";
@@ -12,6 +13,15 @@ const TermsAndConditions = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Terms and Conditions | FlyArzan</title>
+        <meta
+          name="description"
+          content="Review FlyArzan's terms and conditions governing the use of our flight search and comparison platform."
+        />
+        <link rel="canonical" href="https://flyarzan.com/TermsAndConditions" />
+        <meta name="robots" content="index, follow" />
+      </Helmet>
       <Header />
       <section className="PrivacyPolicysec1-sec">
         <div className="container">

@@ -627,7 +627,7 @@ const Tab10 = () => {
                         </svg>
                         Save  £ 35.00
                       </span> */}
-                      <Link to="/loader">
+                      <Link to="/">
                     <button>
                       <p>Book Now</p>
                       <h3>

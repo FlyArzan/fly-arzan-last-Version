@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import Loginimg from "../../assets/Images/Login.png";
 import logo from "../../assets/Images/loginlogo.png";
 
@@ -11,6 +12,10 @@ const Singup = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Sign Up | FlyArzan</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <section className="Login-sec">
         <div className="Login-main">
           <div className="Login-form-box">
@@ -66,7 +71,7 @@ const Singup = () => {
 
               </div>
               <div className="Login-form-btn">
-                <Link to="/Recentactivities">
+                <Link to="/Login">
                 <button>Create Account</button>
                 </Link>
         

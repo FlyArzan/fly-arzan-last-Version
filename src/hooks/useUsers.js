@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -128,7 +128,7 @@ export const useSetUserRole = () => {
       if (role === "super") {
         toast.success(
           `Role changed to ${role} successfully. Note: Super admins are hidden from the user list for security.`,
-          { autoClose: 6000 },
+          { duration: 6000 },
         );
       } else {
         toast.success(`Role changed to ${role} successfully`);

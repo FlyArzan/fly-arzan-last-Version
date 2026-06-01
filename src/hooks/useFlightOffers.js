@@ -1,11 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useAxios } from "./useAxios";
+import api from "../lib/axios";
 import { formatDateForURL } from "@/lib/flight-utils";
 
 export const useFlightOffers = (queries) => {
-  const axios = useAxios();
-
   // Build Query with timezone-safe date formatting
   const searchParams = {
     originLocationCode: queries.originLocationCode,
@@ -36,7 +34,7 @@ export const useFlightOffers = (queries) => {
     queryKey: ["flight-offers", queries],
     retry: 0,
     queryFn: () =>
-      axios
+      api
         .get(`/flight-offers?${searchQueries.toString()}`)
         .then((res) => res.data),
     enabled:

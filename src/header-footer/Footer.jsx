@@ -6,7 +6,7 @@ import Instagram_Logo from "../assets/Images/Instagram_Logo.png";
 import X_logo from "../assets/Images/X_logo.png";
 import youtube_logo from "../assets/Images/youtube_logo.png";
 import { Link } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const Footer = () => {
   const { t } = useTranslation();

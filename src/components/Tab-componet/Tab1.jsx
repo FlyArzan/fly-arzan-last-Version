@@ -271,7 +271,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
             titleChange,
           };
           setContextData(data);
-          navigate("/FlightsInner");
+          navigate("/");
         } else if (activeButton === "One Way") {
           const data = {
             originLocationCode: splitedFromCode,
@@ -287,7 +287,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
             children: persons?.childrens,
           };
           setContextData(data);
-          navigate("/FlightsInner");
+          navigate("/");
         }
       }
     } else {
@@ -327,7 +327,7 @@ const Tab1 = ({ upperHeadingShow = true }) => {
             .join(", "),
         };
         setContextData(formattedData);
-        navigate("/FlightsInner");
+        navigate("/");
       }
     }
   };

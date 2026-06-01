@@ -22,6 +22,7 @@ import { useSessionStorage } from "usehooks-ts";
 
 import OneWayFilter from "@/components/ui/one-way-filter";
 import RoundTripFilter from "@/components/ui/round-trip-filter";
+import BreadcrumbSchema from "@/components/Schemas/BreadcrumbSchema";
 
 const FLIGHT_SEARCH_PAGE_URL = "https://flyarzan.com/search/flight";
 const OG_IMAGE =
@@ -290,6 +291,12 @@ const FlightSearchPage = () => {
 
   return (
     <>
+      <BreadcrumbSchema
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Flight Search", url: "/search/flight" },
+        ]}
+      />
       <Helmet>
         <title>Best Flight Search – Find the Best Deals | FlyArzan</title>
         <meta name="description" content={FLIGHT_SEARCH_DESCRIPTION} />

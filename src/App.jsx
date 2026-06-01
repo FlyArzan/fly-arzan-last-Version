@@ -1,8 +1,7 @@
 import { router } from "./Routes/Routes";
 import { RouterProvider } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import TanstackQueryProvider from "./providers/tanstack-query-prover";
+import { Toaster } from "sonner";
+import TanstackQueryProvider from "./providers/tanstack-query-provider";
 import { RegionalSettingsProvider } from "./context/RegionalSettingsContext";
 import { WebSocketProvider } from "./providers/WebSocketProvider";
 import CookieConsent from "./components/ui/cookie-consent/CookieConsent";
@@ -48,7 +47,7 @@ function App() {
         <WebSocketProvider>
           <TravelAgencySchema />
           <RouterProvider router={router} fallbackElement={<InitialLoader />} />
-          <ToastContainer />
+          <Toaster richColors position="top-right" />
           <CookieConsent />
         </WebSocketProvider>
       </RegionalSettingsProvider>

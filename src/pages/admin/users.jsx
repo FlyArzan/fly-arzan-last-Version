@@ -44,7 +44,7 @@ import {
   useImpersonateUser,
 } from "@/hooks/useUsers";
 import { useIsAuthenticated } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   cardStyles,
   inputStyles,
@@ -127,7 +127,7 @@ export default function Users() {
       // Prevent self-demotion
       if (selectedUser.id === currentUser?.id) {
         toast.error(
-          "You cannot change your own role. This would lock you out."
+          "You cannot change your own role. This would lock you out.",
         );
         setRoleDialogOpen(false);
         handleMenuClose();
@@ -344,7 +344,7 @@ export default function Users() {
                           }
                           label={user.banned ? "Banned" : "Active"}
                           sx={getStatusChipStyle(
-                            user.banned ? "banned" : "active"
+                            user.banned ? "banned" : "active",
                           )}
                         />
                       </TableCell>

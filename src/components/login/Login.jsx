@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import logo from "../../assets/Images/loginlogo.png";
 import { FcGoogle } from "react-icons/fc";
@@ -8,7 +9,7 @@ import { loginSchema, registrationSchema } from "../Schemas/Schemas";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSignIn, useSignUp, signInWithGoogle } from "@/hooks/useAuth";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const Login = ({ setShowPopup }) => {
   const [isSignup, setIsSignup] = useState(false);
@@ -131,6 +132,11 @@ const Login = ({ setShowPopup }) => {
   }
 
   return (
+    <>
+      <Helmet>
+        <title>Login | FlyArzan</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
     <div
       style={{
         minHeight: "100vh",
@@ -556,6 +562,7 @@ const Login = ({ setShowPopup }) => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

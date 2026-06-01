@@ -28,7 +28,7 @@ import translationUR from "./locales/ur/translation.json";
 import translationTR from "./locales/tr/translation.json";
 import translationEL from "./locales/el/translation.json";
 import translationru from "./locales/ru/translation.json";
-
+import translationDE from "./locales/de/translation.json";
 
 const selectLocalLang = JSON.parse(localStorage.getItem("selectLang"));
 
@@ -84,6 +84,9 @@ const resources = {
   },
   ru: {
     translation: translationru,
+  },
+  de: {
+    translation: translationDE,
   },
   sv: {
     translation: translationSV,

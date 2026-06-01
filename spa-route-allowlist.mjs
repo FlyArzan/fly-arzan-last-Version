@@ -27,6 +27,7 @@ const KNOWN_PATHS = new Set([
   "/Singup",
   "/reset-password",
   "/admin-login",
+  "/auth/callback",
   "/COVID",
   "/Airport",
   "/VisaRequirements",

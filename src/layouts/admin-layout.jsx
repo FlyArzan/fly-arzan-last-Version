@@ -327,6 +327,8 @@ const AdminLayout = () => {
                 sx={{ ml: 0.5 }}
               >
                 <Avatar
+                  src={user?.image || undefined}
+                  alt={userName}
                   sx={{
                     width: 36,
                     height: 36,

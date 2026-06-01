@@ -32,7 +32,8 @@ const NewRegisterForm = ({ onSuccess }) => {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      await signInWithGoogle("/dashboard");
+      // No arg → role-aware landing (/auth/callback) decides admin vs dashboard
+      await signInWithGoogle();
     } catch (error) {
       toast.error(error.message || "Google sign in failed");
       setIsGoogleLoading(false);

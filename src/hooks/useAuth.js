@@ -144,12 +144,24 @@ export const useResetPassword = () => {
 };
 
 // Google Sign In - uses better-auth social sign in
-// This function triggers a redirect to Google OAuth
-export const signInWithGoogle = async (callbackURL = "/dashboard") => {
+// This function triggers a redirect to Google OAuth.
+//
+// IMPORTANT: better-auth resolves a RELATIVE callbackURL against the auth
+// server's origin (the backend, api.flyarzan.com). Since the frontend lives on
+// a different origin, a relative path like "/dashboard" would land on the
+// backend and 404. We therefore always send an ABSOLUTE URL on the current
+// (frontend) origin. That origin must be listed in the backend `trustedOrigins`.
+//
+// Default lands on "/auth/callback", a role-aware page that forwards admins to
+// /admin and regular users to /dashboard (role isn't known until after login).
+export const signInWithGoogle = async (callbackURL = "/auth/callback") => {
+  const toAbsolute = (url) =>
+    /^https?:\/\//i.test(url) ? url : `${window.location.origin}${url}`;
+
   const result = await authClient.signIn.social({
     provider: "google",
-    callbackURL,
-    errorCallbackURL: "/Login?error=google_auth_failed",
+    callbackURL: toAbsolute(callbackURL),
+    errorCallbackURL: toAbsolute("/Login?error=google_auth_failed"),
   });
 
   // Check if there's an error in the response

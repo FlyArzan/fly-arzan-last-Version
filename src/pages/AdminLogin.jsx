@@ -4,8 +4,9 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useSignIn, useForgotPassword } from "@/hooks/useAuth";
+import { useSignIn, useForgotPassword, signInWithGoogle } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { FcGoogle } from "react-icons/fc";
 import {
   Loader2,
   Eye,
@@ -42,6 +43,7 @@ const AdminLogin = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [sentEmail, setSentEmail] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const {
     register,
@@ -79,6 +81,19 @@ const AdminLogin = () => {
         },
       },
     );
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      // Role-aware landing (/auth/callback) forwards admins to /admin and
+      // non-admins to /dashboard, so a wrong-role Google account can't reach
+      // the admin panel (the AdminAuthGuard also enforces this).
+      await signInWithGoogle();
+    } catch (error) {
+      toast.error(error.message || "Google sign in failed");
+      setIsGoogleLoading(false);
+    }
   };
 
   const handleBackToLogin = () => {
@@ -649,6 +664,55 @@ const AdminLogin = () => {
                 </button>
               </fieldset>
             </form>
+
+            {/* Divider */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                margin: "20px 0",
+              }}
+            >
+              <span style={{ flex: 1, height: "1px", background: "#e5e7eb" }} />
+              <span style={{ fontSize: "12px", color: "#9ca3af" }}>
+                Or continue with
+              </span>
+              <span style={{ flex: 1, height: "1px", background: "#e5e7eb" }} />
+            </div>
+
+            {/* Google Sign In */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading || isGoogleLoading}
+              style={{
+                width: "100%",
+                padding: "12px 24px",
+                background: "#fff",
+                color: "#374151",
+                borderRadius: "8px",
+                border: "1px solid #e5e7eb",
+                fontWeight: "500",
+                fontSize: "15px",
+                cursor: isGoogleLoading ? "not-allowed" : "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                opacity: isGoogleLoading ? 0.6 : 1,
+              }}
+            >
+              {isGoogleLoading ? (
+                <Loader2
+                  size={18}
+                  style={{ animation: "spin 1s linear infinite" }}
+                />
+              ) : (
+                <FcGoogle size={20} />
+              )}
+              Sign in with Google
+            </button>
 
             {/* Back to home */}
             <div style={{ textAlign: "center", marginTop: "24px" }}>

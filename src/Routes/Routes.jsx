@@ -22,6 +22,7 @@ const PrivacyPolicy = lazy(() => import("../pages/PrivacyPolicy"));
 const TermsAndConditions = lazy(() => import("../pages/TermsAndConditions"));
 const ResetPassword = lazy(() => import("../pages/ResetPassword"));
 const AdminLogin = lazy(() => import("../pages/AdminLogin"));
+const AuthCallback = lazy(() => import("../pages/AuthCallback"));
 const Login = lazy(() => import("../components/login/Login"));
 const Singup = lazy(() => import("../components/login/Singup"));
 const COVID = lazy(() => import("../header-footer/COVID"));
@@ -163,6 +164,8 @@ export const router = createBrowserRouter(
         { path: "/Singup", element: <Navigate to="/signup" replace /> },
         { path: "/reset-password", element: <ResetPassword /> },
         { path: "/admin-login", element: <AdminLogin /> },
+        // Post-OAuth landing — routes by role (admin → /admin, user → /dashboard)
+        { path: "/auth/callback", element: <AuthCallback /> },
 
         { path: "*", element: <NotFound /> },
       ],

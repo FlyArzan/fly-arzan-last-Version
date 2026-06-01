@@ -2,7 +2,6 @@ import { DialogTitle } from "@headlessui/react";
 import { Checkbox } from "../checkbox";
 import { Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa6";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -172,28 +171,19 @@ const NewRegisterForm = ({ onSuccess }) => {
             </span>
           </div>
 
-          <div className="tw:grid tw:grid-cols-2 tw:gap-4">
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={isGoogleLoading}
-              className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted tw:disabled:opacity-50 tw:disabled:cursor-not-allowed"
-            >
-              {isGoogleLoading ? (
-                <Loader2 className="tw:w-5 tw:h-5 tw:animate-spin" />
-              ) : (
-                <FcGoogle size={20} />
-              )}
-              <span>Google</span>
-            </button>
-            <button
-              type="button"
-              className="tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted"
-            >
-              <FaApple size={20} />
-              <span>Apple</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading}
+            className="tw:w-full tw:justify-center tw:flex tw:items-center tw:gap-2 tw:px-3 tw:py-2 tw:!rounded tw:shadow tw:border tw:border-muted tw:disabled:opacity-50 tw:disabled:cursor-not-allowed"
+          >
+            {isGoogleLoading ? (
+              <Loader2 className="tw:w-5 tw:h-5 tw:animate-spin" />
+            ) : (
+              <FcGoogle size={20} />
+            )}
+            <span>Google</span>
+          </button>
         </fieldset>
       </form>
     </>

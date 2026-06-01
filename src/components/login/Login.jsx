@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import logo from "../../assets/Images/loginlogo.png";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple } from "react-icons/fa6";
 import { useTranslation } from "react-i18next";
 import { loginSchema, registrationSchema } from "../Schemas/Schemas";
 import { useForm } from "react-hook-form";
@@ -508,27 +507,6 @@ const Login = ({ setShowPopup }) => {
             >
               <FcGoogle size={20} />
               {isGoogleLoading ? "Signing in..." : "Google"}
-            </button>
-            <button
-              type="button"
-              style={{
-                flex: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                padding: "12px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                background: "#ffffff",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontFamily: "Rubik, sans-serif",
-                color: "#374151",
-              }}
-            >
-              <FaApple size={20} />
-              Apple
             </button>
           </div>
 

@@ -3,7 +3,6 @@ import { Helmet } from "react-helmet-async";
 import Loginimg from "../../assets/Images/Login.png";
 import logo from "../../assets/Images/loginlogo.png";
 
-import apple from "../../assets/Images/apple.png";
 import google from "../../assets/Images/google.png";
 import { Link } from "react-router-dom";
 
@@ -84,10 +83,6 @@ const Singup = () => {
               <div className="google-btn-box">
                 <button type="button">
                   <img src={google} alt="Continue with Google" />
-                </button>
-                <h2>or  </h2>
-                <button type="button">
-                  <img src={apple} alt="Continue with Apple" />
                 </button>
               </div>
               {/* <div className="an-account-box">

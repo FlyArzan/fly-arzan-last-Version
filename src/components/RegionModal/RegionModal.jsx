@@ -223,11 +223,6 @@ function RegionModal({ setModal }) {
           <p>Country / Region</p>
         </div>
 
-        <p>
-          Selecting the country you’re in will give you local deals and
-          information.
-        </p>
-
         <div
           className="dropdown"
           style={{ position: "relative", marginTop: "8px" }}

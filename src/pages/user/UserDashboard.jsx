@@ -272,11 +272,8 @@ const UserDashboard = () => {
   });
 
   const handleLogout = () => {
-    signOutMutation.mutate(undefined, {
-      onSuccess: () => {
-        navigate("/");
-      },
-    });
+    navigate("/");
+    signOutMutation.mutate(undefined);
   };
 
   const onProfileSubmit = (data) => {

@@ -217,11 +217,8 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     handleProfileMenuClose();
-    signOutMutation.mutate(undefined, {
-      onSuccess: () => {
-        navigate("/Login");
-      },
-    });
+    navigate("/");
+    signOutMutation.mutate(undefined);
   };
 
   const drawer = <AdminLayoutDrawer onItemClick={() => setMobileOpen(false)} />;

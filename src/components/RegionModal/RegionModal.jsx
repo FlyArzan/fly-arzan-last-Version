@@ -174,7 +174,7 @@ function RegionModal({ setModal }) {
         </div>
         <div className="dropdown" style={{ position: "relative" }}>
           <button
-            className="btn btn-secondary dropdown-toggle language-button"
+            className="dropdown-toggle language-button"
             type="button"
             aria-haspopup="true"
             aria-expanded={openLang}
@@ -228,7 +228,7 @@ function RegionModal({ setModal }) {
           style={{ position: "relative", marginTop: "8px" }}
         >
           <button
-            className="btn btn-secondary dropdown-toggle language-button"
+            className="dropdown-toggle language-button"
             type="button"
             aria-haspopup="true"
             aria-expanded={openCountry}
@@ -315,7 +315,7 @@ function RegionModal({ setModal }) {
         </div>
         <div className="dropdown" style={{ position: "relative" }}>
           <button
-            className="btn btn-secondary dropdown-toggle language-button"
+            className="dropdown-toggle language-button"
             type="button"
             aria-haspopup="true"
             aria-expanded={openCurr}

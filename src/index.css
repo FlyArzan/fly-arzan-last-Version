@@ -7167,8 +7167,10 @@ section.FlightHeroinner1 {
   white-space: nowrap;
   width: 100% !important;
   text-align: left !important;
-  background: transparent !important;
+  background: #fff !important;
   color: black !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 4px;
 }
 
 .dropdown-toggle::after {
@@ -7184,8 +7186,9 @@ section.FlightHeroinner1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 250px; /* Adjust width as needed */
-  padding-right: 20px; /* Space between text and arrow */
+  width: 250px;
+  padding: 8px 12px;
+  cursor: pointer;
 }
 
 .language-button::after {
@@ -7196,11 +7199,30 @@ section.FlightHeroinner1 {
 
 .dropdown-menu.show {
   display: block;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  padding: 4px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #212529;
+  background: transparent;
+  border: none;
+  text-align: inherit;
+}
+
+.dropdown-item:hover {
+  background: #f0f0f0;
 }
 
 .drop-down-height {
   position: absolute !important;
-  transform: translate3d(0px, -px, 0px) !important;
   height: 40vh !important;
   overflow: auto;
   width: 100%;

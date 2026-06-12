@@ -158,11 +158,12 @@ const Header = () => {
     },
     {
       id: 5,
-      heading: "Activity",
+      heading: "Travel Info",
       list: [
-        { id: 1, title: "Visa requirements", link: "/VisaRequirements" },
-        { id: 2, title: "Nearest airport details", link: "/Airport" },
-        { id: 3, title: "Article", link: "#" },
+        { id: 1, title: "Travel Guides", link: "/travel-guides" },
+        { id: 2, title: "Visa Information", link: "/visa-information" },
+        { id: 3, title: "Nearest airport details", link: "/Airport" },
+        { id: 4, title: "COVID-19 Info", link: "/COVID" },
       ],
     },
   ];

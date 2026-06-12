@@ -114,11 +114,14 @@ const Footer = () => {
                 <div className="footer-ul-list-box">
                   <h3>{t("footer.travelSupport.title")}</h3>
                   <ul>
+                    <Link to="/travel-guides">
+                      <li>Travel Guides</li>
+                    </Link>
+                    <Link to="/visa-information">
+                      <li>Visa Information</li>
+                    </Link>
                     <Link to="/COVID">
                       <li>{t("footer.travelSupport.covid")}</li>
-                    </Link>
-                    <Link to="/VisaRequirements">
-                      <li>{t("footer.travelSupport.visa")}</li>
                     </Link>
                     <Link to="/Airport">
                       <li>{t("footer.travelSupport.airport")}</li>

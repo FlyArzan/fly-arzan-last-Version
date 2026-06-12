@@ -39,6 +39,21 @@ app.use(compression());
 
 app.use(express.static(dist));
 
+// Dynamic sitemap for articles — proxied from the backend so new articles appear automatically
+app.get("/sitemap-articles.xml", async (req, res) => {
+  try {
+    const apiUrl = process.env.API_URL || process.env.VITE_API_URL || "http://localhost:8787";
+    const response = await fetch(`${apiUrl}/api/articles/sitemap.xml`);
+    if (!response.ok) throw new Error(`Backend returned ${response.status}`);
+    const xml = await response.text();
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(xml);
+  } catch {
+    res.sendStatus(503);
+  }
+});
+
 app.use((req, res) => {
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.sendStatus(404);

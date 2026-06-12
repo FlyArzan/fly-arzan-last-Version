@@ -42,6 +42,8 @@ import {
   ContactPage as ContactPageIcon,
   Public as PublicIcon,
   Notifications as NotificationsIcon,
+  Article as ArticleIcon,
+  TravelExplore as TravelExploreIcon,
 } from "@mui/icons-material";
 import { useUnreadCount } from "@/hooks/useNotifications";
 
@@ -56,6 +58,13 @@ const navSections = [
         icon: DashboardIcon,
         path: "/admin",
       },
+    ],
+  },
+  {
+    title: "Content",
+    items: [
+      { label: "Articles", icon: ArticleIcon, path: "/admin/content/articles" },
+      { label: "Visa Database", icon: TravelExploreIcon, path: "/admin/visa-db" },
     ],
   },
   {

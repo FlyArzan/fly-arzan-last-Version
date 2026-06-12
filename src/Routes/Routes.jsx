@@ -48,6 +48,19 @@ const EmailCampaigns = lazy(() => import("../pages/admin/email-campaigns"));
 const AdminProfile = lazy(() => import("../pages/admin/profile"));
 const AdminNotifications = lazy(() => import("../pages/admin/notifications"));
 
+// Admin Content pages
+const AdminArticles = lazy(() => import("../pages/admin/content/articles"));
+const AdminArticleForm = lazy(() => import("../pages/admin/content/article-form"));
+const AdminVisaList = lazy(() => import("../pages/admin/visa-db/index"));
+const AdminVisaForm = lazy(() => import("../pages/admin/visa-db/visa-form"));
+
+// Public travel & visa pages
+const TravelGuidesHub = lazy(() => import("../pages/TravelGuidesHub"));
+const TravelGuidesCategory = lazy(() => import("../pages/TravelGuidesCategory"));
+const ArticlePage = lazy(() => import("../pages/ArticlePage"));
+const VisaInformationHub = lazy(() => import("../pages/VisaInformationHub"));
+const VisaCountryPage = lazy(() => import("../pages/VisaCountryPage"));
+
 // Admin CMS pages
 const AdminCmsAbout = lazy(() => import("../pages/admin/cms/about-us"));
 const AdminCmsFaq = lazy(() => import("../pages/admin/cms/faq"));
@@ -118,7 +131,13 @@ export const router = createBrowserRouter(
             { path: "cms/privacy-policy", element: <AdminCmsPrivacy /> },
             { path: "cms/terms-conditions", element: <AdminCmsTerms /> },
             { path: "cms/contact", element: <AdminCmsContact /> },
-            { path: "cms/visa-requirements", element: <AdminCmsVisa /> },
+            { path: "cms/visa-requirements", element: <Navigate to="/admin/visa-db" replace /> },
+            { path: "content/articles", element: <AdminArticles /> },
+            { path: "content/articles/new", element: <AdminArticleForm /> },
+            { path: "content/articles/:id", element: <AdminArticleForm /> },
+            { path: "visa-db", element: <AdminVisaList /> },
+            { path: "visa-db/new", element: <AdminVisaForm /> },
+            { path: "visa-db/:id", element: <AdminVisaForm /> },
             { path: "cms/covid-19", element: <AdminCmsCovid /> },
             { path: "cms/airport", element: <AdminCmsAirport /> },
             { path: "monitoring/health", element: <APIHealth /> },
@@ -156,7 +175,16 @@ export const router = createBrowserRouter(
         { path: "/TermsAndConditions", element: <TermsAndConditions /> },
         { path: "/COVID", element: <COVID /> },
         { path: "/Airport", element: <Airport /> },
-        { path: "/VisaRequirements", element: <VisaRequirements /> },
+        { path: "/VisaRequirements", element: <Navigate to="/visa-information" replace /> },
+
+        // Travel Content Hub
+        { path: "/travel-guides", element: <TravelGuidesHub /> },
+        { path: "/travel-guides/:category", element: <TravelGuidesCategory /> },
+        { path: "/travel-guides/:category/:slug", element: <ArticlePage /> },
+
+        // Visa Information Database
+        { path: "/visa-information", element: <VisaInformationHub /> },
+        { path: "/visa-information/:slug", element: <VisaCountryPage /> },
 
         // Auth
         { path: "/Login", element: <Login /> },

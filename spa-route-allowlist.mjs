@@ -57,10 +57,20 @@ const KNOWN_PATHS = new Set([
   "/admin/profile",
   "/admin/notifications",
   "/admin/feedback",
+  "/admin/content/articles",
+  "/admin/content/articles/new",
+  "/admin/visa-db",
+  "/admin/visa-db/new",
+  "/travel-guides",
+  "/visa-information",
 ]);
 
 const ADMIN_USER_SEGMENT = /^\/admin\/users\/[^/]+$/;
 const ADMIN_CUSTOMER_SEGMENT = /^\/admin\/customers\/[^/]+$/;
+const ADMIN_ARTICLE_SEGMENT = /^\/admin\/content\/articles\/[^/]+$/;
+const ADMIN_VISA_SEGMENT = /^\/admin\/visa-db\/[^/]+$/;
+const TRAVEL_GUIDES_SEGMENT = /^\/travel-guides(\/[^/]+(\/[^/]+)?)?$/;
+const VISA_INFO_SEGMENT = /^\/visa-information\/[^/]+$/;
 
 /** @param {string} raw */
 export function normalizePathname(raw) {
@@ -101,11 +111,11 @@ export function isKnownSpaPath(normalizedPath) {
   if (KNOWN_PATHS.has(normalizedPath)) {
     return true;
   }
-  if (ADMIN_USER_SEGMENT.test(normalizedPath)) {
-    return true;
-  }
-  if (ADMIN_CUSTOMER_SEGMENT.test(normalizedPath)) {
-    return true;
-  }
+  if (ADMIN_USER_SEGMENT.test(normalizedPath)) return true;
+  if (ADMIN_CUSTOMER_SEGMENT.test(normalizedPath)) return true;
+  if (ADMIN_ARTICLE_SEGMENT.test(normalizedPath)) return true;
+  if (ADMIN_VISA_SEGMENT.test(normalizedPath)) return true;
+  if (TRAVEL_GUIDES_SEGMENT.test(normalizedPath)) return true;
+  if (VISA_INFO_SEGMENT.test(normalizedPath)) return true;
   return false;
 }

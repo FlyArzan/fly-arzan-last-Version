@@ -39,11 +39,13 @@ app.use(compression());
 
 app.use(express.static(dist));
 
-// Dynamic sitemap for articles — proxied from the backend so new articles appear automatically
-app.get("/sitemap-articles.xml", async (req, res) => {
+// Dynamic sitemaps proxied from the backend so new content appears automatically.
+const resolveApiUrl = () =>
+  process.env.API_URL || process.env.VITE_API_URL || "http://localhost:8787";
+
+const proxySitemap = (backendPath) => async (req, res) => {
   try {
-    const apiUrl = process.env.API_URL || process.env.VITE_API_URL || "http://localhost:8787";
-    const response = await fetch(`${apiUrl}/api/articles/sitemap.xml`);
+    const response = await fetch(`${resolveApiUrl()}${backendPath}`);
     if (!response.ok) throw new Error(`Backend returned ${response.status}`);
     const xml = await response.text();
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
@@ -52,7 +54,11 @@ app.get("/sitemap-articles.xml", async (req, res) => {
   } catch {
     res.sendStatus(503);
   }
-});
+};
+
+// Article + visa-country sitemaps (dynamic, slug-based)
+app.get("/sitemap-articles.xml", proxySitemap("/api/articles/sitemap.xml"));
+app.get("/sitemap-visa.xml", proxySitemap("/api/visa-info/sitemap.xml"));
 
 app.use((req, res) => {
   if (req.method !== "GET" && req.method !== "HEAD") {

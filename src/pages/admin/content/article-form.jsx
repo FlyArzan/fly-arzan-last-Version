@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box, Typography, Button, TextField, Stack, Card, CardHeader,
@@ -9,7 +9,8 @@ import {
   Save as SaveIcon, ArrowBack as ArrowBackIcon,
   Add as AddIcon, Delete as DeleteIcon,
 } from "@mui/icons-material";
-import { useAdminArticle, useSaveArticle, useArticleCategories } from "@/hooks/useArticles";
+import { useAdminArticle, useAdminArticles, useSaveArticle, useArticleCategories } from "@/hooks/useArticles";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
 
 const cardSx = {
@@ -33,6 +34,7 @@ const labelSx = { color: "#9ca3af", fontFamily: "Inter", fontSize: 13, mb: 0.5 }
 
 const defaultForm = {
   title: "", slug: "", shortSummary: "", body: "", featuredImage: "",
+  featuredImageKey: "",
   imageAlt: "", authorName: "Fly Arzan Travel Team", readingTime: "",
   metaTitle: "", metaDescription: "", keywords: "", status: "draft",
   publishedAt: "", categoryIds: [], faqs: [], relatedArticles: [],
@@ -48,10 +50,43 @@ export default function ArticleForm() {
 
   const { data: existing, isLoading } = useAdminArticle(isEdit ? id : null);
   const { data: categories = [] } = useArticleCategories();
+  const { data: allArticlesData } = useAdminArticles({ limit: 100 });
   const saveMutation = useSaveArticle();
 
   const [form, setForm] = useState(defaultForm);
   const [slugManuallySet, setSlugManuallySet] = useState(false);
+  const bodyRef = useRef(null);
+
+  // Wrap the current selection (or insert at the cursor) with HTML tags. Keeps
+  // the plain-HTML body but gives editors quick formatting without typing tags.
+  const wrapBody = (before, after = "") => {
+    const el = bodyRef.current;
+    const text = form.body || "";
+    const start = el?.selectionStart ?? text.length;
+    const end = el?.selectionEnd ?? text.length;
+    const selected = text.slice(start, end);
+    const next = text.slice(0, start) + before + selected + after + text.slice(end);
+    setForm((p) => ({ ...p, body: next }));
+    // Restore focus + place caret after the inserted opening tag.
+    requestAnimationFrame(() => {
+      if (!el) return;
+      el.focus();
+      const caret = start + before.length + selected.length;
+      el.setSelectionRange(caret, caret);
+    });
+  };
+
+  const BODY_TOOLS = [
+    { label: "H2", before: "<h2>", after: "</h2>" },
+    { label: "H3", before: "<h3>", after: "</h3>" },
+    { label: "Paragraph", before: "<p>", after: "</p>" },
+    { label: "Bold", before: "<strong>", after: "</strong>" },
+    { label: "Italic", before: "<em>", after: "</em>" },
+    { label: "List", before: "<ul>\n  <li>", after: "</li>\n</ul>" },
+    { label: "Numbered", before: "<ol>\n  <li>", after: "</li>\n</ol>" },
+    { label: "Link", before: '<a href="https://" target="_blank" rel="noopener">', after: "</a>" },
+    { label: "Table", before: "<table>\n  <thead><tr><th>Heading</th></tr></thead>\n  <tbody><tr><td>", after: "</td></tr></tbody>\n</table>" },
+  ];
 
   useEffect(() => {
     if (isEdit && existing) {
@@ -61,6 +96,7 @@ export default function ArticleForm() {
         shortSummary: existing.shortSummary || "",
         body: existing.body || "",
         featuredImage: existing.featuredImage || "",
+        featuredImageKey: "",
         imageAlt: existing.imageAlt || "",
         authorName: existing.authorName || "Fly Arzan Travel Team",
         readingTime: existing.readingTime?.toString() || "",
@@ -97,6 +133,24 @@ export default function ArticleForm() {
   const updateFaq = (i, field, val) =>
     setForm((p) => { const faqs = [...p.faqs]; faqs[i] = { ...faqs[i], [field]: val }; return { ...p, faqs }; });
   const removeFaq = (i) => setForm((p) => ({ ...p, faqs: p.faqs.filter((_, idx) => idx !== i) }));
+
+  // Related articles — selectable from existing published articles, stored as
+  // {slug, title, categorySlug} objects so the public page can link directly.
+  const relatedOptions = (allArticlesData?.articles || []).filter((a) => a.slug !== form.slug);
+  const relatedSlugs = form.relatedArticles.map((r) => r.slug);
+  const handleRelatedChange = (slugs) => {
+    const next = slugs.map((slug) => {
+      const a = relatedOptions.find((o) => o.slug === slug);
+      const existingEntry = form.relatedArticles.find((r) => r.slug === slug);
+      return {
+        slug,
+        title: a?.title || existingEntry?.title || slug,
+        categorySlug: a?.articleCategory?.[0]?.slug || existingEntry?.categorySlug || "",
+        readingTime: a?.readingTime ?? existingEntry?.readingTime,
+      };
+    });
+    setForm((p) => ({ ...p, relatedArticles: next }));
+  };
 
   const handleSave = () => {
     if (!form.title || !form.slug || !form.body) {
@@ -196,10 +250,27 @@ export default function ArticleForm() {
               sx={{ px: 2.5, pt: 2.25, pb: 1 }}
             />
             <CardContent sx={{ px: 2.5, pb: 2.5 }}>
+              <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mb: 1.5, gap: 0.5 }}>
+                {BODY_TOOLS.map((tool) => (
+                  <Button
+                    key={tool.label}
+                    size="small"
+                    onClick={() => wrapBody(tool.before, tool.after)}
+                    sx={{
+                      minWidth: 0, px: 1.25, py: 0.25, fontSize: 12, textTransform: "none",
+                      color: "#9ca3af", border: "1px solid rgba(255,255,255,0.1)",
+                      "&:hover": { color: "#3B82F6", borderColor: "#3B82F6", bgcolor: "transparent" },
+                    }}
+                  >
+                    {tool.label}
+                  </Button>
+                ))}
+              </Stack>
               <TextField
                 fullWidth multiline minRows={16}
                 label="Body (HTML)"
                 value={form.body} onChange={set("body")}
+                inputRef={bodyRef}
                 sx={{ ...textFieldSx, "& textarea": { fontFamily: "monospace", fontSize: 13 } }}
               />
             </CardContent>
@@ -308,13 +379,16 @@ export default function ArticleForm() {
           <Card sx={cardSx}>
             <CardHeader title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Featured Image</Typography>} sx={{ px: 2.5, pt: 2.25, pb: 1 }} />
             <CardContent sx={{ px: 2.5, pb: 2.5 }}>
-              <Stack spacing={2}>
-                <TextField fullWidth size="small" label="Image URL" value={form.featuredImage} onChange={set("featuredImage")} sx={textFieldSx} />
-                <TextField fullWidth size="small" label="Alt Text" value={form.imageAlt} onChange={set("imageAlt")} sx={textFieldSx} />
-                {form.featuredImage && (
-                  <img src={form.featuredImage} alt={form.imageAlt} style={{ width: "100%", borderRadius: 8, objectFit: "cover", maxHeight: 140 }} />
-                )}
-              </Stack>
+              <ImageUpload
+                label="Featured image"
+                folder="articles"
+                value={form.featuredImage}
+                objectKey={form.featuredImageKey}
+                onChange={(url, key) => setForm((p) => ({ ...p, featuredImage: url, featuredImageKey: key }))}
+                alt={form.imageAlt}
+                onAltChange={(v) => setForm((p) => ({ ...p, imageAlt: v }))}
+                helperText="Shown on cards, the article header and social shares."
+              />
             </CardContent>
           </Card>
 
@@ -333,6 +407,40 @@ export default function ArticleForm() {
                   placeholder="comma, separated, keywords"
                 />
               </Stack>
+            </CardContent>
+          </Card>
+
+          {/* Related Articles */}
+          <Card sx={cardSx}>
+            <CardHeader title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Related Articles</Typography>} sx={{ px: 2.5, pt: 2.25, pb: 1 }} />
+            <CardContent sx={{ px: 2.5, pb: 2.5 }}>
+              <FormControl fullWidth size="small" sx={textFieldSx}>
+                <InputLabel>Select related articles</InputLabel>
+                <Select
+                  multiple
+                  value={relatedSlugs}
+                  onChange={(e) => handleRelatedChange(e.target.value)}
+                  input={<OutlinedInput label="Select related articles" />}
+                  renderValue={(selected) =>
+                    form.relatedArticles
+                      .filter((r) => selected.includes(r.slug))
+                      .map((r) => r.title)
+                      .join(", ")
+                  }
+                >
+                  {relatedOptions.length === 0 && (
+                    <MenuItem disabled>
+                      <ListItemText primary="No other articles yet" primaryTypographyProps={{ sx: { color: "#71717A", fontSize: 13 } }} />
+                    </MenuItem>
+                  )}
+                  {relatedOptions.map((a) => (
+                    <MenuItem key={a.id} value={a.slug}>
+                      <Checkbox checked={relatedSlugs.includes(a.slug)} sx={{ color: "#9ca3af" }} />
+                      <ListItemText primary={a.title} primaryTypographyProps={{ sx: { color: "#e5e7eb", fontSize: 13 } }} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </CardContent>
           </Card>
         </Box>

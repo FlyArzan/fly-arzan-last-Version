@@ -167,24 +167,25 @@ const TravelGuidesCategory = () => {
   const catName = isAll ? "All Articles" : catMeta?.name || category;
   const catDesc = catMeta?.description || "";
   const pageUrl = `https://flyarzan.com/travel-guides${isAll ? "" : `/${category}`}`;
+  const metaDescription =
+    catDesc || `Browse ${catName} on FlyArzan — your travel information hub.`;
 
   return (
     <>
       <Helmet>
         <title>{`${catName} | FlyArzan Travel Guides`}</title>
-        <meta
-          name="description"
-          content={
-            catDesc ||
-            `Browse ${catName} on FlyArzan — your travel information hub.`
-          }
-        />
+        <meta name="description" content={metaDescription} />
         <link rel="canonical" href={pageUrl} />
+        <meta property="og:type" content="website" />
         <meta
           property="og:title"
           content={`${catName} | FlyArzan Travel Guides`}
         />
+        <meta property="og:description" content={metaDescription} />
         <meta property="og:url" content={pageUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${catName} | FlyArzan Travel Guides`} />
+        <meta name="twitter:description" content={metaDescription} />
         <meta name="robots" content="index, follow" />
         <script type="application/ld+json">
           {JSON.stringify({

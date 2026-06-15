@@ -22,3 +22,5 @@ Disallow: /FlightsBooking
 Disallow: /BookYourTicket
 
 Sitemap: https://flyarzan.com/sitemap.xml
+Sitemap: https://flyarzan.com/sitemap-articles.xml
+Sitemap: https://flyarzan.com/sitemap-visa.xml

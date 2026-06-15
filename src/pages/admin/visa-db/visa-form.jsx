@@ -10,6 +10,7 @@ import {
   Add as AddIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon,
 } from "@mui/icons-material";
 import { useAdminVisaCountry, useSaveVisaCountry } from "@/hooks/useVisa";
+import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
 
 const cardSx = {
@@ -34,14 +35,31 @@ const slugify = (s) =>
 
 const defaultForm = {
   countryName: "", countrySlug: "", countryCode: "",
-  flagImage: "", destinationImage: "", travelIntroduction: "",
+  flagImage: "", flagImageKey: "", destinationImage: "", destinationImageKey: "", travelIntroduction: "",
   visaRequired: "check", eVisaAvailable: "", visaOnArrival: "",
   passportValidity: "", typicalProcessingTime: "", approximateVisaFee: "",
   officialApplicationLink: "", travelWarning: "",
   metaTitle: "", metaDescription: "", status: "draft",
   requiredDocuments: [], faqs: [],
-  detailedSections: { visaTypes: [], applicationSteps: [], officialLinks: [], travelWarnings: [] },
+  detailedSections: {
+    visaTypes: [], applicationSteps: [], officialLinks: [], travelWarnings: [],
+    visaRequirementDetail: "",
+    touristVisa: { eligibility: "", validity: "", stayDuration: "", entryType: "", requirements: "", applicationMethod: "" },
+    businessVisa: { purpose: "", invitationLetter: "", businessDocuments: "", processingTime: "", applicationMethod: "" },
+    transitVisa: { whenRequired: "", airportTransitRules: "", connectingFlightConditions: "", exceptions: "" },
+    eVisaDetails: { available: "", officialLink: "", applicationSteps: "", processingTime: "", requiredDocuments: "", warnings: "" },
+    visaOnArrivalDetails: { available: "", eligibleTravellers: "", requiredDocuments: "", paymentMethod: "", availability: "", notes: "" },
+    passportValidityDetail: "",
+    processingTimeDetail: "",
+  },
 };
+
+// Empty templates used when loading an existing record that predates these fields.
+const EMPTY_TOURIST = { eligibility: "", validity: "", stayDuration: "", entryType: "", requirements: "", applicationMethod: "" };
+const EMPTY_BUSINESS = { purpose: "", invitationLetter: "", businessDocuments: "", processingTime: "", applicationMethod: "" };
+const EMPTY_TRANSIT = { whenRequired: "", airportTransitRules: "", connectingFlightConditions: "", exceptions: "" };
+const EMPTY_EVISA = { available: "", officialLink: "", applicationSteps: "", processingTime: "", requiredDocuments: "", warnings: "" };
+const EMPTY_VOA = { available: "", eligibleTravellers: "", requiredDocuments: "", paymentMethod: "", availability: "", notes: "" };
 
 export default function VisaCountryForm() {
   const { id } = useParams();
@@ -62,7 +80,9 @@ export default function VisaCountryForm() {
         countrySlug: existing.countrySlug || "",
         countryCode: existing.countryCode || "",
         flagImage: existing.flagImage || "",
+        flagImageKey: "",
         destinationImage: existing.destinationImage || "",
+        destinationImageKey: "",
         travelIntroduction: existing.travelIntroduction || "",
         visaRequired: existing.visaRequired || "check",
         eVisaAvailable: existing.eVisaAvailable || "",
@@ -82,6 +102,14 @@ export default function VisaCountryForm() {
           applicationSteps: Array.isArray(ds.applicationSteps) ? ds.applicationSteps : [],
           officialLinks: Array.isArray(ds.officialLinks) ? ds.officialLinks : [],
           travelWarnings: Array.isArray(ds.travelWarnings) ? ds.travelWarnings : [],
+          visaRequirementDetail: ds.visaRequirementDetail || "",
+          touristVisa: { ...EMPTY_TOURIST, ...(ds.touristVisa || {}) },
+          businessVisa: { ...EMPTY_BUSINESS, ...(ds.businessVisa || {}) },
+          transitVisa: { ...EMPTY_TRANSIT, ...(ds.transitVisa || {}) },
+          eVisaDetails: { ...EMPTY_EVISA, ...(ds.eVisaDetails || {}) },
+          visaOnArrivalDetails: { ...EMPTY_VOA, ...(ds.visaOnArrivalDetails || {}) },
+          passportValidityDetail: ds.passportValidityDetail || "",
+          processingTimeDetail: ds.processingTimeDetail || "",
         },
       });
       setSlugManuallySet(true);
@@ -99,6 +127,20 @@ export default function VisaCountryForm() {
 
   const setDs = (field) => (val) =>
     setForm((p) => ({ ...p, detailedSections: { ...p.detailedSections, [field]: val } }));
+
+  // Set a single string field directly on detailedSections (e.g. detail prose).
+  const setDsString = (field) => (e) =>
+    setForm((p) => ({ ...p, detailedSections: { ...p.detailedSections, [field]: e.target.value } }));
+
+  // Set a sub-field on a nested detailedSections object (tourist/business/etc).
+  const setDsObj = (objKey, field, val) =>
+    setForm((p) => ({
+      ...p,
+      detailedSections: {
+        ...p.detailedSections,
+        [objKey]: { ...p.detailedSections[objKey], [field]: val },
+      },
+    }));
 
   // --- Docs ---
   const addDoc = () => setForm((p) => ({ ...p, requiredDocuments: [...p.requiredDocuments, ""] }));
@@ -208,8 +250,26 @@ export default function VisaCountryForm() {
             </Stack>
             <TextField fullWidth multiline minRows={3} label="Travel Introduction" value={form.travelIntroduction} onChange={set("travelIntroduction")} sx={textFieldSx} />
             <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              <TextField fullWidth label="Flag Image URL" value={form.flagImage} onChange={set("flagImage")} sx={textFieldSx} />
-              <TextField fullWidth label="Destination Image URL" value={form.destinationImage} onChange={set("destinationImage")} sx={textFieldSx} />
+              <Box sx={{ flex: 1 }}>
+                <ImageUpload
+                  label="Flag Image"
+                  folder="visa-flags"
+                  value={form.flagImage}
+                  objectKey={form.flagImageKey}
+                  onChange={(url, key) => setForm((p) => ({ ...p, flagImage: url, flagImageKey: key }))}
+                  helperText="Square country flag. Falls back to an emoji flag if empty."
+                />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <ImageUpload
+                  label="Destination Image"
+                  folder="visa-destinations"
+                  value={form.destinationImage}
+                  objectKey={form.destinationImageKey}
+                  onChange={(url, key) => setForm((p) => ({ ...p, destinationImage: url, destinationImageKey: key }))}
+                  helperText="Hero background for the country page."
+                />
+              </Box>
             </Stack>
             <FormControl fullWidth size="small" sx={textFieldSx}>
               <InputLabel>Status</InputLabel>
@@ -316,6 +376,78 @@ export default function VisaCountryForm() {
                 </AccordionDetails>
               </Accordion>
             ))}
+          </Stack>
+        </CardContent>
+      </Card>
+
+      {/* Detailed visa sections (spec C–G, A, I, J) */}
+      <Card sx={cardSx}>
+        <CardHeader
+          title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Detailed Visa Sections</Typography>}
+          subheader={<Typography sx={{ color: "#71717A", fontSize: 12.5 }}>Optional. Each filled section renders as its own block on the public page.</Typography>}
+          sx={{ px: 2.5, pt: 2.25, pb: 1 }}
+        />
+        <CardContent sx={{ px: 2.5, pb: 2.5 }}>
+          <Stack spacing={2}>
+            <TextField fullWidth size="small" multiline minRows={2} label="Visa Requirement (overview)"
+              placeholder="Explain whether a visa is required and what to check before travel…"
+              value={form.detailedSections.visaRequirementDetail} onChange={setDsString("visaRequirementDetail")} sx={textFieldSx} />
+
+            <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+            <Typography sx={{ color: "#9ca3af", fontSize: 13, fontWeight: 600 }}>Tourist Visa</Typography>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+              <TextField fullWidth size="small" label="Eligibility" value={form.detailedSections.touristVisa.eligibility} onChange={(e) => setDsObj("touristVisa", "eligibility", e.target.value)} sx={textFieldSx} />
+              <TextField fullWidth size="small" label="Validity" value={form.detailedSections.touristVisa.validity} onChange={(e) => setDsObj("touristVisa", "validity", e.target.value)} sx={textFieldSx} />
+              <TextField fullWidth size="small" label="Stay Duration" value={form.detailedSections.touristVisa.stayDuration} onChange={(e) => setDsObj("touristVisa", "stayDuration", e.target.value)} sx={textFieldSx} />
+            </Stack>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+              <TextField fullWidth size="small" label="Entry Type" placeholder="Single / Multiple" value={form.detailedSections.touristVisa.entryType} onChange={(e) => setDsObj("touristVisa", "entryType", e.target.value)} sx={textFieldSx} />
+              <TextField fullWidth size="small" label="Application Method" value={form.detailedSections.touristVisa.applicationMethod} onChange={(e) => setDsObj("touristVisa", "applicationMethod", e.target.value)} sx={textFieldSx} />
+            </Stack>
+            <TextField fullWidth size="small" multiline minRows={2} label="Main Requirements" value={form.detailedSections.touristVisa.requirements} onChange={(e) => setDsObj("touristVisa", "requirements", e.target.value)} sx={textFieldSx} />
+
+            <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+            <Typography sx={{ color: "#9ca3af", fontSize: 13, fontWeight: 600 }}>Business Visa</Typography>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+              <TextField fullWidth size="small" label="Purpose" value={form.detailedSections.businessVisa.purpose} onChange={(e) => setDsObj("businessVisa", "purpose", e.target.value)} sx={textFieldSx} />
+              <TextField fullWidth size="small" label="Processing Time" value={form.detailedSections.businessVisa.processingTime} onChange={(e) => setDsObj("businessVisa", "processingTime", e.target.value)} sx={textFieldSx} />
+            </Stack>
+            <TextField fullWidth size="small" label="Invitation Letter" value={form.detailedSections.businessVisa.invitationLetter} onChange={(e) => setDsObj("businessVisa", "invitationLetter", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" multiline minRows={2} label="Business Documents" value={form.detailedSections.businessVisa.businessDocuments} onChange={(e) => setDsObj("businessVisa", "businessDocuments", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" label="Application Method" value={form.detailedSections.businessVisa.applicationMethod} onChange={(e) => setDsObj("businessVisa", "applicationMethod", e.target.value)} sx={textFieldSx} />
+
+            <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+            <Typography sx={{ color: "#9ca3af", fontSize: 13, fontWeight: 600 }}>Transit Visa</Typography>
+            <TextField fullWidth size="small" label="When Required" value={form.detailedSections.transitVisa.whenRequired} onChange={(e) => setDsObj("transitVisa", "whenRequired", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" multiline minRows={2} label="Airport Transit Rules" value={form.detailedSections.transitVisa.airportTransitRules} onChange={(e) => setDsObj("transitVisa", "airportTransitRules", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" label="Connecting Flight Conditions" value={form.detailedSections.transitVisa.connectingFlightConditions} onChange={(e) => setDsObj("transitVisa", "connectingFlightConditions", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" label="Important Exceptions" value={form.detailedSections.transitVisa.exceptions} onChange={(e) => setDsObj("transitVisa", "exceptions", e.target.value)} sx={textFieldSx} />
+
+            <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+            <Typography sx={{ color: "#9ca3af", fontSize: 13, fontWeight: 600 }}>eVisa Details</Typography>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+              <TextField fullWidth size="small" label="Available" placeholder="Yes / No" value={form.detailedSections.eVisaDetails.available} onChange={(e) => setDsObj("eVisaDetails", "available", e.target.value)} sx={textFieldSx} />
+              <TextField fullWidth size="small" label="Processing Time" value={form.detailedSections.eVisaDetails.processingTime} onChange={(e) => setDsObj("eVisaDetails", "processingTime", e.target.value)} sx={textFieldSx} />
+            </Stack>
+            <TextField fullWidth size="small" label="Official eVisa Link" value={form.detailedSections.eVisaDetails.officialLink} onChange={(e) => setDsObj("eVisaDetails", "officialLink", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" multiline minRows={2} label="Application Steps" value={form.detailedSections.eVisaDetails.applicationSteps} onChange={(e) => setDsObj("eVisaDetails", "applicationSteps", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" label="Required Documents" value={form.detailedSections.eVisaDetails.requiredDocuments} onChange={(e) => setDsObj("eVisaDetails", "requiredDocuments", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" label="Warnings (unofficial sites)" value={form.detailedSections.eVisaDetails.warnings} onChange={(e) => setDsObj("eVisaDetails", "warnings", e.target.value)} sx={textFieldSx} />
+
+            <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+            <Typography sx={{ color: "#9ca3af", fontSize: 13, fontWeight: 600 }}>Visa on Arrival Details</Typography>
+            <Stack direction={{ xs: "column", md: "row" }} spacing={1.5}>
+              <TextField fullWidth size="small" label="Available" placeholder="Yes / No" value={form.detailedSections.visaOnArrivalDetails.available} onChange={(e) => setDsObj("visaOnArrivalDetails", "available", e.target.value)} sx={textFieldSx} />
+              <TextField fullWidth size="small" label="Payment Method" value={form.detailedSections.visaOnArrivalDetails.paymentMethod} onChange={(e) => setDsObj("visaOnArrivalDetails", "paymentMethod", e.target.value)} sx={textFieldSx} />
+            </Stack>
+            <TextField fullWidth size="small" label="Eligible Travellers" value={form.detailedSections.visaOnArrivalDetails.eligibleTravellers} onChange={(e) => setDsObj("visaOnArrivalDetails", "eligibleTravellers", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" label="Required Documents" value={form.detailedSections.visaOnArrivalDetails.requiredDocuments} onChange={(e) => setDsObj("visaOnArrivalDetails", "requiredDocuments", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" label="Airport / Border Availability" value={form.detailedSections.visaOnArrivalDetails.availability} onChange={(e) => setDsObj("visaOnArrivalDetails", "availability", e.target.value)} sx={textFieldSx} />
+            <TextField fullWidth size="small" label="Important Notes" value={form.detailedSections.visaOnArrivalDetails.notes} onChange={(e) => setDsObj("visaOnArrivalDetails", "notes", e.target.value)} sx={textFieldSx} />
+
+            <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
+            <TextField fullWidth size="small" multiline minRows={2} label="Passport Validity (detail)" value={form.detailedSections.passportValidityDetail} onChange={setDsString("passportValidityDetail")} sx={textFieldSx} />
+            <TextField fullWidth size="small" multiline minRows={2} label="Processing Time (detail)" value={form.detailedSections.processingTimeDetail} onChange={setDsString("processingTimeDetail")} sx={textFieldSx} />
           </Stack>
         </CardContent>
       </Card>

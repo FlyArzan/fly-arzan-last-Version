@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
@@ -29,8 +29,33 @@ const Section = ({ title, children }) => (
   </section>
 );
 
+// Renders a list of label/value rows, skipping any that are empty. Used by the
+// detailed visa-type sections (tourist / business / transit / eVisa / VoA).
+const DetailRows = ({ rows }) => {
+  const visible = rows.filter((r) => r.value);
+  if (visible.length === 0) return null;
+  return (
+    <dl className="tw:grid tw:gap-3">
+      {visible.map((r, i) => (
+        <div key={i} className="tw:flex tw:flex-col tw:sm:flex-row tw:sm:gap-3">
+          <dt className="tw:text-sm tw:font-semibold tw:text-gray-900 tw:sm:w-48 tw:flex-shrink-0">{r.label}</dt>
+          <dd className="tw:text-sm tw:text-gray-600 tw:leading-relaxed">{r.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+};
+
+// True when a detail object has at least one non-empty field.
+const hasContent = (obj) => obj && typeof obj === "object" && Object.values(obj).some((v) => v && String(v).trim());
+
 const VisaCountryPage = () => {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const searchNationality = searchParams.get("nationality") || "";
+  const searchPurpose = searchParams.get("purpose") || "";
+  const searchStay = searchParams.get("stay") || "";
+  const hasSearchContext = searchNationality || searchPurpose || searchStay;
   const { data: country, isLoading, isError } = useVisaCountry(slug);
 
   if (isLoading) {
@@ -75,6 +100,16 @@ const VisaCountryPage = () => {
   const applicationSteps = Array.isArray(sections.applicationSteps) ? sections.applicationSteps : [];
   const officialLinks = Array.isArray(sections.officialLinks) ? sections.officialLinks : [];
   const travelWarnings = Array.isArray(sections.travelWarnings) ? sections.travelWarnings : [];
+  // Detailed per-type visa sections (spec sections C–G). Each is an optional
+  // structured object filled in from the admin CMS; rendered only when present.
+  const visaRequirementDetail = sections.visaRequirementDetail || "";
+  const touristVisa = sections.touristVisa || {};
+  const businessVisa = sections.businessVisa || {};
+  const transitVisa = sections.transitVisa || {};
+  const eVisaDetails = sections.eVisaDetails || {};
+  const visaOnArrivalDetails = sections.visaOnArrivalDetails || {};
+  const passportValidityDetail = sections.passportValidityDetail || "";
+  const processingTimeDetail = sections.processingTimeDetail || "";
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -120,7 +155,8 @@ const VisaCountryPage = () => {
         {country.destinationImage && (
           <img
             src={country.destinationImage}
-            alt={country.countryName}
+            alt={`${country.countryName} destination`}
+            loading="lazy"
             className="tw:absolute tw:inset-0 tw:w-full tw:h-full tw:object-cover tw:opacity-20"
           />
         )}
@@ -137,7 +173,7 @@ const VisaCountryPage = () => {
           <div className="tw:flex tw:items-center tw:gap-5 tw:mb-4">
             <span className="tw:text-6xl">
               {country.flagImage
-                ? <img src={country.flagImage} alt={country.countryName} className="tw:w-16 tw:h-12 tw:object-cover tw:rounded" />
+                ? <img src={country.flagImage} alt={`${country.countryName} flag`} width="64" height="48" loading="lazy" className="tw:w-16 tw:h-12 tw:object-cover tw:rounded" />
                 : getFlagEmoji(country.countryCode)}
             </span>
             <div>
@@ -157,6 +193,23 @@ const VisaCountryPage = () => {
       </section>
 
       <main className="tw:max-w-4xl tw:mx-auto tw:px-4 tw:py-10">
+
+        {/* Guided-search context from the visa hub */}
+        {hasSearchContext && (
+          <div className="tw:mb-6 tw:p-4 tw:bg-indigo-50 tw:border tw:border-indigo-100 tw:rounded-2xl tw:text-sm tw:text-indigo-900">
+            <span className="tw:font-semibold">Your search:</span>{" "}
+            {[
+              searchNationality && `${searchNationality} passport`,
+              searchPurpose && `${searchPurpose} travel`,
+              searchStay && searchStay.toLowerCase(),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+            <span className="tw:block tw:text-xs tw:text-indigo-600 tw:mt-1">
+              The information below is general guidance for {country.countryName}. Confirm specifics for your nationality with the official sources linked on this page.
+            </span>
+          </div>
+        )}
 
         {/* Quick summary cards */}
         <div className="tw:grid tw:grid-cols-2 tw:sm:grid-cols-3 tw:gap-4 tw:mb-10">
@@ -217,7 +270,14 @@ const VisaCountryPage = () => {
           </div>
         )}
 
-        {/* Visa types */}
+        {/* A. Visa requirement (detailed prose) */}
+        {visaRequirementDetail && (
+          <Section title="Visa Requirement">
+            <p className="tw:text-gray-600 tw:text-sm tw:leading-relaxed tw:whitespace-pre-line">{visaRequirementDetail}</p>
+          </Section>
+        )}
+
+        {/* B. Visa types */}
         {visaTypes.length > 0 && (
           <Section title="Visa Types">
             <div className="tw:grid tw:gap-4">
@@ -236,6 +296,84 @@ const VisaCountryPage = () => {
           </Section>
         )}
 
+        {/* C. Tourist visa information */}
+        {hasContent(touristVisa) && (
+          <Section title="Tourist Visa Information">
+            <DetailRows rows={[
+              { label: "Eligibility", value: touristVisa.eligibility },
+              { label: "Validity", value: touristVisa.validity },
+              { label: "Stay duration", value: touristVisa.stayDuration },
+              { label: "Entry type", value: touristVisa.entryType },
+              { label: "Main requirements", value: touristVisa.requirements },
+              { label: "Application method", value: touristVisa.applicationMethod },
+            ]} />
+          </Section>
+        )}
+
+        {/* D. Business visa information */}
+        {hasContent(businessVisa) && (
+          <Section title="Business Visa Information">
+            <DetailRows rows={[
+              { label: "Purpose", value: businessVisa.purpose },
+              { label: "Invitation letter", value: businessVisa.invitationLetter },
+              { label: "Business documents", value: businessVisa.businessDocuments },
+              { label: "Processing time", value: businessVisa.processingTime },
+              { label: "Application method", value: businessVisa.applicationMethod },
+            ]} />
+          </Section>
+        )}
+
+        {/* E. Transit visa information */}
+        {hasContent(transitVisa) && (
+          <Section title="Transit Visa Information">
+            <DetailRows rows={[
+              { label: "When required", value: transitVisa.whenRequired },
+              { label: "Airport transit rules", value: transitVisa.airportTransitRules },
+              { label: "Connecting flight conditions", value: transitVisa.connectingFlightConditions },
+              { label: "Important exceptions", value: transitVisa.exceptions },
+            ]} />
+          </Section>
+        )}
+
+        {/* F. eVisa availability (detailed) */}
+        {hasContent(eVisaDetails) && (
+          <Section title="eVisa Availability">
+            <DetailRows rows={[
+              { label: "Available", value: eVisaDetails.available },
+              { label: "Application steps", value: eVisaDetails.applicationSteps },
+              { label: "Processing time", value: eVisaDetails.processingTime },
+              { label: "Required documents", value: eVisaDetails.requiredDocuments },
+            ]} />
+            {eVisaDetails.officialLink && (
+              <a
+                href={eVisaDetails.officialLink}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="tw:inline-block tw:mt-3 tw:text-sm tw:text-blue-600 tw:font-medium tw:hover:underline"
+              >
+                Official eVisa portal ↗
+              </a>
+            )}
+            <div className="tw:mt-3 tw:p-3 tw:bg-red-50 tw:border tw:border-red-200 tw:rounded-xl tw:text-xs tw:text-red-800">
+              <strong>⚠️ Beware of unofficial websites.</strong> {eVisaDetails.warnings || "Only apply through the official government eVisa portal. Third-party sites may charge extra fees or be fraudulent."}
+            </div>
+          </Section>
+        )}
+
+        {/* G. Visa on arrival (detailed) */}
+        {hasContent(visaOnArrivalDetails) && (
+          <Section title="Visa on Arrival">
+            <DetailRows rows={[
+              { label: "Available", value: visaOnArrivalDetails.available },
+              { label: "Eligible travellers", value: visaOnArrivalDetails.eligibleTravellers },
+              { label: "Required documents", value: visaOnArrivalDetails.requiredDocuments },
+              { label: "Payment method", value: visaOnArrivalDetails.paymentMethod },
+              { label: "Airport / border availability", value: visaOnArrivalDetails.availability },
+              { label: "Important notes", value: visaOnArrivalDetails.notes },
+            ]} />
+          </Section>
+        )}
+
         {/* Required documents */}
         {requiredDocs.length > 0 && (
           <Section title="Required Documents">
@@ -250,7 +388,33 @@ const VisaCountryPage = () => {
           </Section>
         )}
 
-        {/* Application steps */}
+        {/* I. Passport validity requirement */}
+        {passportValidityDetail && (
+          <Section title="Passport Validity Requirement">
+            <p className="tw:text-gray-600 tw:text-sm tw:leading-relaxed tw:whitespace-pre-line">{passportValidityDetail}</p>
+          </Section>
+        )}
+
+        {/* J. Processing time */}
+        {processingTimeDetail && (
+          <Section title="Processing Time">
+            <p className="tw:text-gray-600 tw:text-sm tw:leading-relaxed tw:whitespace-pre-line">{processingTimeDetail}</p>
+          </Section>
+        )}
+
+        {/* K. Approximate fees disclaimer */}
+        {country.approximateVisaFee && (
+          <Section title="Approximate Fees">
+            <p className="tw:text-gray-700 tw:text-sm tw:mb-2">
+              Approximate visa fee: <strong>{country.approximateVisaFee}</strong>
+            </p>
+            <p className="tw:text-xs tw:text-gray-500 tw:bg-gray-50 tw:p-3 tw:rounded-xl">
+              Fees can change depending on nationality, visa type and application method. Always confirm on the official government or embassy website.
+            </p>
+          </Section>
+        )}
+
+        {/* L. Application steps */}
         {applicationSteps.length > 0 && (
           <Section title="Application Steps">
             <ol className="tw:space-y-3">
@@ -324,12 +488,39 @@ const VisaCountryPage = () => {
           <strong>Important Disclaimer:</strong> Visa, passport and entry requirements can change at any time. FlyArzan provides this information as a general travel guide only. Travellers should always confirm the latest requirements with the official embassy, immigration authority, airline or government website before booking or travelling.
         </div>
 
+        {/* Related travel resources — internal links for SEO + navigation */}
+        <Section title="Related Travel Resources">
+          <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-3 tw:gap-3">
+            <Link
+              to="/travel-guides/destination-guides"
+              className="tw:flex tw:items-center tw:gap-3 tw:p-4 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-indigo-300 tw:transition-colors tw:group"
+            >
+              <span className="tw:text-2xl">🧭</span>
+              <span className="tw:text-gray-800 tw:group-hover:text-indigo-600 tw:font-medium">Destination Guides</span>
+            </Link>
+            <Link
+              to="/travel-guides/airport-guides"
+              className="tw:flex tw:items-center tw:gap-3 tw:p-4 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-indigo-300 tw:transition-colors tw:group"
+            >
+              <span className="tw:text-2xl">🛫</span>
+              <span className="tw:text-gray-800 tw:group-hover:text-indigo-600 tw:font-medium">Airport Guides</span>
+            </Link>
+            <Link
+              to="/travel-guides/visa-travel-documents"
+              className="tw:flex tw:items-center tw:gap-3 tw:p-4 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-indigo-300 tw:transition-colors tw:group"
+            >
+              <span className="tw:text-2xl">📄</span>
+              <span className="tw:text-gray-800 tw:group-hover:text-indigo-600 tw:font-medium">Visa & Travel Documents</span>
+            </Link>
+          </div>
+        </Section>
+
         {/* Flight search CTA */}
         <div className="tw:mt-8 tw:p-6 tw:bg-indigo-600 tw:rounded-2xl tw:text-white tw:text-center">
           <p className="tw:font-semibold tw:text-lg tw:mb-2">Ready to Travel to {country.countryName}?</p>
           <p className="tw:text-indigo-100 tw:text-sm tw:mb-4">Search and compare flights on FlyArzan for the best deals.</p>
           <Link
-            to="/"
+            to="/search/flight"
             className="tw:inline-block tw:bg-white tw:text-indigo-700 tw:font-semibold tw:px-6 tw:py-2.5 tw:rounded-xl tw:text-sm tw:hover:bg-indigo-50 tw:transition-colors"
           >
             Search Flights to {country.countryName}

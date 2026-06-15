@@ -89,6 +89,54 @@ const ArticleListCard = ({ article }) => {
   );
 };
 
+const FeaturedCard = ({ article }) => {
+  const cat = article.articleCategory?.[0];
+  return (
+    <Link
+      to={`/travel-guides/${cat?.slug || "general-travel-advice"}/${article.slug}`}
+      className="tw:flex tw:flex-col tw:bg-white tw:rounded-2xl tw:overflow-hidden tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-blue-200 tw:transition-all tw:group"
+    >
+      {article.featuredImage ? (
+        <img
+          src={article.featuredImage}
+          alt={article.imageAlt || article.title}
+          width="400"
+          height="200"
+          loading="lazy"
+          className="tw:w-full tw:h-44 tw:object-cover tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+        />
+      ) : (
+        <div className="tw:w-full tw:h-44 tw:bg-gradient-to-br tw:from-blue-50 tw:to-indigo-100 tw:flex tw:items-center tw:justify-center tw:text-5xl">
+          {CATEGORY_ICONS[cat?.slug] || "✈️"}
+        </div>
+      )}
+      <div className="tw:flex tw:flex-col tw:flex-1 tw:p-5">
+        {cat && (
+          <span className="tw:text-xs tw:font-semibold tw:text-blue-600 tw:uppercase tw:tracking-wide tw:mb-2 tw:block">
+            {cat.name}
+          </span>
+        )}
+        <h3 className="tw:font-bold tw:text-gray-900 tw:text-lg tw:leading-snug tw:mb-2 tw:group-hover:text-blue-600 tw:transition-colors tw:line-clamp-2">
+          {article.title}
+        </h3>
+        {article.shortSummary && (
+          <p className="tw:text-gray-500 tw:text-sm tw:line-clamp-2 tw:mb-3 tw:leading-relaxed tw:flex-1">
+            {article.shortSummary}
+          </p>
+        )}
+        <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-1.5 tw:text-xs tw:text-gray-400 tw:mb-3">
+          {article.readingTime && <span>{article.readingTime} min read</span>}
+          {article.readingTime && article.publishedAt && <span>·</span>}
+          {article.publishedAt && <span>{formatDate(article.publishedAt)}</span>}
+        </div>
+        <span className="tw:text-sm tw:font-semibold tw:text-blue-600 tw:group-hover:underline tw:mt-auto">
+          Read more →
+        </span>
+      </div>
+    </Link>
+  );
+};
+
 const SidebarArticleCard = ({ article }) => {
   const cat = article.articleCategory?.[0];
   return (
@@ -211,6 +259,21 @@ const TravelGuidesHub = () => {
           </form>
         </div>
       </section>
+
+      {/* Featured Articles — highlighted cards below the hero */}
+      {featured.length > 0 && (
+        <section className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:pt-10">
+          <div className="tw:flex tw:items-center tw:gap-2 tw:mb-6">
+            <span className="tw:text-2xl">⭐</span>
+            <h2 className="tw:text-2xl tw:font-bold tw:text-gray-900">Featured Articles</h2>
+          </div>
+          <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-5">
+            {featured.slice(0, 6).map((a) => (
+              <FeaturedCard key={a.id} article={a} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <main className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:py-10">
         <div className="tw:flex tw:flex-col tw:lg:flex-row tw:gap-8">

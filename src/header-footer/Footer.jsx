@@ -120,6 +120,12 @@ const Footer = () => {
                     <Link to="/visa-information">
                       <li>Visa Information</li>
                     </Link>
+                    <Link to="/travel-guides/airport-guides">
+                      <li>Airport Guides</li>
+                    </Link>
+                    <Link to="/travel-guides/travel-guidelines">
+                      <li>Travel Guidelines</li>
+                    </Link>
                     <Link to="/COVID">
                       <li>{t("footer.travelSupport.covid")}</li>
                     </Link>

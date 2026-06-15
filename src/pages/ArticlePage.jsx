@@ -50,7 +50,21 @@ const ArticlePage = () => {
   const catSlug = category || articleCategory?.slug || "general-travel-advice";
   const pageUrl = `https://flyarzan.com/travel-guides/${catSlug}/${article.slug}`;
   const faqs = Array.isArray(article.faqs) ? article.faqs : [];
-  const relatedFiltered = related.filter((r) => r.slug !== article.slug).slice(0, 3);
+  // Prefer the editor-chosen related articles (stored as {slug,title,categorySlug}
+  // objects). Fall back to featured articles when none are set.
+  const relatedManual = Array.isArray(article.relatedArticles)
+    ? article.relatedArticles.filter((r) => r && r.slug && r.slug !== article.slug)
+    : [];
+  const relatedFiltered =
+    relatedManual.length > 0
+      ? relatedManual.slice(0, 4).map((r) => ({
+          id: r.slug,
+          slug: r.slug,
+          title: r.title || r.slug,
+          readingTime: r.readingTime,
+          articleCategory: r.categorySlug ? [{ slug: r.categorySlug }] : [],
+        }))
+      : related.filter((r) => r.slug !== article.slug).slice(0, 3);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -106,7 +120,7 @@ const ArticlePage = () => {
 
       <Header />
 
-      <article className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:py-10 tw:flex tw:gap-10">
+      <article className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:py-10 tw:flex tw:flex-col tw:lg:flex-row tw:gap-10">
         {/* Main content */}
         <div className="tw:flex-1 tw:min-w-0">
           {/* Breadcrumb */}
@@ -164,6 +178,8 @@ const ArticlePage = () => {
             <img
               src={article.featuredImage}
               alt={article.imageAlt || article.title}
+              width="800"
+              height="384"
               className="tw:w-full tw:max-h-96 tw:object-cover tw:rounded-2xl tw:mb-8"
             />
           )}
@@ -212,9 +228,9 @@ const ArticlePage = () => {
           </div>
         </div>
 
-        {/* Sidebar — desktop only */}
-        <aside className="tw:hidden tw:lg:block tw:w-72 tw:flex-shrink-0">
-          <div className="tw:sticky tw:top-24 tw:space-y-6">
+        {/* Sidebar — stacks below the article on mobile, sticky on desktop */}
+        <aside className="tw:w-full tw:lg:w-72 tw:flex-shrink-0">
+          <div className="tw:lg:sticky tw:lg:top-24 tw:space-y-6">
             {/* Related articles */}
             {relatedFiltered.length > 0 && (
               <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:p-5">
@@ -265,11 +281,30 @@ const ArticlePage = () => {
                 Search and compare flights to your next destination.
               </p>
               <Link
-                to="/"
+                to="/search/flight"
                 className="tw:block tw:text-center tw:bg-blue-600 tw:text-white tw:text-sm tw:font-medium tw:px-4 tw:py-2 tw:rounded-lg tw:hover:bg-blue-700 tw:transition-colors"
               >
                 Search Flights
               </Link>
+            </div>
+
+            {/* Popular guides — quick links */}
+            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:p-5">
+              <h3 className="tw:font-semibold tw:text-gray-900 tw:mb-3">Popular Guides</h3>
+              <div className="tw:space-y-2 tw:text-sm">
+                <Link to="/travel-guides/airport-guides" className="tw:flex tw:items-center tw:gap-2 tw:text-gray-600 tw:hover:text-blue-600">
+                  <span>🛫</span> Airport Guides
+                </Link>
+                <Link to="/travel-guides/destination-guides" className="tw:flex tw:items-center tw:gap-2 tw:text-gray-600 tw:hover:text-blue-600">
+                  <span>🧭</span> Destination Guides
+                </Link>
+                <Link to="/travel-guides/flight-booking-tips" className="tw:flex tw:items-center tw:gap-2 tw:text-gray-600 tw:hover:text-blue-600">
+                  <span>✈️</span> Flight Booking Tips
+                </Link>
+                <Link to="/travel-guides/baggage-information" className="tw:flex tw:items-center tw:gap-2 tw:text-gray-600 tw:hover:text-blue-600">
+                  <span>🧳</span> Baggage Information
+                </Link>
+              </div>
             </div>
           </div>
         </aside>

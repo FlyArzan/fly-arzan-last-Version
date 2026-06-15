@@ -1,55 +1,69 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { Search, ArrowRight, Globe, Info, ChevronRight } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import { useVisaCountries } from "../hooks/useVisa";
 
-const getFlagEmoji = (countryCode) => {
-  if (!countryCode || countryCode.length !== 2) return "🌍";
-  return countryCode
-    .toUpperCase()
-    .split("")
-    .map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65))
-    .join("");
+// Two-letter country code shown when a country has no flag image. Clean,
+// informative and on-brand — no emoji fallback.
+const FlagBadge = ({ country, size = "tw:w-12 tw:h-12" }) => {
+  if (country.flagImage) {
+    return (
+      <img
+        src={country.flagImage}
+        alt={`${country.countryName} flag`}
+        width="48"
+        height="48"
+        loading="lazy"
+        className={`${size} tw:object-cover tw:rounded-lg`}
+      />
+    );
+  }
+  return (
+    <div
+      className={`${size} tw:rounded-lg tw:bg-primary/10 tw:text-dark-purple tw:flex tw:items-center tw:justify-center tw:font-bold tw:text-sm`}
+    >
+      {(country.countryCode || "??").toUpperCase().slice(0, 2)}
+    </div>
+  );
 };
 
 const VISA_STATUS_LABELS = {
   yes: { label: "Visa Required", color: "tw:bg-red-50 tw:text-red-700" },
   no: { label: "Visa Free", color: "tw:bg-green-50 tw:text-green-700" },
-  depends: { label: "Depends on Nationality", color: "tw:bg-yellow-50 tw:text-yellow-700" },
-  check: { label: "Check Requirements", color: "tw:bg-gray-50 tw:text-gray-600" },
+  depends: { label: "Depends on Nationality", color: "tw:bg-amber-50 tw:text-amber-700" },
+  check: { label: "Check Requirements", color: "tw:bg-gray-100 tw:text-gray-600" },
 };
 
 const CountryCard = ({ country }) => {
-  const flag = country.flagImage || null;
-  const emoji = getFlagEmoji(country.countryCode);
   const status = VISA_STATUS_LABELS[country.visaRequired] || VISA_STATUS_LABELS.check;
 
   return (
     <Link
       to={`/visa-information/${country.countrySlug}`}
-      className="tw:flex tw:items-center tw:gap-4 tw:bg-white tw:rounded-2xl tw:p-4 tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-blue-200 tw:transition-all tw:group"
+      className="tw:flex tw:items-center tw:gap-4 tw:bg-white tw:rounded-2xl tw:p-4 tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group"
     >
-      <div className="tw:w-12 tw:h-12 tw:rounded-xl tw:overflow-hidden tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center tw:bg-gray-50 tw:text-2xl">
-        {flag ? <img src={flag} alt={`${country.countryName} flag`} width="48" height="48" loading="lazy" className="tw:w-full tw:h-full tw:object-cover" /> : emoji}
+      <div className="tw:flex-shrink-0">
+        <FlagBadge country={country} />
       </div>
       <div className="tw:flex-1 tw:min-w-0">
-        <p className="tw:font-semibold tw:text-gray-900 tw:text-sm tw:group-hover:text-blue-600 tw:transition-colors">
+        <p className="tw:font-semibold tw:text-dark-purple tw:text-sm tw:group-hover:text-primary tw:transition-colors">
           {country.countryName}
         </p>
-        <div className="tw:flex tw:items-center tw:gap-2 tw:mt-1">
+        <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-1.5 tw:mt-1.5">
           <span className={`tw:text-xs tw:px-2 tw:py-0.5 tw:rounded-full tw:font-medium ${status.color}`}>
             {status.label}
           </span>
           {country.eVisaAvailable === "yes" && (
-            <span className="tw:text-xs tw:px-2 tw:py-0.5 tw:rounded-full tw:bg-blue-50 tw:text-blue-600 tw:font-medium">
+            <span className="tw:text-xs tw:px-2 tw:py-0.5 tw:rounded-full tw:bg-primary/10 tw:text-dark-purple tw:font-medium">
               eVisa
             </span>
           )}
         </div>
       </div>
-      <span className="tw:text-gray-300 tw:group-hover:text-blue-400 tw:transition-colors">→</span>
+      <ArrowRight className="tw:w-4 tw:h-4 tw:text-gray-300 tw:group-hover:text-primary tw:transition-colors tw:flex-shrink-0" />
     </Link>
   );
 };
@@ -127,6 +141,9 @@ const VisaInformationHub = () => {
     url: PAGE_URL,
   };
 
+  const inputClass =
+    "tw:w-full tw:px-4 tw:py-3 tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:border tw:border-transparent tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/30 tw:shadow-sm";
+
   return (
     <>
       <Helmet>
@@ -145,25 +162,34 @@ const VisaInformationHub = () => {
 
       <Header />
 
-      {/* Hero */}
-      <section className="tw:bg-gradient-to-br tw:from-indigo-600 tw:to-purple-700 tw:text-white tw:py-20 tw:px-4">
+      {/* Hero — navy brand gradient; top padding clears the fixed header */}
+      <section className="tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:text-white tw:pt-28 tw:md:pt-36 tw:pb-16 tw:px-4">
         <div className="tw:max-w-3xl tw:mx-auto tw:text-center">
+          <nav className="tw:flex tw:items-center tw:justify-center tw:gap-1 tw:text-sm tw:text-white/60 tw:mb-5">
+            <Link to="/" className="tw:hover:text-white tw:transition-colors">Home</Link>
+            <ChevronRight className="tw:w-3.5 tw:h-3.5" />
+            <span className="tw:text-white">Visa Information</span>
+          </nav>
           <h1 className="tw:text-4xl tw:md:text-5xl tw:font-bold tw:mb-4 tw:leading-tight">
-            Visa Information & Travel Requirements
+            Visa Information &amp; Travel Requirements
           </h1>
-          <p className="tw:text-indigo-100 tw:text-lg tw:mb-8 tw:max-w-2xl tw:mx-auto">
+          <p className="tw:text-white/75 tw:text-lg tw:mb-8 tw:max-w-2xl tw:mx-auto tw:leading-relaxed">
             {PAGE_DESCRIPTION}
           </p>
+
           <form onSubmit={handleSearch} className="tw:max-w-2xl tw:mx-auto">
             <div className="tw:flex tw:gap-2 tw:mb-3">
-              <input
-                type="text"
-                list="visa-country-options"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Enter destination country…"
-                className="tw:flex-1 tw:px-4 tw:py-3 tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:shadow"
-              />
+              <div className="tw:relative tw:flex-1">
+                <Search className="tw:absolute tw:left-4 tw:top-1/2 tw:-translate-y-1/2 tw:w-4 tw:h-4 tw:text-gray-400" />
+                <input
+                  type="text"
+                  list="visa-country-options"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Enter destination country…"
+                  className={`${inputClass} tw:pl-11`}
+                />
+              </div>
               <datalist id="visa-country-options">
                 {allCountries.map((c) => (
                   <option key={c.id} value={c.countryName} />
@@ -171,24 +197,24 @@ const VisaInformationHub = () => {
               </datalist>
               <button
                 type="submit"
-                className="tw:px-6 tw:py-3 tw:bg-white tw:text-indigo-700 tw:font-semibold tw:rounded-xl tw:hover:bg-indigo-50 tw:transition-colors tw:text-sm"
+                className="tw:px-6 tw:py-3 tw:bg-primary tw:text-dark-purple tw:font-semibold tw:rounded-xl tw:hover:bg-[#6cc0e3] tw:transition-colors tw:text-sm tw:flex-shrink-0"
               >
                 Search
               </button>
             </div>
-            {/* Optional guided-search refinements (spec §8A) */}
+            {/* Optional guided-search refinements */}
             <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-3 tw:gap-2">
               <input
                 type="text"
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
                 placeholder="Passport nationality (optional)"
-                className="tw:px-3 tw:py-2.5 tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:shadow"
+                className={inputClass}
               />
               <select
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                className="tw:px-3 tw:py-2.5 tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:shadow tw:bg-white"
+                className={`${inputClass} tw:bg-white`}
               >
                 <option value="">Travel purpose</option>
                 {TRAVEL_PURPOSES.map((p) => (
@@ -198,7 +224,7 @@ const VisaInformationHub = () => {
               <select
                 value={stay}
                 onChange={(e) => setStay(e.target.value)}
-                className="tw:px-3 tw:py-2.5 tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:shadow tw:bg-white"
+                className={`${inputClass} tw:bg-white`}
               >
                 <option value="">Length of stay</option>
                 {STAY_LENGTHS.map((s) => (
@@ -208,21 +234,22 @@ const VisaInformationHub = () => {
             </div>
           </form>
 
-          <p className="tw:text-indigo-200 tw:text-xs tw:mt-5 tw:max-w-xl tw:mx-auto">
-            ⚠️ Visa and entry requirements can change. Always confirm with the official embassy or government website before travelling.
+          <p className="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-white/60 tw:text-xs tw:mt-6 tw:max-w-xl tw:mx-auto">
+            <Info className="tw:w-3.5 tw:h-3.5 tw:flex-shrink-0" />
+            <span>Visa and entry requirements can change. Always confirm with the official embassy or government website before travelling.</span>
           </p>
         </div>
       </section>
 
-      <main className="tw:max-w-6xl tw:mx-auto tw:px-4 tw:py-12">
+      <main className="tw:max-w-6xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:py-12">
         <div className="tw:flex tw:items-center tw:justify-between tw:mb-6">
-          <h2 className="tw:text-2xl tw:font-bold tw:text-gray-900">
+          <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple">
             {submittedSearch ? `Results for "${submittedSearch}"` : "All Destinations"}
           </h2>
           {submittedSearch && (
             <button
               onClick={() => { setSearchInput(""); setSubmittedSearch(""); }}
-              className="tw:text-sm tw:text-blue-600 tw:hover:underline"
+              className="tw:text-sm tw:text-primary tw:font-medium tw:hover:underline"
             >
               Clear search
             </button>
@@ -236,12 +263,12 @@ const VisaInformationHub = () => {
             ))}
           </div>
         ) : countries.length === 0 ? (
-          <div className="tw:text-center tw:py-20 tw:text-gray-400">
-            <div className="tw:text-5xl tw:mb-4">🌍</div>
-            <p className="tw:text-lg tw:font-medium">
+          <div className="tw:text-center tw:py-20">
+            <Globe className="tw:w-12 tw:h-12 tw:text-gray-300 tw:mx-auto tw:mb-4" />
+            <p className="tw:text-lg tw:font-medium tw:text-gray-700">
               {submittedSearch ? "No results found" : "No visa information available yet"}
             </p>
-            <p className="tw:text-sm tw:mt-1">Check back soon as we add more countries.</p>
+            <p className="tw:text-sm tw:text-gray-400 tw:mt-1">Check back soon as we add more countries.</p>
           </div>
         ) : (
           <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4">
@@ -252,8 +279,11 @@ const VisaInformationHub = () => {
         )}
 
         {/* Disclaimer */}
-        <div className="tw:mt-12 tw:p-5 tw:bg-amber-50 tw:border tw:border-amber-200 tw:rounded-2xl tw:text-sm tw:text-amber-800">
-          <strong>Important Disclaimer:</strong> Visa, passport and entry requirements can change at any time. FlyArzan provides this information as a general travel guide only. Travellers should always confirm the latest requirements with the official embassy, immigration authority, airline or government website before booking or travelling.
+        <div className="tw:mt-12 tw:flex tw:gap-3 tw:p-5 tw:bg-amber-50 tw:border tw:border-amber-200 tw:rounded-2xl tw:text-sm tw:text-amber-800">
+          <Info className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:mt-0.5 tw:text-amber-600" />
+          <p>
+            <strong>Important Disclaimer:</strong> Visa, passport and entry requirements can change at any time. FlyArzan provides this information as a general travel guide only. Travellers should always confirm the latest requirements with the official embassy, immigration authority, airline or government website before booking or travelling.
+          </p>
         </div>
       </main>
 

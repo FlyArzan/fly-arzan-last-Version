@@ -1,28 +1,15 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { Search, ArrowRight, Star, Flame, Plane, FileText } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
+import CategoryIcon from "../components/travel/CategoryIcon";
 import {
   useArticles,
   useArticleCategories,
   useFeaturedArticles,
 } from "../hooks/useArticles";
-
-const CATEGORY_ICONS = {
-  "travel-news": "📰",
-  "travel-blogs": "✍️",
-  "travel-tips": "💡",
-  "travel-feedback": "💬",
-  "travel-guidelines": "📋",
-  "airport-guides": "🏢",
-  "destination-guides": "🗺️",
-  "flight-booking-tips": "✈️",
-  "baggage-information": "🧳",
-  "travel-restrictions": "🚨",
-  "visa-travel-documents": "📄",
-  "general-travel-advice": "ℹ️",
-};
 
 const formatDate = (d) =>
   d
@@ -38,7 +25,7 @@ const ArticleListCard = ({ article }) => {
   return (
     <Link
       to={`/travel-guides/${cat?.slug || "general-travel-advice"}/${article.slug}`}
-      className="tw:flex tw:gap-4 tw:bg-white tw:rounded-2xl tw:p-4 tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-blue-100 tw:transition-all tw:group tw:items-start"
+      className="tw:flex tw:gap-4 tw:bg-white tw:rounded-2xl tw:p-4 tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group tw:items-start"
     >
       {article.featuredImage ? (
         <img
@@ -48,17 +35,17 @@ const ArticleListCard = ({ article }) => {
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-28 tw:h-20 tw:bg-gradient-to-br tw:from-blue-50 tw:to-indigo-100 tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center tw:text-3xl">
-          {CATEGORY_ICONS[cat?.slug] || "✈️"}
+        <div className="tw:w-28 tw:h-20 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
+          <CategoryIcon slug={cat?.slug} className="tw:w-7 tw:h-7" />
         </div>
       )}
       <div className="tw:flex-1 tw:min-w-0">
         {cat && (
-          <span className="tw:text-xs tw:font-semibold tw:text-blue-600 tw:uppercase tw:tracking-wide tw:mb-1 tw:block">
+          <span className="tw:text-xs tw:font-semibold tw:text-primary tw:uppercase tw:tracking-wide tw:mb-1 tw:block">
             {cat.name}
           </span>
         )}
-        <h3 className="tw:font-semibold tw:text-gray-900 tw:text-base tw:leading-snug tw:mb-1.5 tw:group-hover:text-blue-600 tw:transition-colors tw:line-clamp-2">
+        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-base tw:leading-snug tw:mb-1.5 tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
           {article.title}
         </h3>
         {article.shortSummary && (
@@ -82,9 +69,7 @@ const ArticleListCard = ({ article }) => {
           )}
         </div>
       </div>
-      <span className="tw:text-gray-300 tw:group-hover:text-blue-400 tw:transition-colors tw:text-lg tw:hidden tw:sm:block tw:flex-shrink-0 tw:mt-1">
-        →
-      </span>
+      <ArrowRight className="tw:w-5 tw:h-5 tw:text-gray-300 tw:group-hover:text-primary tw:transition-colors tw:hidden tw:sm:block tw:flex-shrink-0 tw:mt-1" />
     </Link>
   );
 };
@@ -94,7 +79,7 @@ const FeaturedCard = ({ article }) => {
   return (
     <Link
       to={`/travel-guides/${cat?.slug || "general-travel-advice"}/${article.slug}`}
-      className="tw:flex tw:flex-col tw:bg-white tw:rounded-2xl tw:overflow-hidden tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-blue-200 tw:transition-all tw:group"
+      className="tw:flex tw:flex-col tw:bg-white tw:rounded-2xl tw:overflow-hidden tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group"
     >
       {article.featuredImage ? (
         <img
@@ -106,17 +91,17 @@ const FeaturedCard = ({ article }) => {
           className="tw:w-full tw:h-44 tw:object-cover tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
         />
       ) : (
-        <div className="tw:w-full tw:h-44 tw:bg-gradient-to-br tw:from-blue-50 tw:to-indigo-100 tw:flex tw:items-center tw:justify-center tw:text-5xl">
-          {CATEGORY_ICONS[cat?.slug] || "✈️"}
+        <div className="tw:w-full tw:h-44 tw:bg-primary/10 tw:text-dark-purple tw:flex tw:items-center tw:justify-center">
+          <CategoryIcon slug={cat?.slug} className="tw:w-12 tw:h-12" />
         </div>
       )}
       <div className="tw:flex tw:flex-col tw:flex-1 tw:p-5">
         {cat && (
-          <span className="tw:text-xs tw:font-semibold tw:text-blue-600 tw:uppercase tw:tracking-wide tw:mb-2 tw:block">
+          <span className="tw:text-xs tw:font-semibold tw:text-primary tw:uppercase tw:tracking-wide tw:mb-2 tw:block">
             {cat.name}
           </span>
         )}
-        <h3 className="tw:font-bold tw:text-gray-900 tw:text-lg tw:leading-snug tw:mb-2 tw:group-hover:text-blue-600 tw:transition-colors tw:line-clamp-2">
+        <h3 className="tw:font-bold tw:text-dark-purple tw:text-lg tw:leading-snug tw:mb-2 tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
           {article.title}
         </h3>
         {article.shortSummary && (
@@ -129,8 +114,8 @@ const FeaturedCard = ({ article }) => {
           {article.readingTime && article.publishedAt && <span>·</span>}
           {article.publishedAt && <span>{formatDate(article.publishedAt)}</span>}
         </div>
-        <span className="tw:text-sm tw:font-semibold tw:text-blue-600 tw:group-hover:underline tw:mt-auto">
-          Read more →
+        <span className="tw:inline-flex tw:items-center tw:gap-1 tw:text-sm tw:font-semibold tw:text-primary tw:mt-auto">
+          Read more <ArrowRight className="tw:w-4 tw:h-4 tw:group-hover:translate-x-0.5 tw:transition-transform" />
         </span>
       </div>
     </Link>
@@ -152,12 +137,12 @@ const SidebarArticleCard = ({ article }) => {
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-14 tw:h-10 tw:bg-gradient-to-br tw:from-blue-50 tw:to-indigo-100 tw:rounded-lg tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center tw:text-lg">
-          {CATEGORY_ICONS[cat?.slug] || "✈️"}
+        <div className="tw:w-14 tw:h-10 tw:bg-primary/10 tw:text-dark-purple tw:rounded-lg tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
+          <CategoryIcon slug={cat?.slug} className="tw:w-4 tw:h-4" />
         </div>
       )}
       <div className="tw:min-w-0">
-        <p className="tw:text-sm tw:font-medium tw:text-gray-800 tw:line-clamp-2 tw:group-hover:text-blue-600 tw:transition-colors tw:leading-snug">
+        <p className="tw:text-sm tw:font-medium tw:text-gray-800 tw:line-clamp-2 tw:group-hover:text-primary tw:transition-colors tw:leading-snug">
           {article.title}
         </p>
         {article.readingTime && (
@@ -207,6 +192,13 @@ const TravelGuidesHub = () => {
     }
   };
 
+  const pillClass = (active) =>
+    `tw:px-4 tw:py-2 tw:rounded-full tw:text-sm tw:font-medium tw:border tw:transition-all ${
+      active
+        ? "tw:bg-dark-purple tw:text-white tw:border-dark-purple tw:shadow-sm"
+        : "tw:bg-white tw:text-gray-600 tw:border-gray-200 tw:hover:border-primary tw:hover:text-primary"
+    }`;
+
   return (
     <>
       <Helmet>
@@ -230,29 +222,32 @@ const TravelGuidesHub = () => {
 
       <Header />
 
-      {/* Hero */}
-      <section className="tw:bg-gradient-to-br tw:from-blue-600 tw:to-indigo-700 tw:text-white tw:py-16 tw:px-4">
+      {/* Hero — navy brand gradient; top padding clears the fixed header */}
+      <section className="tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:text-white tw:pt-28 tw:md:pt-36 tw:pb-16 tw:px-4">
         <div className="tw:max-w-3xl tw:mx-auto tw:text-center">
           <h1 className="tw:text-4xl tw:md:text-5xl tw:font-bold tw:mb-4 tw:leading-tight">
-            Travel Guides & Useful Travel Information
+            Travel Guides &amp; Useful Travel Information
           </h1>
-          <p className="tw:text-blue-100 tw:text-lg tw:max-w-2xl tw:mx-auto tw:mb-8 tw:leading-relaxed">
+          <p className="tw:text-white/75 tw:text-lg tw:max-w-2xl tw:mx-auto tw:mb-8 tw:leading-relaxed">
             {PAGE_DESCRIPTION}
           </p>
           <form
             onSubmit={handleHeroSearch}
             className="tw:flex tw:gap-2 tw:max-w-lg tw:mx-auto"
           >
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search travel guides, airport information, visa tips…"
-              className="tw:flex-1 tw:px-4 tw:py-3 tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:shadow"
-            />
+            <div className="tw:relative tw:flex-1">
+              <Search className="tw:absolute tw:left-4 tw:top-1/2 tw:-translate-y-1/2 tw:w-4 tw:h-4 tw:text-gray-400" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search travel guides, airport information, visa tips…"
+                className="tw:w-full tw:pl-11 tw:pr-4 tw:py-3 tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:border tw:border-transparent tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/30 tw:shadow-sm"
+              />
+            </div>
             <button
               type="submit"
-              className="tw:px-6 tw:py-3 tw:bg-white tw:text-blue-700 tw:font-semibold tw:rounded-xl tw:hover:bg-blue-50 tw:transition-colors tw:text-sm tw:flex-shrink-0"
+              className="tw:px-6 tw:py-3 tw:bg-primary tw:text-dark-purple tw:font-semibold tw:rounded-xl tw:hover:bg-[#6cc0e3] tw:transition-colors tw:text-sm tw:flex-shrink-0"
             >
               Search
             </button>
@@ -262,10 +257,10 @@ const TravelGuidesHub = () => {
 
       {/* Featured Articles — highlighted cards below the hero */}
       {featured.length > 0 && (
-        <section className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:pt-10">
+        <section className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:pt-12">
           <div className="tw:flex tw:items-center tw:gap-2 tw:mb-6">
-            <span className="tw:text-2xl">⭐</span>
-            <h2 className="tw:text-2xl tw:font-bold tw:text-gray-900">Featured Articles</h2>
+            <Star className="tw:w-6 tw:h-6 tw:text-primary tw:fill-primary" />
+            <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple">Featured Articles</h2>
           </div>
           <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-5">
             {featured.slice(0, 6).map((a) => (
@@ -275,7 +270,7 @@ const TravelGuidesHub = () => {
         </section>
       )}
 
-      <main className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:py-10">
+      <main className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:py-12">
         <div className="tw:flex tw:flex-col tw:lg:flex-row tw:gap-8">
 
           {/* LEFT — 3/4 */}
@@ -283,27 +278,16 @@ const TravelGuidesHub = () => {
 
             {/* Category filter pills */}
             <div className="tw:flex tw:flex-wrap tw:gap-2 tw:mb-7">
-              <button
-                onClick={() => handleCatFilter("all")}
-                className={`tw:px-4 tw:py-2 tw:rounded-full tw:text-sm tw:font-medium tw:border tw:transition-all ${
-                  activeCat === "all"
-                    ? "tw:bg-blue-600 tw:text-white tw:border-blue-600 tw:shadow-sm"
-                    : "tw:bg-white tw:text-gray-600 tw:border-gray-200 tw:hover:border-blue-300 tw:hover:text-blue-600"
-                }`}
-              >
+              <button onClick={() => handleCatFilter("all")} className={pillClass(activeCat === "all")}>
                 All Articles
               </button>
               {categories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => handleCatFilter(cat.slug)}
-                  className={`tw:px-4 tw:py-2 tw:rounded-full tw:text-sm tw:font-medium tw:border tw:transition-all tw:flex tw:items-center tw:gap-1.5 ${
-                    activeCat === cat.slug
-                      ? "tw:bg-blue-600 tw:text-white tw:border-blue-600 tw:shadow-sm"
-                      : "tw:bg-white tw:text-gray-600 tw:border-gray-200 tw:hover:border-blue-300 tw:hover:text-blue-600"
-                  }`}
+                  className={`${pillClass(activeCat === cat.slug)} tw:inline-flex tw:items-center tw:gap-1.5`}
                 >
-                  <span>{CATEGORY_ICONS[cat.slug] || "📁"}</span>
+                  <CategoryIcon slug={cat.slug} className="tw:w-4 tw:h-4" />
                   <span>{cat.name}</span>
                 </button>
               ))}
@@ -328,12 +312,12 @@ const TravelGuidesHub = () => {
                 ))}
               </div>
             ) : articles.length === 0 ? (
-              <div className="tw:text-center tw:py-20 tw:text-gray-400">
-                <div className="tw:text-5xl tw:mb-4">✈️</div>
+              <div className="tw:text-center tw:py-20">
+                <Plane className="tw:w-12 tw:h-12 tw:text-gray-300 tw:mx-auto tw:mb-4" />
                 <p className="tw:text-lg tw:font-medium tw:text-gray-700">
                   No articles found
                 </p>
-                <p className="tw:text-sm tw:mt-1">
+                <p className="tw:text-sm tw:text-gray-400 tw:mt-1">
                   {activeCat !== "all"
                     ? "No articles in this category yet. Check back soon."
                     : "Travel articles coming soon."}
@@ -341,7 +325,7 @@ const TravelGuidesHub = () => {
                 {activeCat !== "all" && (
                   <button
                     onClick={() => handleCatFilter("all")}
-                    className="tw:mt-4 tw:text-blue-600 tw:text-sm tw:hover:underline"
+                    className="tw:mt-4 tw:text-primary tw:text-sm tw:font-medium tw:hover:underline"
                   >
                     View all articles
                   </button>
@@ -382,7 +366,7 @@ const TravelGuidesHub = () => {
             {categories.length > 0 && (
               <section className="tw:mt-14 tw:pt-10 tw:border-t tw:border-gray-100">
                 <div className="tw:flex tw:items-center tw:justify-between tw:mb-6">
-                  <h2 className="tw:text-2xl tw:font-bold tw:text-gray-900">
+                  <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple">
                     Browse by Topic
                   </h2>
                 </div>
@@ -391,12 +375,12 @@ const TravelGuidesHub = () => {
                     <Link
                       key={cat.id}
                       to={`/travel-guides/${cat.slug}`}
-                      className="tw:flex tw:flex-col tw:p-4 tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-blue-200 tw:transition-all tw:group"
+                      className="tw:flex tw:flex-col tw:p-5 tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group"
                     >
-                      <span className="tw:text-3xl tw:mb-3">
-                        {CATEGORY_ICONS[cat.slug] || "📁"}
+                      <span className="tw:w-11 tw:h-11 tw:rounded-xl tw:bg-primary/10 tw:text-dark-purple tw:flex tw:items-center tw:justify-center tw:mb-3 tw:group-hover:bg-primary/20 tw:transition-colors">
+                        <CategoryIcon slug={cat.slug} className="tw:w-5 tw:h-5" />
                       </span>
-                      <span className="tw:font-semibold tw:text-gray-900 tw:text-sm tw:mb-1 tw:group-hover:text-blue-600 tw:transition-colors">
+                      <span className="tw:font-semibold tw:text-dark-purple tw:text-sm tw:mb-1 tw:group-hover:text-primary tw:transition-colors">
                         {cat.name}
                       </span>
                       {cat.description && (
@@ -405,7 +389,7 @@ const TravelGuidesHub = () => {
                         </span>
                       )}
                       {cat.articleCount > 0 && (
-                        <span className="tw:mt-2 tw:text-xs tw:text-blue-500 tw:font-medium">
+                        <span className="tw:mt-2 tw:text-xs tw:text-primary tw:font-medium">
                           {cat.articleCount}{" "}
                           {cat.articleCount === 1 ? "article" : "articles"}
                         </span>
@@ -423,8 +407,8 @@ const TravelGuidesHub = () => {
             {/* Popular Reads */}
             {featured.length > 0 && (
               <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5">
-                <h2 className="tw:text-base tw:font-bold tw:text-gray-900 tw:mb-4 tw:flex tw:items-center tw:gap-2">
-                  <span>🔥</span> Popular Reads
+                <h2 className="tw:text-base tw:font-bold tw:text-dark-purple tw:mb-4 tw:flex tw:items-center tw:gap-2">
+                  <Flame className="tw:w-4 tw:h-4 tw:text-primary" /> Popular Reads
                 </h2>
                 {featured.slice(0, 4).map((a) => (
                   <SidebarArticleCard key={a.id} article={a} />
@@ -435,7 +419,7 @@ const TravelGuidesHub = () => {
             {/* Browse Topics */}
             {categories.length > 0 && (
               <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5">
-                <h2 className="tw:text-base tw:font-bold tw:text-gray-900 tw:mb-3">
+                <h2 className="tw:text-base tw:font-bold tw:text-dark-purple tw:mb-3">
                   Browse Topics
                 </h2>
                 <div className="tw:space-y-0.5">
@@ -445,12 +429,12 @@ const TravelGuidesHub = () => {
                       onClick={() => handleCatFilter(cat.slug)}
                       className={`tw:w-full tw:flex tw:items-center tw:justify-between tw:px-3 tw:py-2 tw:rounded-lg tw:text-sm tw:transition-colors tw:text-left ${
                         activeCat === cat.slug
-                          ? "tw:bg-blue-50 tw:text-blue-700 tw:font-medium"
+                          ? "tw:bg-primary/10 tw:text-dark-purple tw:font-medium"
                           : "tw:text-gray-600 tw:hover:bg-gray-50 tw:hover:text-gray-900"
                       }`}
                     >
                       <span className="tw:flex tw:items-center tw:gap-2">
-                        <span>{CATEGORY_ICONS[cat.slug] || "📁"}</span>
+                        <CategoryIcon slug={cat.slug} className="tw:w-4 tw:h-4" />
                         <span>{cat.name}</span>
                       </span>
                       {cat.articleCount > 0 && (
@@ -465,18 +449,20 @@ const TravelGuidesHub = () => {
             )}
 
             {/* Flight CTA */}
-            <div className="tw:bg-gradient-to-br tw:from-blue-600 tw:to-indigo-700 tw:rounded-2xl tw:p-5 tw:text-white">
-              <div className="tw:text-3xl tw:mb-3">✈️</div>
+            <div className="tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:rounded-2xl tw:p-5 tw:text-white">
+              <span className="tw:inline-flex tw:w-11 tw:h-11 tw:rounded-xl tw:bg-white/10 tw:items-center tw:justify-center tw:mb-3">
+                <Plane className="tw:w-5 tw:h-5 tw:text-primary" />
+              </span>
               <h2 className="tw:text-base tw:font-bold tw:mb-2">
                 Find Cheap Flights
               </h2>
-              <p className="tw:text-blue-100 tw:text-sm tw:mb-4 tw:leading-relaxed">
+              <p className="tw:text-white/70 tw:text-sm tw:mb-4 tw:leading-relaxed">
                 Compare flights from hundreds of airlines and find the best
                 travel deals.
               </p>
               <Link
                 to="/search/flight"
-                className="tw:block tw:text-center tw:bg-white tw:text-blue-700 tw:font-semibold tw:rounded-xl tw:px-4 tw:py-2.5 tw:text-sm tw:hover:bg-blue-50 tw:transition-colors"
+                className="tw:block tw:text-center tw:bg-primary tw:text-dark-purple tw:font-semibold tw:rounded-xl tw:px-4 tw:py-2.5 tw:text-sm tw:hover:bg-[#6cc0e3] tw:transition-colors"
               >
                 Search Flights
               </Link>
@@ -484,8 +470,10 @@ const TravelGuidesHub = () => {
 
             {/* Visa CTA */}
             <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5">
-              <div className="tw:text-3xl tw:mb-3">📄</div>
-              <h2 className="tw:text-base tw:font-bold tw:text-gray-900 tw:mb-2">
+              <span className="tw:inline-flex tw:w-11 tw:h-11 tw:rounded-xl tw:bg-primary/10 tw:items-center tw:justify-center tw:mb-3">
+                <FileText className="tw:w-5 tw:h-5 tw:text-dark-purple" />
+              </span>
+              <h2 className="tw:text-base tw:font-bold tw:text-dark-purple tw:mb-2">
                 Visa Information
               </h2>
               <p className="tw:text-gray-500 tw:text-sm tw:mb-4 tw:leading-relaxed">
@@ -494,7 +482,7 @@ const TravelGuidesHub = () => {
               </p>
               <Link
                 to="/visa-information"
-                className="tw:block tw:text-center tw:bg-blue-600 tw:text-white tw:font-semibold tw:rounded-xl tw:px-4 tw:py-2.5 tw:text-sm tw:hover:bg-blue-700 tw:transition-colors"
+                className="tw:block tw:text-center tw:bg-dark-purple tw:text-white tw:font-semibold tw:rounded-xl tw:px-4 tw:py-2.5 tw:text-sm tw:hover:bg-[#000080] tw:transition-colors"
               >
                 Check Visa Requirements
               </Link>

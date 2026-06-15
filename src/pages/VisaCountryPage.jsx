@@ -1,28 +1,44 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import {
+  ChevronRight,
+  ShieldCheck,
+  ShieldAlert,
+  HelpCircle,
+  Laptop,
+  PlaneLanding,
+  BookUser,
+  Clock,
+  Wallet,
+  Check,
+  ExternalLink,
+  AlertTriangle,
+  Info,
+  Map,
+  PlaneTakeoff,
+  FileText,
+  Plus,
+} from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import { useVisaCountry } from "../hooks/useVisa";
 
-const getFlagEmoji = (code) => {
-  if (!code || code.length !== 2) return "🌍";
-  return code.toUpperCase().split("").map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65)).join("");
-};
-
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
 
-const SummaryCard = ({ icon, label, value, color = "tw:bg-gray-50" }) => (
-  <div className={`tw:flex tw:flex-col tw:items-center tw:text-center tw:p-4 tw:rounded-2xl ${color}`}>
-    <span className="tw:text-3xl tw:mb-2">{icon}</span>
-    <span className="tw:text-xs tw:text-gray-500 tw:uppercase tw:tracking-wide tw:font-medium tw:mb-1">{label}</span>
-    <span className="tw:font-semibold tw:text-gray-900 tw:text-sm">{value || "—"}</span>
+const SummaryCard = ({ icon: Icon, label, value, tone = "tw:bg-gray-50 tw:text-gray-500" }) => (
+  <div className="tw:flex tw:flex-col tw:items-center tw:text-center tw:p-4 tw:rounded-2xl tw:border tw:border-gray-100 tw:bg-white tw:shadow-sm">
+    <span className={`tw:w-11 tw:h-11 tw:rounded-full tw:flex tw:items-center tw:justify-center tw:mb-3 ${tone}`}>
+      <Icon className="tw:w-5 tw:h-5" aria-hidden="true" />
+    </span>
+    <span className="tw:text-[11px] tw:text-gray-400 tw:uppercase tw:tracking-wide tw:font-semibold tw:mb-1">{label}</span>
+    <span className="tw:font-semibold tw:text-dark-purple tw:text-sm">{value || "—"}</span>
   </div>
 );
 
 const Section = ({ title, children }) => (
-  <section className="tw:mb-8">
-    <h2 className="tw:text-xl tw:font-bold tw:text-gray-900 tw:mb-4 tw:pb-2 tw:border-b tw:border-gray-100">
+  <section className="tw:mb-9">
+    <h2 className="tw:text-xl tw:font-bold tw:text-dark-purple tw:mb-4 tw:pb-2 tw:border-b tw:border-gray-100">
       {title}
     </h2>
     {children}
@@ -38,7 +54,7 @@ const DetailRows = ({ rows }) => {
     <dl className="tw:grid tw:gap-3">
       {visible.map((r, i) => (
         <div key={i} className="tw:flex tw:flex-col tw:sm:flex-row tw:sm:gap-3">
-          <dt className="tw:text-sm tw:font-semibold tw:text-gray-900 tw:sm:w-48 tw:flex-shrink-0">{r.label}</dt>
+          <dt className="tw:text-sm tw:font-semibold tw:text-dark-purple tw:sm:w-48 tw:flex-shrink-0">{r.label}</dt>
           <dd className="tw:text-sm tw:text-gray-600 tw:leading-relaxed">{r.value}</dd>
         </div>
       ))}
@@ -48,6 +64,12 @@ const DetailRows = ({ rows }) => {
 
 // True when a detail object has at least one non-empty field.
 const hasContent = (obj) => obj && typeof obj === "object" && Object.values(obj).some((v) => v && String(v).trim());
+
+const RELATED_RESOURCES = [
+  { to: "/travel-guides/destination-guides", icon: Map, label: "Destination Guides" },
+  { to: "/travel-guides/airport-guides", icon: PlaneTakeoff, label: "Airport Guides" },
+  { to: "/travel-guides/visa-travel-documents", icon: FileText, label: "Visa & Travel Documents" },
+];
 
 const VisaCountryPage = () => {
   const { slug } = useParams();
@@ -62,7 +84,7 @@ const VisaCountryPage = () => {
     return (
       <>
         <Header />
-        <div className="tw:max-w-4xl tw:mx-auto tw:px-4 tw:py-16 tw:animate-pulse">
+        <div className="tw:max-w-4xl tw:mx-auto tw:px-4 tw:pt-28 tw:md:pt-36 tw:pb-16 tw:animate-pulse">
           <div className="tw:h-10 tw:bg-gray-200 tw:rounded tw:mb-4 tw:w-1/2" />
           <div className="tw:h-48 tw:bg-gray-100 tw:rounded-2xl tw:mb-6" />
           <div className="tw:grid tw:grid-cols-2 tw:gap-4 tw:mb-8">
@@ -78,10 +100,10 @@ const VisaCountryPage = () => {
     return (
       <>
         <Header />
-        <div className="tw:max-w-4xl tw:mx-auto tw:px-4 tw:py-20 tw:text-center">
-          <h1 className="tw:text-2xl tw:font-bold tw:text-gray-900 tw:mb-3">Country Not Found</h1>
-          <p className="tw:text-gray-500 tw:mb-6">We don't have visa information for this country yet.</p>
-          <Link to="/visa-information" className="tw:text-blue-600 tw:hover:underline">← Back to Visa Information</Link>
+        <div className="tw:max-w-4xl tw:mx-auto tw:px-4 tw:pt-28 tw:md:pt-36 tw:pb-20 tw:text-center">
+          <h1 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-3">Country Not Found</h1>
+          <p className="tw:text-gray-500 tw:mb-6">We don&apos;t have visa information for this country yet.</p>
+          <Link to="/visa-information" className="tw:text-primary tw:font-medium tw:hover:underline">← Back to Visa Information</Link>
         </div>
         <Footer />
       </>
@@ -110,6 +132,17 @@ const VisaCountryPage = () => {
   const visaOnArrivalDetails = sections.visaOnArrivalDetails || {};
   const passportValidityDetail = sections.passportValidityDetail || "";
   const processingTimeDetail = sections.processingTimeDetail || "";
+
+  // Status-driven icon + tone for the "Visa Required" summary card.
+  const visaReq = country.visaRequired;
+  const visaReqMeta =
+    visaReq === "no"
+      ? { icon: ShieldCheck, tone: "tw:bg-green-50 tw:text-green-600", value: "No (Visa Free)" }
+      : visaReq === "yes"
+      ? { icon: ShieldAlert, tone: "tw:bg-red-50 tw:text-red-600", value: "Yes" }
+      : visaReq === "depends"
+      ? { icon: HelpCircle, tone: "tw:bg-amber-50 tw:text-amber-600", value: "Depends on nationality" }
+      : { icon: HelpCircle, tone: "tw:bg-gray-100 tw:text-gray-500", value: "Check requirements" };
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -150,8 +183,8 @@ const VisaCountryPage = () => {
 
       <Header />
 
-      {/* Country hero */}
-      <section className="tw:relative tw:bg-gradient-to-br tw:from-indigo-700 tw:to-purple-800 tw:text-white tw:py-16 tw:px-4 tw:overflow-hidden">
+      {/* Country hero — navy brand gradient; top padding clears the fixed header */}
+      <section className="tw:relative tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:text-white tw:pt-28 tw:md:pt-36 tw:pb-14 tw:px-4 tw:overflow-hidden">
         {country.destinationImage && (
           <img
             src={country.destinationImage}
@@ -162,41 +195,50 @@ const VisaCountryPage = () => {
         )}
         <div className="tw:relative tw:max-w-4xl tw:mx-auto">
           {/* Breadcrumb */}
-          <nav className="tw:text-sm tw:text-indigo-200 tw:mb-6 tw:flex tw:flex-wrap tw:gap-1">
-            <Link to="/" className="tw:hover:text-white">Home</Link>
-            <span>›</span>
-            <Link to="/visa-information" className="tw:hover:text-white">Visa Information</Link>
-            <span>›</span>
+          <nav className="tw:text-sm tw:text-white/60 tw:mb-6 tw:flex tw:flex-wrap tw:items-center tw:gap-1">
+            <Link to="/" className="tw:hover:text-white tw:transition-colors">Home</Link>
+            <ChevronRight className="tw:w-3.5 tw:h-3.5" />
+            <Link to="/visa-information" className="tw:hover:text-white tw:transition-colors">Visa Information</Link>
+            <ChevronRight className="tw:w-3.5 tw:h-3.5" />
             <span className="tw:text-white">{country.countryName}</span>
           </nav>
 
           <div className="tw:flex tw:items-center tw:gap-5 tw:mb-4">
-            <span className="tw:text-6xl">
-              {country.flagImage
-                ? <img src={country.flagImage} alt={`${country.countryName} flag`} width="64" height="48" loading="lazy" className="tw:w-16 tw:h-12 tw:object-cover tw:rounded" />
-                : getFlagEmoji(country.countryCode)}
-            </span>
+            {country.flagImage ? (
+              <img
+                src={country.flagImage}
+                alt={`${country.countryName} flag`}
+                width="64"
+                height="48"
+                loading="lazy"
+                className="tw:w-16 tw:h-12 tw:object-cover tw:rounded-md tw:ring-1 tw:ring-white/20 tw:flex-shrink-0"
+              />
+            ) : (
+              <div className="tw:w-16 tw:h-12 tw:rounded-md tw:bg-white/10 tw:ring-1 tw:ring-white/20 tw:flex tw:items-center tw:justify-center tw:font-bold tw:text-lg tw:flex-shrink-0">
+                {(country.countryCode || "??").toUpperCase().slice(0, 2)}
+              </div>
+            )}
             <div>
-              <h1 className="tw:text-3xl tw:md:text-4xl tw:font-bold">
+              <h1 className="tw:text-3xl tw:md:text-4xl tw:font-bold tw:leading-tight">
                 Visa Information for {country.countryName}
               </h1>
               {country.updatedAt && (
-                <p className="tw:text-indigo-200 tw:text-sm tw:mt-1">Last updated: {formatDate(country.updatedAt)}</p>
+                <p className="tw:text-white/60 tw:text-sm tw:mt-1.5">Last updated: {formatDate(country.updatedAt)}</p>
               )}
             </div>
           </div>
 
           {country.travelIntroduction && (
-            <p className="tw:text-indigo-100 tw:max-w-2xl tw:leading-relaxed">{country.travelIntroduction}</p>
+            <p className="tw:text-white/75 tw:max-w-2xl tw:leading-relaxed">{country.travelIntroduction}</p>
           )}
         </div>
       </section>
 
-      <main className="tw:max-w-4xl tw:mx-auto tw:px-4 tw:py-10">
+      <main className="tw:max-w-4xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:py-10">
 
         {/* Guided-search context from the visa hub */}
         {hasSearchContext && (
-          <div className="tw:mb-6 tw:p-4 tw:bg-indigo-50 tw:border tw:border-indigo-100 tw:rounded-2xl tw:text-sm tw:text-indigo-900">
+          <div className="tw:mb-6 tw:p-4 tw:bg-primary/5 tw:border tw:border-primary/20 tw:rounded-2xl tw:text-sm tw:text-dark-purple">
             <span className="tw:font-semibold">Your search:</span>{" "}
             {[
               searchNationality && `${searchNationality} passport`,
@@ -205,7 +247,7 @@ const VisaCountryPage = () => {
             ]
               .filter(Boolean)
               .join(" · ")}
-            <span className="tw:block tw:text-xs tw:text-indigo-600 tw:mt-1">
+            <span className="tw:block tw:text-xs tw:text-gray-500 tw:mt-1">
               The information below is general guidance for {country.countryName}. Confirm specifics for your nationality with the official sources linked on this page.
             </span>
           </div>
@@ -213,60 +255,53 @@ const VisaCountryPage = () => {
 
         {/* Quick summary cards */}
         <div className="tw:grid tw:grid-cols-2 tw:sm:grid-cols-3 tw:gap-4 tw:mb-10">
+          <SummaryCard icon={visaReqMeta.icon} label="Visa Required" value={visaReqMeta.value} tone={visaReqMeta.tone} />
           <SummaryCard
-            icon={country.visaRequired === "no" ? "✅" : country.visaRequired === "yes" ? "🔴" : "⚠️"}
-            label="Visa Required"
-            value={
-              country.visaRequired === "yes" ? "Yes"
-              : country.visaRequired === "no" ? "No (Visa Free)"
-              : country.visaRequired === "depends" ? "Depends on nationality"
-              : "Check requirements"
-            }
-            color={country.visaRequired === "no" ? "tw:bg-green-50" : country.visaRequired === "yes" ? "tw:bg-red-50" : "tw:bg-yellow-50"}
-          />
-          <SummaryCard
-            icon={country.eVisaAvailable === "yes" ? "💻" : "📋"}
+            icon={Laptop}
             label="eVisa Available"
             value={country.eVisaAvailable === "yes" ? "Yes" : country.eVisaAvailable === "no" ? "No" : "Check"}
+            tone="tw:bg-primary/10 tw:text-dark-purple"
           />
           <SummaryCard
-            icon="🛬"
+            icon={PlaneLanding}
             label="Visa on Arrival"
             value={country.visaOnArrival === "yes" ? "Yes" : country.visaOnArrival === "no" ? "No" : "Check"}
+            tone="tw:bg-primary/10 tw:text-dark-purple"
           />
           {country.passportValidity && (
-            <SummaryCard icon="📘" label="Passport Validity" value={country.passportValidity} />
+            <SummaryCard icon={BookUser} label="Passport Validity" value={country.passportValidity} tone="tw:bg-primary/10 tw:text-dark-purple" />
           )}
           {country.typicalProcessingTime && (
-            <SummaryCard icon="⏱️" label="Processing Time" value={country.typicalProcessingTime} />
+            <SummaryCard icon={Clock} label="Processing Time" value={country.typicalProcessingTime} tone="tw:bg-primary/10 tw:text-dark-purple" />
           )}
           {country.approximateVisaFee && (
-            <SummaryCard icon="💰" label="Approximate Fee" value={country.approximateVisaFee} />
+            <SummaryCard icon={Wallet} label="Approximate Fee" value={country.approximateVisaFee} tone="tw:bg-primary/10 tw:text-dark-purple" />
           )}
         </div>
 
         {/* Official application link */}
         {country.officialApplicationLink && (
-          <div className="tw:mb-8 tw:p-4 tw:bg-blue-50 tw:border tw:border-blue-200 tw:rounded-2xl tw:flex tw:items-center tw:justify-between tw:flex-wrap tw:gap-3">
+          <div className="tw:mb-8 tw:p-4 tw:bg-primary/5 tw:border tw:border-primary/20 tw:rounded-2xl tw:flex tw:items-center tw:justify-between tw:flex-wrap tw:gap-3">
             <div>
-              <p className="tw:font-semibold tw:text-blue-900">Official Application</p>
-              <p className="tw:text-blue-700 tw:text-sm">Apply through the official government portal.</p>
+              <p className="tw:font-semibold tw:text-dark-purple">Official Application</p>
+              <p className="tw:text-gray-600 tw:text-sm">Apply through the official government portal.</p>
             </div>
             <a
               href={country.officialApplicationLink}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              className="tw:bg-blue-600 tw:text-white tw:px-5 tw:py-2 tw:rounded-xl tw:text-sm tw:font-medium tw:hover:bg-blue-700 tw:transition-colors tw:flex-shrink-0"
+              className="tw:inline-flex tw:items-center tw:gap-1.5 tw:bg-dark-purple tw:text-white tw:px-5 tw:py-2.5 tw:rounded-xl tw:text-sm tw:font-medium tw:hover:bg-[#000080] tw:transition-colors tw:flex-shrink-0"
             >
-              Apply Official ↗
+              Apply Official <ExternalLink className="tw:w-4 tw:h-4" />
             </a>
           </div>
         )}
 
         {/* Travel warning */}
         {country.travelWarning && (
-          <div className="tw:mb-8 tw:p-4 tw:bg-amber-50 tw:border tw:border-amber-300 tw:rounded-2xl tw:text-amber-900">
-            <strong>⚠️ Important Note:</strong> {country.travelWarning}
+          <div className="tw:mb-8 tw:flex tw:gap-3 tw:p-4 tw:bg-amber-50 tw:border tw:border-amber-300 tw:rounded-2xl tw:text-amber-900 tw:text-sm">
+            <AlertTriangle className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:mt-0.5 tw:text-amber-600" />
+            <p><strong>Important Note:</strong> {country.travelWarning}</p>
           </div>
         )}
 
@@ -282,8 +317,8 @@ const VisaCountryPage = () => {
           <Section title="Visa Types">
             <div className="tw:grid tw:gap-4">
               {visaTypes.map((vt, i) => (
-                <div key={i} className="tw:p-4 tw:bg-white tw:border tw:border-gray-100 tw:rounded-xl">
-                  <h3 className="tw:font-semibold tw:text-gray-900 tw:mb-1">{vt.type}</h3>
+                <div key={i} className="tw:p-4 tw:bg-white tw:border tw:border-gray-100 tw:rounded-xl tw:shadow-sm">
+                  <h3 className="tw:font-semibold tw:text-dark-purple tw:mb-1">{vt.type}</h3>
                   {vt.description && <p className="tw:text-gray-600 tw:text-sm tw:mb-2">{vt.description}</p>}
                   <div className="tw:flex tw:flex-wrap tw:gap-3 tw:text-xs tw:text-gray-500">
                     {vt.validity && <span>Validity: <strong>{vt.validity}</strong></span>}
@@ -349,13 +384,14 @@ const VisaCountryPage = () => {
                 href={eVisaDetails.officialLink}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="tw:inline-block tw:mt-3 tw:text-sm tw:text-blue-600 tw:font-medium tw:hover:underline"
+                className="tw:inline-flex tw:items-center tw:gap-1.5 tw:mt-3 tw:text-sm tw:text-primary tw:font-medium tw:hover:underline"
               >
-                Official eVisa portal ↗
+                Official eVisa portal <ExternalLink className="tw:w-3.5 tw:h-3.5" />
               </a>
             )}
-            <div className="tw:mt-3 tw:p-3 tw:bg-red-50 tw:border tw:border-red-200 tw:rounded-xl tw:text-xs tw:text-red-800">
-              <strong>⚠️ Beware of unofficial websites.</strong> {eVisaDetails.warnings || "Only apply through the official government eVisa portal. Third-party sites may charge extra fees or be fraudulent."}
+            <div className="tw:mt-3 tw:flex tw:gap-2 tw:p-3 tw:bg-red-50 tw:border tw:border-red-200 tw:rounded-xl tw:text-xs tw:text-red-800">
+              <AlertTriangle className="tw:w-4 tw:h-4 tw:flex-shrink-0 tw:mt-0.5" />
+              <p><strong>Beware of unofficial websites.</strong> {eVisaDetails.warnings || "Only apply through the official government eVisa portal. Third-party sites may charge extra fees or be fraudulent."}</p>
             </div>
           </Section>
         )}
@@ -377,10 +413,10 @@ const VisaCountryPage = () => {
         {/* Required documents */}
         {requiredDocs.length > 0 && (
           <Section title="Required Documents">
-            <ul className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:gap-2">
+            <ul className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:gap-2.5">
               {requiredDocs.map((doc, i) => (
                 <li key={i} className="tw:flex tw:items-start tw:gap-2 tw:text-gray-700 tw:text-sm">
-                  <span className="tw:text-green-500 tw:mt-0.5">✓</span>
+                  <Check className="tw:w-4 tw:h-4 tw:text-green-500 tw:mt-0.5 tw:flex-shrink-0" />
                   <span>{doc}</span>
                 </li>
               ))}
@@ -420,7 +456,7 @@ const VisaCountryPage = () => {
             <ol className="tw:space-y-3">
               {applicationSteps.map((step, i) => (
                 <li key={i} className="tw:flex tw:items-start tw:gap-3">
-                  <span className="tw:w-7 tw:h-7 tw:rounded-full tw:bg-indigo-100 tw:text-indigo-700 tw:text-sm tw:font-bold tw:flex tw:items-center tw:justify-center tw:flex-shrink-0">
+                  <span className="tw:w-7 tw:h-7 tw:rounded-full tw:bg-primary/15 tw:text-dark-purple tw:text-sm tw:font-bold tw:flex tw:items-center tw:justify-center tw:flex-shrink-0">
                     {i + 1}
                   </span>
                   <span className="tw:text-gray-700 tw:text-sm tw:pt-0.5">{step}</span>
@@ -440,10 +476,10 @@ const VisaCountryPage = () => {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="tw:flex tw:items-center tw:justify-between tw:p-3 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-blue-300 tw:transition-colors tw:group"
+                  className="tw:flex tw:items-center tw:justify-between tw:p-3 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-primary/50 tw:transition-colors tw:group"
                 >
-                  <span className="tw:text-gray-800 tw:group-hover:text-blue-600">{link.label}</span>
-                  <span className="tw:text-gray-400 tw:group-hover:text-blue-400">↗</span>
+                  <span className="tw:text-gray-800 tw:group-hover:text-primary">{link.label}</span>
+                  <ExternalLink className="tw:w-4 tw:h-4 tw:text-gray-400 tw:group-hover:text-primary" />
                 </a>
               ))}
             </div>
@@ -456,7 +492,7 @@ const VisaCountryPage = () => {
             <ul className="tw:space-y-2">
               {travelWarnings.map((w, i) => (
                 <li key={i} className="tw:flex tw:items-start tw:gap-2 tw:text-sm tw:text-amber-800 tw:bg-amber-50 tw:p-3 tw:rounded-xl">
-                  <span>⚠️</span>
+                  <AlertTriangle className="tw:w-4 tw:h-4 tw:flex-shrink-0 tw:mt-0.5 tw:text-amber-600" />
                   <span>{w}</span>
                 </li>
               ))}
@@ -469,10 +505,10 @@ const VisaCountryPage = () => {
           <Section title={`Frequently Asked Questions about ${country.countryName} Visa`}>
             <div className="tw:space-y-3">
               {faqs.map((faq, i) => (
-                <details key={i} className="tw:border tw:border-gray-200 tw:rounded-xl tw:overflow-hidden">
-                  <summary className="tw:px-5 tw:py-4 tw:font-semibold tw:text-gray-900 tw:cursor-pointer tw:hover:bg-gray-50 tw:list-none tw:flex tw:items-center tw:justify-between">
+                <details key={i} className="tw:border tw:border-gray-200 tw:rounded-xl tw:overflow-hidden tw:group">
+                  <summary className="tw:px-5 tw:py-4 tw:font-semibold tw:text-dark-purple tw:cursor-pointer tw:hover:bg-gray-50 tw:list-none tw:flex tw:items-center tw:justify-between">
                     {faq.question}
-                    <span className="tw:text-gray-400 tw:ml-2">+</span>
+                    <Plus className="tw:w-4 tw:h-4 tw:text-gray-400 tw:ml-2 tw:flex-shrink-0 tw:transition-transform tw:group-open:rotate-45" />
                   </summary>
                   <div className="tw:px-5 tw:pb-4 tw:text-gray-600 tw:text-sm tw:leading-relaxed">
                     {faq.answer}
@@ -484,44 +520,38 @@ const VisaCountryPage = () => {
         )}
 
         {/* Disclaimer */}
-        <div className="tw:mt-8 tw:p-5 tw:bg-amber-50 tw:border tw:border-amber-200 tw:rounded-2xl tw:text-sm tw:text-amber-800">
-          <strong>Important Disclaimer:</strong> Visa, passport and entry requirements can change at any time. FlyArzan provides this information as a general travel guide only. Travellers should always confirm the latest requirements with the official embassy, immigration authority, airline or government website before booking or travelling.
+        <div className="tw:mt-8 tw:flex tw:gap-3 tw:p-5 tw:bg-amber-50 tw:border tw:border-amber-200 tw:rounded-2xl tw:text-sm tw:text-amber-800">
+          <Info className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:mt-0.5 tw:text-amber-600" />
+          <p>
+            <strong>Important Disclaimer:</strong> Visa, passport and entry requirements can change at any time. FlyArzan provides this information as a general travel guide only. Travellers should always confirm the latest requirements with the official embassy, immigration authority, airline or government website before booking or travelling.
+          </p>
         </div>
 
         {/* Related travel resources — internal links for SEO + navigation */}
         <Section title="Related Travel Resources">
-          <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-3 tw:gap-3">
-            <Link
-              to="/travel-guides/destination-guides"
-              className="tw:flex tw:items-center tw:gap-3 tw:p-4 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-indigo-300 tw:transition-colors tw:group"
-            >
-              <span className="tw:text-2xl">🧭</span>
-              <span className="tw:text-gray-800 tw:group-hover:text-indigo-600 tw:font-medium">Destination Guides</span>
-            </Link>
-            <Link
-              to="/travel-guides/airport-guides"
-              className="tw:flex tw:items-center tw:gap-3 tw:p-4 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-indigo-300 tw:transition-colors tw:group"
-            >
-              <span className="tw:text-2xl">🛫</span>
-              <span className="tw:text-gray-800 tw:group-hover:text-indigo-600 tw:font-medium">Airport Guides</span>
-            </Link>
-            <Link
-              to="/travel-guides/visa-travel-documents"
-              className="tw:flex tw:items-center tw:gap-3 tw:p-4 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-indigo-300 tw:transition-colors tw:group"
-            >
-              <span className="tw:text-2xl">📄</span>
-              <span className="tw:text-gray-800 tw:group-hover:text-indigo-600 tw:font-medium">Visa & Travel Documents</span>
-            </Link>
+          <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-3 tw:gap-3 tw:mt-4">
+            {RELATED_RESOURCES.map(({ to, icon: Icon, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="tw:flex tw:items-center tw:gap-3 tw:p-4 tw:bg-white tw:border tw:border-gray-200 tw:rounded-xl tw:text-sm tw:hover:border-primary/50 tw:hover:shadow-sm tw:transition-all tw:group"
+              >
+                <span className="tw:w-9 tw:h-9 tw:rounded-lg tw:bg-primary/10 tw:text-dark-purple tw:flex tw:items-center tw:justify-center tw:flex-shrink-0">
+                  <Icon className="tw:w-5 tw:h-5" />
+                </span>
+                <span className="tw:text-gray-800 tw:group-hover:text-primary tw:font-medium">{label}</span>
+              </Link>
+            ))}
           </div>
         </Section>
 
         {/* Flight search CTA */}
-        <div className="tw:mt-8 tw:p-6 tw:bg-indigo-600 tw:rounded-2xl tw:text-white tw:text-center">
+        <div className="tw:mt-8 tw:p-7 tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:rounded-2xl tw:text-white tw:text-center">
           <p className="tw:font-semibold tw:text-lg tw:mb-2">Ready to Travel to {country.countryName}?</p>
-          <p className="tw:text-indigo-100 tw:text-sm tw:mb-4">Search and compare flights on FlyArzan for the best deals.</p>
+          <p className="tw:text-white/70 tw:text-sm tw:mb-5">Search and compare flights on FlyArzan for the best deals.</p>
           <Link
             to="/search/flight"
-            className="tw:inline-block tw:bg-white tw:text-indigo-700 tw:font-semibold tw:px-6 tw:py-2.5 tw:rounded-xl tw:text-sm tw:hover:bg-indigo-50 tw:transition-colors"
+            className="tw:inline-block tw:bg-primary tw:text-dark-purple tw:font-semibold tw:px-6 tw:py-2.5 tw:rounded-xl tw:text-sm tw:hover:bg-[#6cc0e3] tw:transition-colors"
           >
             Search Flights to {country.countryName}
           </Link>

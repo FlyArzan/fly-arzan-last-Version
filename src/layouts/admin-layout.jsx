@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSession, useSignOut } from "@/hooks/useAuth";
@@ -7,6 +7,7 @@ import {
   Toolbar,
   Box,
   CssBaseline,
+  CircularProgress,
   Drawer,
   IconButton,
   List,
@@ -439,7 +440,22 @@ const AdminLayout = () => {
             "radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.02) 0%, transparent 50%)",
         }}
       >
-        <Outlet />
+        <Suspense
+          fallback={
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "calc(100vh - 120px)",
+              }}
+            >
+              <CircularProgress size={32} sx={{ color: "#3B82F6" }} />
+            </Box>
+          }
+        >
+          <Outlet />
+        </Suspense>
       </Box>
     </Box>
   );

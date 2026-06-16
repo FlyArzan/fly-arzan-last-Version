@@ -141,8 +141,8 @@ const VisaInformationHub = () => {
     url: PAGE_URL,
   };
 
-  const inputClass =
-    "tw:w-full tw:px-4 tw:py-3 tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:border tw:border-transparent tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/30 tw:shadow-sm";
+  const fieldClass =
+    "tw:w-full tw:px-4 tw:py-2.5 tw:rounded-lg tw:bg-white tw:text-gray-900 tw:text-sm tw:border tw:border-gray-200 tw:shadow-sm tw:outline-none tw:transition tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-white/60 tw:placeholder:text-gray-400";
 
   return (
     <>
@@ -162,32 +162,32 @@ const VisaInformationHub = () => {
 
       <Header />
 
-      {/* Hero — navy brand gradient; top padding clears the fixed header */}
-      <section className="tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:text-white tw:pt-28 tw:md:pt-36 tw:pb-16 tw:px-4">
-        <div className="tw:max-w-3xl tw:mx-auto tw:text-center">
-          <nav className="tw:flex tw:items-center tw:justify-center tw:gap-1 tw:text-sm tw:text-white/60 tw:mb-5">
+      {/* Hero — primary cyan gradient; compact, with top padding clearing the fixed header */}
+      <section className="tw:bg-gradient-to-b tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-24 tw:md:pt-28 tw:pb-10 tw:px-4">
+        <div className="tw:max-w-2xl tw:mx-auto tw:text-center">
+          <nav className="tw:flex tw:items-center tw:justify-center tw:gap-1 tw:text-xs tw:text-white/70 tw:mb-4">
             <Link to="/" className="tw:hover:text-white tw:transition-colors">Home</Link>
-            <ChevronRight className="tw:w-3.5 tw:h-3.5" />
-            <span className="tw:text-white">Visa Information</span>
+            <ChevronRight className="tw:w-3 tw:h-3" />
+            <span className="tw:text-white tw:font-medium">Visa Information</span>
           </nav>
-          <h1 className="tw:text-4xl tw:md:text-5xl tw:font-bold tw:mb-4 tw:leading-tight">
+          <h1 className="tw:text-2xl tw:md:text-4xl tw:font-bold tw:mb-3 tw:leading-tight">
             Visa Information &amp; Travel Requirements
           </h1>
-          <p className="tw:text-white/75 tw:text-lg tw:mb-8 tw:max-w-2xl tw:mx-auto tw:leading-relaxed">
+          <p className="tw:text-white/80 tw:text-sm tw:md:text-base tw:mb-7 tw:max-w-xl tw:mx-auto tw:leading-relaxed">
             {PAGE_DESCRIPTION}
           </p>
 
-          <form onSubmit={handleSearch} className="tw:max-w-2xl tw:mx-auto">
-            <div className="tw:flex tw:gap-2 tw:mb-3">
+          <form onSubmit={handleSearch} className="tw:max-w-xl tw:mx-auto">
+            <div className="tw:flex tw:gap-2 tw:mb-2.5">
               <div className="tw:relative tw:flex-1">
-                <Search className="tw:absolute tw:left-4 tw:top-1/2 tw:-translate-y-1/2 tw:w-4 tw:h-4 tw:text-gray-400" />
+                <Search className="tw:absolute tw:left-3.5 tw:top-1/2 tw:-translate-y-1/2 tw:w-4 tw:h-4 tw:text-gray-400 tw:pointer-events-none" />
                 <input
                   type="text"
                   list="visa-country-options"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder="Enter destination country…"
-                  className={`${inputClass} tw:pl-11`}
+                  className={`${fieldClass} tw:pl-10`}
                 />
               </div>
               <datalist id="visa-country-options">
@@ -197,7 +197,7 @@ const VisaInformationHub = () => {
               </datalist>
               <button
                 type="submit"
-                className="tw:px-6 tw:py-3 tw:bg-primary tw:text-dark-purple tw:font-semibold tw:rounded-xl tw:hover:bg-[#6cc0e3] tw:transition-colors tw:text-sm tw:flex-shrink-0"
+                className="tw:px-6 tw:py-2.5 tw:bg-white tw:text-[#1c6993] tw:font-semibold tw:rounded-lg tw:hover:bg-white/90 tw:transition-colors tw:text-sm tw:flex-shrink-0 tw:shadow-sm"
               >
                 Search
               </button>
@@ -208,35 +208,34 @@ const VisaInformationHub = () => {
                 type="text"
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
-                placeholder="Passport nationality (optional)"
-                className={inputClass}
+                placeholder="Passport nationality"
+                className={fieldClass}
               />
               <select
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                className={`${inputClass} tw:bg-white`}
+                className={`${fieldClass} ${purpose ? "tw:text-gray-900" : "tw:text-gray-400"}`}
               >
-                <option value="">Travel purpose</option>
+                <option value="" className="tw:text-gray-400">Travel purpose</option>
                 {TRAVEL_PURPOSES.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                  <option key={p} value={p} className="tw:text-gray-900">{p}</option>
                 ))}
               </select>
               <select
                 value={stay}
                 onChange={(e) => setStay(e.target.value)}
-                className={`${inputClass} tw:bg-white`}
+                className={`${fieldClass} ${stay ? "tw:text-gray-900" : "tw:text-gray-400"}`}
               >
-                <option value="">Length of stay</option>
+                <option value="" className="tw:text-gray-400">Length of stay</option>
                 {STAY_LENGTHS.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                  <option key={s} value={s} className="tw:text-gray-900">{s}</option>
                 ))}
               </select>
             </div>
           </form>
 
-          <p className="tw:flex tw:items-center tw:justify-center tw:gap-2 tw:text-white/60 tw:text-xs tw:mt-6 tw:max-w-xl tw:mx-auto">
-            <Info className="tw:w-3.5 tw:h-3.5 tw:flex-shrink-0" />
-            <span>Visa and entry requirements can change. Always confirm with the official embassy or government website before travelling.</span>
+          <p className="tw:text-white/65 tw:text-[11px] tw:mt-5 tw:max-w-md tw:mx-auto tw:leading-relaxed">
+            Visa and entry requirements can change. Always confirm with the official embassy or government website before travelling.
           </p>
         </div>
       </section>

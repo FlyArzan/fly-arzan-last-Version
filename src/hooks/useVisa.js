@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -23,6 +28,7 @@ export const useVisaCountries = ({ search = "", page = 0, limit = 50 } = {}) => 
     queryKey: ["visa", "public", "list", { search, page, limit }],
     queryFn: () => fetcher(`/visa-info?${params}`),
     staleTime: 1000 * 60 * 5,
+    placeholderData: keepPreviousData,
   });
 };
 

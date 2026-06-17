@@ -171,6 +171,135 @@ p {
   margin: 0px;
 }
 
+/*
+ * Published article body — rendered via dangerouslySetInnerHTML on ArticlePage
+ * from the WYSIWYG (TipTap) HTML. Explicit, on-brand typography with
+ * !important spacing so it reads cleanly despite the global element resets
+ * above and legacy !important rules elsewhere in this file.
+ */
+.article-content {
+  color: #374151;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.article-content > *:first-child {
+  margin-top: 0 !important;
+}
+.article-content > *:last-child {
+  margin-bottom: 0 !important;
+}
+.article-content p {
+  margin: 0 0 1.15em 0 !important;
+}
+.article-content h2 {
+  color: var(--dark-purple-color);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 2em 0 0.6em !important;
+}
+.article-content h3 {
+  color: var(--dark-purple-color);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 1.6em 0 0.5em !important;
+}
+.article-content h4 {
+  color: var(--dark-purple-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.4em 0 0.4em !important;
+}
+.article-content a {
+  color: var(--primary-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.article-content a:hover {
+  color: var(--dark-purple-color);
+}
+.article-content strong {
+  color: #111827;
+  font-weight: 700;
+}
+.article-content ul,
+.article-content ol {
+  margin: 1.25em 0 !important;
+  padding-left: 1.5rem !important;
+}
+.article-content ul {
+  list-style: disc;
+}
+.article-content ol {
+  list-style: decimal;
+}
+.article-content li {
+  margin-bottom: 0.4em !important;
+}
+.article-content li > ul,
+.article-content li > ol {
+  margin: 0.4em 0 !important;
+}
+.article-content blockquote {
+  border-left: 4px solid var(--primary-color);
+  padding-left: 1rem !important;
+  margin: 1.5em 0 !important;
+  color: #4b5563;
+  font-style: italic;
+}
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 1.5em 0 !important;
+}
+.article-content hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 2em 0 !important;
+}
+.article-content code {
+  background: #f3f4f6;
+  color: #be123c;
+  padding: 0.15em 0.4em !important;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: monospace;
+}
+.article-content pre {
+  background: #0b0f16;
+  color: #e5e7eb;
+  padding: 1rem 1.25rem !important;
+  border-radius: 10px;
+  overflow-x: auto;
+  margin: 1.5em 0 !important;
+}
+.article-content pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0 !important;
+}
+.article-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0 !important;
+  font-size: 0.95rem;
+  display: block;
+  overflow-x: auto;
+}
+.article-content th,
+.article-content td {
+  border: 1px solid #e5e7eb;
+  padding: 0.6rem 0.85rem !important;
+  text-align: left;
+  vertical-align: top;
+}
+.article-content th {
+  background: #f8fafc;
+  color: var(--dark-purple-color);
+  font-weight: 600;
+}
+
 .top-margin {
   @apply tw:mt-16 tw:md:mt-[92px];
 }

@@ -126,12 +126,6 @@ const Footer = () => {
                     <Link to="/travel-guides/travel-guidelines">
                       <li>Travel Guidelines</li>
                     </Link>
-                    <Link to="/COVID">
-                      <li>{t("footer.travelSupport.covid")}</li>
-                    </Link>
-                    <Link to="/Airport">
-                      <li>{t("footer.travelSupport.airport")}</li>
-                    </Link>
                   </ul>
                 </div>
                 <div className="footer-ul-list-box more-with-input">

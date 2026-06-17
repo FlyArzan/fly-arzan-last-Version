@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Box, Typography, Button, TextField, Stack, Card, CardHeader,
@@ -11,6 +11,7 @@ import {
 } from "@mui/icons-material";
 import { useAdminArticle, useAdminArticles, useSaveArticle, useArticleCategories } from "@/hooks/useArticles";
 import ImageUpload from "@/components/admin/ImageUpload";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 import { toast } from "sonner";
 
 const cardSx = {
@@ -55,38 +56,6 @@ export default function ArticleForm() {
 
   const [form, setForm] = useState(defaultForm);
   const [slugManuallySet, setSlugManuallySet] = useState(false);
-  const bodyRef = useRef(null);
-
-  // Wrap the current selection (or insert at the cursor) with HTML tags. Keeps
-  // the plain-HTML body but gives editors quick formatting without typing tags.
-  const wrapBody = (before, after = "") => {
-    const el = bodyRef.current;
-    const text = form.body || "";
-    const start = el?.selectionStart ?? text.length;
-    const end = el?.selectionEnd ?? text.length;
-    const selected = text.slice(start, end);
-    const next = text.slice(0, start) + before + selected + after + text.slice(end);
-    setForm((p) => ({ ...p, body: next }));
-    // Restore focus + place caret after the inserted opening tag.
-    requestAnimationFrame(() => {
-      if (!el) return;
-      el.focus();
-      const caret = start + before.length + selected.length;
-      el.setSelectionRange(caret, caret);
-    });
-  };
-
-  const BODY_TOOLS = [
-    { label: "H2", before: "<h2>", after: "</h2>" },
-    { label: "H3", before: "<h3>", after: "</h3>" },
-    { label: "Paragraph", before: "<p>", after: "</p>" },
-    { label: "Bold", before: "<strong>", after: "</strong>" },
-    { label: "Italic", before: "<em>", after: "</em>" },
-    { label: "List", before: "<ul>\n  <li>", after: "</li>\n</ul>" },
-    { label: "Numbered", before: "<ol>\n  <li>", after: "</li>\n</ol>" },
-    { label: "Link", before: '<a href="https://" target="_blank" rel="noopener">', after: "</a>" },
-    { label: "Table", before: "<table>\n  <thead><tr><th>Heading</th></tr></thead>\n  <tbody><tr><td>", after: "</td></tr></tbody>\n</table>" },
-  ];
 
   useEffect(() => {
     if (isEdit && existing) {
@@ -153,7 +122,12 @@ export default function ArticleForm() {
   };
 
   const handleSave = () => {
-    if (!form.title || !form.slug || !form.body) {
+    // TipTap emits "<p></p>" for an empty document — treat that (and any
+    // tag-only/whitespace body without media) as missing content.
+    const bodyText = (form.body || "").replace(/<[^>]*>/g, "").trim();
+    const bodyHasMedia = /<(img|table|iframe|hr)/i.test(form.body || "");
+    const isBodyEmpty = !bodyText && !bodyHasMedia;
+    if (!form.title || !form.slug || isBodyEmpty) {
       toast.error("Title, slug, and body are required");
       return;
     }
@@ -246,32 +220,14 @@ export default function ArticleForm() {
           <Card sx={cardSx}>
             <CardHeader
               title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Article Body *</Typography>}
-              subheader={<Typography variant="caption" sx={{ color: "#71717A", fontFamily: "Inter" }}>HTML is supported.</Typography>}
+              subheader={<Typography variant="caption" sx={{ color: "#71717A", fontFamily: "Inter" }}>Format with the toolbar — headings, lists, links, images and tables. Saved as clean HTML.</Typography>}
               sx={{ px: 2.5, pt: 2.25, pb: 1 }}
             />
             <CardContent sx={{ px: 2.5, pb: 2.5 }}>
-              <Stack direction="row" spacing={0.5} flexWrap="wrap" sx={{ mb: 1.5, gap: 0.5 }}>
-                {BODY_TOOLS.map((tool) => (
-                  <Button
-                    key={tool.label}
-                    size="small"
-                    onClick={() => wrapBody(tool.before, tool.after)}
-                    sx={{
-                      minWidth: 0, px: 1.25, py: 0.25, fontSize: 12, textTransform: "none",
-                      color: "#9ca3af", border: "1px solid rgba(255,255,255,0.1)",
-                      "&:hover": { color: "#3B82F6", borderColor: "#3B82F6", bgcolor: "transparent" },
-                    }}
-                  >
-                    {tool.label}
-                  </Button>
-                ))}
-              </Stack>
-              <TextField
-                fullWidth multiline minRows={16}
-                label="Body (HTML)"
-                value={form.body} onChange={set("body")}
-                inputRef={bodyRef}
-                sx={{ ...textFieldSx, "& textarea": { fontFamily: "monospace", fontSize: 13 } }}
+              <RichTextEditor
+                value={form.body}
+                onChange={(html) => setForm((p) => ({ ...p, body: html }))}
+                placeholder="Write the article content…"
               />
             </CardContent>
           </Card>

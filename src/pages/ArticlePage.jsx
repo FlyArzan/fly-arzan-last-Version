@@ -25,10 +25,10 @@ const ArticlePage = () => {
     return (
       <>
         <Header />
-        <div className="tw:max-w-3xl tw:mx-auto tw:px-4 tw:pt-28 tw:md:pt-36 tw:pb-16 tw:animate-pulse">
-          <div className="tw:h-8 tw:bg-gray-200 tw:rounded tw:mb-4 tw:w-3/4" />
-          <div className="tw:h-64 tw:bg-gray-100 tw:rounded-2xl tw:mb-6" />
-          <div className="tw:space-y-3">
+        <div className="tw:max-w-3xl tw:mx-auto! tw:px-4! tw:pt-28! tw:md:pt-36! tw:pb-16! tw:animate-pulse">
+          <div className="tw:h-8 tw:bg-gray-200 tw:rounded tw:mb-4! tw:w-3/4" />
+          <div className="tw:h-64 tw:bg-gray-100 tw:rounded-2xl tw:mb-6!" />
+          <div className="tw:space-y-3!">
             {[...Array(8)].map((_, i) => (
               <div key={i} className={`tw:h-4 tw:bg-gray-100 tw:rounded tw:${i % 4 === 3 ? "w-2/3" : "w-full"}`} />
             ))}
@@ -43,9 +43,9 @@ const ArticlePage = () => {
     return (
       <>
         <Header />
-        <div className="tw:max-w-3xl tw:mx-auto tw:px-4 tw:pt-28 tw:md:pt-36 tw:pb-20 tw:text-center">
-          <h1 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-3">Article Not Found</h1>
-          <p className="tw:text-gray-500 tw:mb-6">This article may have been moved or removed.</p>
+        <div className="tw:max-w-3xl tw:mx-auto! tw:px-4! tw:pt-28! tw:md:pt-36! tw:pb-20! tw:text-center">
+          <h1 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-3!">Article Not Found</h1>
+          <p className="tw:text-gray-500 tw:mb-6!">This article may have been moved or removed.</p>
           <Link to="/travel-guides" className="tw:text-primary tw:font-medium tw:hover:underline">
             ← Back to Travel Guides
           </Link>
@@ -130,11 +130,11 @@ const ArticlePage = () => {
       <Header />
 
       {/* Top padding clears the fixed header */}
-      <article className="tw:max-w-7xl tw:mx-auto tw:px-4 tw:sm:px-6 tw:pt-28 tw:md:pt-36 tw:pb-12 tw:flex tw:flex-col tw:lg:flex-row tw:gap-10">
+      <article className="tw:max-w-7xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:pt-28! tw:md:pt-36! tw:pb-12! tw:flex tw:flex-col tw:lg:flex-row tw:gap-10!">
         {/* Main content */}
         <div className="tw:flex-1 tw:min-w-0">
           {/* Breadcrumb */}
-          <nav className="tw:text-sm tw:text-gray-400 tw:mb-6 tw:flex tw:flex-wrap tw:gap-1 tw:items-center">
+          <nav className="tw:text-sm tw:text-gray-400 tw:mb-6! tw:flex tw:flex-wrap tw:gap-1! tw:items-center">
             <Link to="/" className="tw:hover:text-primary tw:transition-colors">Home</Link>
             <ChevronRight className="tw:w-3.5 tw:h-3.5" />
             <Link to="/travel-guides" className="tw:hover:text-primary tw:transition-colors">Travel Guides</Link>
@@ -150,18 +150,18 @@ const ArticlePage = () => {
 
           {/* Header */}
           {articleCategory && (
-            <span className="tw:inline-block tw:bg-primary/10 tw:text-dark-purple tw:text-xs tw:font-semibold tw:px-2.5 tw:py-1 tw:rounded-full tw:mb-4 tw:uppercase tw:tracking-wide">
+            <span className="tw:inline-block tw:bg-primary/10 tw:text-dark-purple tw:text-xs tw:font-semibold tw:px-2.5! tw:py-1! tw:rounded-full tw:mb-4! tw:uppercase tw:tracking-wide">
               {articleCategory.name}
             </span>
           )}
-          <h1 className="tw:text-3xl tw:md:text-4xl tw:font-bold tw:text-dark-purple tw:leading-tight tw:mb-4">
+          <h1 className="tw:text-3xl tw:md:text-4xl tw:font-bold tw:text-dark-purple tw:leading-tight tw:mb-4!">
             {article.title}
           </h1>
           {article.shortSummary && (
-            <p className="tw:text-lg tw:text-gray-600 tw:mb-5 tw:leading-relaxed">{article.shortSummary}</p>
+            <p className="tw:text-lg tw:text-gray-600 tw:mb-5! tw:leading-relaxed">{article.shortSummary}</p>
           )}
 
-          <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-4 tw:text-sm tw:text-gray-400 tw:mb-6 tw:pb-6 tw:border-b tw:border-gray-100">
+          <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-4! tw:text-sm tw:text-gray-400 tw:mb-6! tw:pb-6! tw:border-b tw:border-gray-100">
             <span className="tw:font-medium tw:text-gray-600">{article.authorName || "Fly Arzan Travel Team"}</span>
             {article.publishedAt && (
               <>
@@ -190,28 +190,28 @@ const ArticlePage = () => {
               alt={article.imageAlt || article.title}
               width="800"
               height="384"
-              className="tw:w-full tw:max-h-96 tw:object-cover tw:rounded-2xl tw:mb-8"
+              className="tw:w-full tw:max-h-96 tw:object-cover tw:rounded-2xl tw:mb-8!"
             />
           )}
 
-          {/* Article body */}
+          {/* Article body — on-brand typography defined in index.css (.article-content) */}
           <div
-            className="tw:prose tw:prose-gray tw:max-w-none tw:text-gray-700 tw:leading-relaxed tw:prose-headings:text-dark-purple tw:prose-a:text-primary"
+            className="article-content"
             dangerouslySetInnerHTML={{ __html: article.body }}
           />
 
           {/* FAQs */}
           {faqs.length > 0 && (
-            <section className="tw:mt-10">
-              <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-5">Frequently Asked Questions</h2>
-              <div className="tw:space-y-4">
+            <section className="tw:mt-10!">
+              <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-5!">Frequently Asked Questions</h2>
+              <div className="tw:space-y-4!">
                 {faqs.map((faq, i) => (
                   <details key={i} className="tw:border tw:border-gray-200 tw:rounded-xl tw:overflow-hidden tw:group">
-                    <summary className="tw:px-5 tw:py-4 tw:font-semibold tw:text-dark-purple tw:cursor-pointer tw:hover:bg-gray-50 tw:list-none tw:flex tw:items-center tw:justify-between">
+                    <summary className="tw:px-5! tw:py-4! tw:font-semibold tw:text-dark-purple tw:cursor-pointer tw:hover:bg-gray-50 tw:list-none tw:flex tw:items-center tw:justify-between">
                       {faq.question}
-                      <Plus className="tw:w-4 tw:h-4 tw:text-gray-400 tw:ml-2 tw:flex-shrink-0 tw:transition-transform tw:group-open:rotate-45" />
+                      <Plus className="tw:w-4 tw:h-4 tw:text-gray-400 tw:ml-2! tw:flex-shrink-0 tw:transition-transform tw:group-open:rotate-45" />
                     </summary>
-                    <div className="tw:px-5 tw:pb-4 tw:text-gray-600 tw:text-sm tw:leading-relaxed">
+                    <div className="tw:px-5! tw:pb-4! tw:text-gray-600 tw:text-sm tw:leading-relaxed">
                       {faq.answer}
                     </div>
                   </details>
@@ -221,18 +221,18 @@ const ArticlePage = () => {
           )}
 
           {/* Disclaimer */}
-          <div className="tw:mt-10 tw:flex tw:gap-3 tw:p-4 tw:bg-amber-50 tw:border tw:border-amber-200 tw:rounded-xl tw:text-sm tw:text-amber-800">
-            <Info className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:mt-0.5 tw:text-amber-600" />
+          <div className="tw:mt-10! tw:flex tw:gap-3! tw:p-4! tw:bg-amber-50 tw:border tw:border-amber-200 tw:rounded-xl tw:text-sm tw:text-amber-800">
+            <Info className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:mt-0.5! tw:text-amber-600" />
             <p><strong>Disclaimer:</strong> Travel information can change at any time. FlyArzan provides this content as a general travel guide only. Always confirm the latest requirements with official sources before booking or travelling.</p>
           </div>
 
           {/* CTA */}
-          <div className="tw:mt-8 tw:p-7 tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:rounded-2xl tw:text-white tw:text-center">
-            <p className="tw:font-semibold tw:text-lg tw:mb-2">Ready to Book Your Flight?</p>
-            <p className="tw:text-white/70 tw:text-sm tw:mb-5">Search and compare flights on FlyArzan for the best deals.</p>
+          <div className="tw:mt-8! tw:p-7! tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:rounded-2xl tw:text-white tw:text-center">
+            <p className="tw:font-semibold tw:text-lg tw:mb-2!">Ready to Book Your Flight?</p>
+            <p className="tw:text-white/70 tw:text-sm tw:mb-5!">Search and compare flights on FlyArzan for the best deals.</p>
             <Link
               to="/search/flight"
-              className="tw:inline-block tw:bg-primary tw:text-dark-purple tw:font-semibold tw:px-6 tw:py-2.5 tw:rounded-xl tw:text-sm tw:hover:bg-[#6cc0e3] tw:transition-colors"
+              className="tw:inline-block tw:bg-primary! tw:text-dark-purple! tw:font-semibold tw:px-6! tw:py-2.5! tw:rounded-xl tw:text-sm tw:hover:bg-[#6cc0e3]! tw:transition-colors"
             >
               Search Flights
             </Link>
@@ -241,12 +241,12 @@ const ArticlePage = () => {
 
         {/* Sidebar — stacks below the article on mobile, sticky on desktop */}
         <aside className="tw:w-full tw:lg:w-72 tw:flex-shrink-0">
-          <div className="tw:lg:sticky tw:lg:top-28 tw:space-y-6">
+          <div className="tw:lg:sticky tw:lg:top-28 tw:space-y-6!">
             {/* Related articles */}
             {relatedFiltered.length > 0 && (
-              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5">
-                <h3 className="tw:font-bold tw:text-dark-purple tw:mb-4">Related Guides</h3>
-                <div className="tw:space-y-4">
+              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
+                <h3 className="tw:font-bold tw:text-dark-purple tw:mb-4!">Related Guides</h3>
+                <div className="tw:space-y-4!">
                   {relatedFiltered.map((r) => {
                     const rc = r.articleCategory?.[0];
                     return (
@@ -259,55 +259,55 @@ const ArticlePage = () => {
                           {r.title}
                         </p>
                         {r.readingTime && (
-                          <p className="tw:text-xs tw:text-gray-400 tw:mt-0.5">{r.readingTime} min read</p>
+                          <p className="tw:text-xs tw:text-gray-400 tw:mt-0.5!">{r.readingTime} min read</p>
                         )}
                       </Link>
                     );
                   })}
                 </div>
-                <Link to="/travel-guides" className="tw:block tw:text-xs tw:text-primary tw:font-medium tw:mt-4 tw:hover:underline">
+                <Link to="/travel-guides" className="tw:block tw:text-xs tw:text-primary tw:font-medium tw:mt-4! tw:hover:underline">
                   View all guides →
                 </Link>
               </div>
             )}
 
             {/* Visa CTA */}
-            <div className="tw:bg-primary/5 tw:border tw:border-primary/20 tw:rounded-2xl tw:p-5">
-              <h3 className="tw:font-bold tw:text-dark-purple tw:mb-2">Visa Information</h3>
-              <p className="tw:text-gray-600 tw:text-sm tw:mb-3">
+            <div className="tw:bg-primary/5 tw:border tw:border-primary/20 tw:rounded-2xl tw:p-5!">
+              <h3 className="tw:font-bold tw:text-dark-purple tw:mb-2!">Visa Information</h3>
+              <p className="tw:text-gray-600 tw:text-sm tw:mb-3!">
                 Check visa requirements for your destination country.
               </p>
               <Link
                 to="/visa-information"
-                className="tw:block tw:text-center tw:bg-dark-purple tw:text-white tw:text-sm tw:font-medium tw:px-4 tw:py-2 tw:rounded-lg tw:hover:bg-[#000080] tw:transition-colors"
+                className="tw:block tw:text-center tw:bg-dark-purple! tw:text-white! tw:text-sm tw:font-medium tw:px-4! tw:py-2! tw:rounded-lg tw:hover:bg-[#000080]! tw:transition-colors"
               >
                 Check Visa Requirements
               </Link>
             </div>
 
             {/* Flight search CTA */}
-            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5">
-              <h3 className="tw:font-bold tw:text-dark-purple tw:mb-2">Find Cheap Flights</h3>
-              <p className="tw:text-gray-600 tw:text-sm tw:mb-3">
+            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
+              <h3 className="tw:font-bold tw:text-dark-purple tw:mb-2!">Find Cheap Flights</h3>
+              <p className="tw:text-gray-600 tw:text-sm tw:mb-3!">
                 Search and compare flights to your next destination.
               </p>
               <Link
                 to="/search/flight"
-                className="tw:block tw:text-center tw:bg-primary tw:text-dark-purple tw:text-sm tw:font-semibold tw:px-4 tw:py-2 tw:rounded-lg tw:hover:bg-[#6cc0e3] tw:transition-colors"
+                className="tw:block tw:text-center tw:bg-primary! tw:text-dark-purple! tw:text-sm tw:font-semibold tw:px-4! tw:py-2! tw:rounded-lg tw:hover:bg-[#6cc0e3]! tw:transition-colors"
               >
                 Search Flights
               </Link>
             </div>
 
             {/* Popular guides — quick links */}
-            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5">
-              <h3 className="tw:font-bold tw:text-dark-purple tw:mb-3">Popular Guides</h3>
-              <div className="tw:space-y-1">
+            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
+              <h3 className="tw:font-bold tw:text-dark-purple tw:mb-3!">Popular Guides</h3>
+              <div className="tw:space-y-1!">
                 {POPULAR_GUIDES.map((g) => (
                   <Link
                     key={g.slug}
                     to={`/travel-guides/${g.slug}`}
-                    className="tw:flex tw:items-center tw:gap-2.5 tw:px-2 tw:py-1.5 tw:rounded-lg tw:text-sm tw:text-gray-600 tw:hover:bg-gray-50 tw:hover:text-primary tw:transition-colors"
+                    className="tw:flex tw:items-center tw:gap-2.5! tw:px-2! tw:py-1.5! tw:rounded-lg tw:text-sm tw:text-gray-600 tw:hover:bg-gray-50 tw:hover:text-primary tw:transition-colors"
                   >
                     <CategoryIcon slug={g.slug} className="tw:w-4 tw:h-4 tw:text-primary tw:flex-shrink-0" />
                     <span>{g.label}</span>

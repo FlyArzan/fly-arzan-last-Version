@@ -124,7 +124,7 @@ const Footer = () => {
                       <li>Airport Guides</li>
                     </Link>
                     <Link to="/travel-guides/travel-guidelines">
-                      <li>Travel Guidelines</li>
+                      <li>Travel Rules &amp; Guidelines</li>
                     </Link>
                   </ul>
                 </div>

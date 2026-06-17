@@ -1,7 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, ArrowRight, Star, Flame, Plane, FileText } from "lucide-react";
+import {
+  Search,
+  ArrowRight,
+  Star,
+  Flame,
+  Plane,
+  FileText,
+  Filter,
+  X,
+} from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import CategoryIcon from "../components/travel/CategoryIcon";
@@ -165,7 +174,16 @@ const TravelGuidesHub = () => {
   const [activeCat, setActiveCat] = useState("all");
   const [page, setPage] = useState(0);
   const [searchInput, setSearchInput] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Lock background scroll while the mobile filter drawer is open.
+  useEffect(() => {
+    document.body.style.overflow = filterOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [filterOpen]);
 
   const { data: categories = [] } = useArticleCategories();
   const { data: featured = [] } = useFeaturedArticles();
@@ -182,7 +200,21 @@ const TravelGuidesHub = () => {
   const handleCatFilter = (slug) => {
     setActiveCat(slug);
     setPage(0);
+    setFilterOpen(false);
   };
+
+  const activeLabel =
+    activeCat === "all"
+      ? "All Articles"
+      : categories.find((c) => c.slug === activeCat)?.name || "All Articles";
+
+  // Row styling for items inside the mobile filter drawer.
+  const drawerItem = (active) =>
+    `tw:w-full tw:flex tw:items-center tw:justify-between tw:px-3! tw:py-2.5! tw:rounded-lg tw:text-sm tw:text-left tw:transition-colors ${
+      active
+        ? "tw:bg-primary/10! tw:text-dark-purple! tw:font-semibold"
+        : "tw:text-gray-600! tw:hover:bg-gray-50! tw:hover:text-gray-900!"
+    }`;
 
   const handleHeroSearch = (e) => {
     e.preventDefault();
@@ -242,7 +274,8 @@ const TravelGuidesHub = () => {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search travel guides, airport information, visa tips…"
-                className="tw:w-full tw:pl-11! tw:pr-4! tw:py-3! tw:rounded-xl tw:text-gray-900 tw:text-sm tw:outline-none tw:border tw:border-transparent tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/30 tw:shadow-sm"
+                style={{ color: "#111827", backgroundColor: "#ffffff" }}
+                className="tw:w-full tw:pl-11! tw:pr-4! tw:py-3! tw:rounded-xl tw:bg-white! tw:text-gray-900! tw:placeholder:text-gray-400 tw:text-sm tw:outline-none tw:border tw:border-transparent tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/30 tw:shadow-sm"
               />
             </div>
             <button
@@ -254,6 +287,9 @@ const TravelGuidesHub = () => {
           </form>
         </div>
       </section>
+
+      {/* Subtle primary tint behind the whole content area so white cards pop */}
+      <div className="tw:bg-[#f3fafd]!">
 
       {/* Featured Articles — highlighted cards below the hero */}
       {featured.length > 0 && (
@@ -276,8 +312,8 @@ const TravelGuidesHub = () => {
           {/* LEFT — 3/4 */}
           <div className="tw:flex-1 tw:min-w-0">
 
-            {/* Category filter pills */}
-            <div className="tw:flex tw:flex-wrap tw:gap-2! tw:mb-7!">
+            {/* Category filter — pills on desktop */}
+            <div className="tw:hidden tw:lg:flex tw:flex-wrap tw:gap-2! tw:mb-7!">
               <button onClick={() => handleCatFilter("all")} className={pillClass(activeCat === "all")}>
                 All Articles
               </button>
@@ -291,6 +327,20 @@ const TravelGuidesHub = () => {
                   <span>{cat.name}</span>
                 </button>
               ))}
+            </div>
+
+            {/* Category filter — compact bar + drawer trigger on mobile/tablet */}
+            <div className="tw:flex tw:lg:hidden tw:items-center tw:justify-between tw:gap-3! tw:mb-5!">
+              <h2 className="tw:text-lg tw:font-bold tw:text-dark-purple tw:truncate">
+                {activeLabel}
+              </h2>
+              <button
+                onClick={() => setFilterOpen(true)}
+                className="tw:inline-flex tw:items-center tw:gap-2! tw:px-4! tw:py-2! tw:rounded-lg tw:border tw:border-gray-200 tw:bg-white! tw:text-sm tw:font-medium tw:text-dark-purple! tw:shadow-sm tw:flex-shrink-0"
+              >
+                <Filter className="tw:w-4 tw:h-4" />
+                Filter
+              </button>
             </div>
 
             {/* Results count */}
@@ -370,7 +420,7 @@ const TravelGuidesHub = () => {
                     Browse by Topic
                   </h2>
                 </div>
-                <div className="tw:grid tw:grid-cols-2 tw:sm:grid-cols-3 tw:gap-4!">
+                <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4!">
                   {categories.map((cat) => (
                     <Link
                       key={cat.id}
@@ -490,6 +540,60 @@ const TravelGuidesHub = () => {
           </aside>
         </div>
       </main>
+      </div>
+
+      {/* Mobile filter drawer — slides in from the right */}
+      {filterOpen && (
+        <div className="tw:fixed tw:inset-0 tw:z-[60] tw:lg:hidden">
+          <div
+            className="tw:absolute tw:inset-0 tw:bg-black/40"
+            onClick={() => setFilterOpen(false)}
+          />
+          <div className="tw:absolute tw:right-0 tw:top-0 tw:h-full tw:w-80 tw:max-w-[85%] tw:bg-white! tw:shadow-2xl tw:flex tw:flex-col tw:animate-in tw:slide-in-from-right tw:duration-300 tw:ease-out">
+            <div className="tw:flex tw:items-center tw:justify-between tw:px-5! tw:py-4! tw:border-b tw:border-gray-100">
+              <h3 className="tw:font-bold tw:text-dark-purple tw:flex tw:items-center tw:gap-2!">
+                <Filter className="tw:w-4 tw:h-4 tw:text-primary" />
+                Filter by Topic
+              </h3>
+              <button
+                onClick={() => setFilterOpen(false)}
+                aria-label="Close filter"
+                className="tw:text-gray-400! tw:hover:text-gray-700!"
+              >
+                <X className="tw:w-5 tw:h-5" />
+              </button>
+            </div>
+            <div className="tw:flex-1 tw:overflow-y-auto tw:p-3! tw:space-y-0.5!">
+              <button
+                onClick={() => handleCatFilter("all")}
+                className={drawerItem(activeCat === "all")}
+              >
+                <span className="tw:flex tw:items-center tw:gap-2.5!">
+                  <Star className="tw:w-4 tw:h-4 tw:text-primary" />
+                  <span>All Articles</span>
+                </span>
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCatFilter(cat.slug)}
+                  className={drawerItem(activeCat === cat.slug)}
+                >
+                  <span className="tw:flex tw:items-center tw:gap-2.5!">
+                    <CategoryIcon slug={cat.slug} className="tw:w-4 tw:h-4" />
+                    <span>{cat.name}</span>
+                  </span>
+                  {cat.articleCount > 0 && (
+                    <span className="tw:text-xs tw:bg-gray-100 tw:text-gray-500 tw:rounded-full tw:px-2! tw:py-0.5! tw:flex-shrink-0">
+                      {cat.articleCount}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>

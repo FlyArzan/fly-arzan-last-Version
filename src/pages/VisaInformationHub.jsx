@@ -8,6 +8,7 @@ import {
   Info,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
 } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
@@ -120,6 +121,7 @@ const VisaInformationHub = () => {
   const [purpose, setPurpose] = useState("");
   const [stay, setStay] = useState("");
   const [page, setPage] = useState(0);
+  const [filtersOpen, setFiltersOpen] = useState(false); // mobile filter accordion
   const navigate = useNavigate();
 
   // Debounce the search box into the server query (300ms). Reset to page 1
@@ -214,7 +216,18 @@ const VisaInformationHub = () => {
 
   // White fields with clearly-visible borders for easy separation, dark text.
   const fieldClass =
-    "tw:w-full tw:h-12! tw:px-4! tw:rounded-xl tw:bg-white tw:text-gray-900 tw:text-sm tw:border tw:border-gray-300 tw:outline-none tw:transition tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20 tw:placeholder:text-gray-500";
+    "tw:w-full tw:h-12! tw:px-4! tw:rounded-xl tw:bg-white! tw:text-gray-900! tw:text-sm tw:border tw:border-gray-300 tw:outline-none tw:transition tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20 tw:placeholder:text-gray-500";
+  const selectBase = `${fieldClass} tw:appearance-none tw:bg-no-repeat tw:pr-9! tw:cursor-pointer`;
+  // Inline chevron + explicit text colour (grey when empty) so the legacy
+  // cascade can't hide the native select text.
+  const selectStyle = (val) => ({
+    backgroundImage:
+      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
+    backgroundPosition: "right 0.75rem center",
+    backgroundColor: "#ffffff",
+    color: val ? "#111827" : "#6b7280",
+  });
+  const textInputStyle = { color: "#111827", backgroundColor: "#ffffff" };
 
   return (
     <>
@@ -241,73 +254,67 @@ const VisaInformationHub = () => {
 
       <Header />
 
-      {/* Hero — light, compact; top padding clears the fixed header */}
-      <section className="tw:bg-gradient-to-b tw:from-[#f0f9ff] tw:to-white tw:border-b tw:border-gray-100 tw:pt-24! tw:md:pt-28! tw:pb-10! tw:px-4!">
-        <div className="tw:max-w-3xl tw:mx-auto! tw:text-center!">
-          <nav className="tw:flex tw:items-center tw:justify-center tw:gap-1! tw:text-xs tw:text-gray-500 tw:mb-5!">
-            <Link to="/" className="tw:hover:text-primary tw:transition-colors">
+      {/* Hero — soft brand banner (cyan→teal); top padding clears the fixed header */}
+      <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-24! tw:md:pt-28! tw:pb-12! tw:px-4!">
+        <div className="tw:max-w-5xl tw:mx-auto! tw:text-center!">
+          <nav className="tw:flex tw:items-center tw:justify-center tw:gap-1! tw:text-xs tw:text-white/70 tw:mb-5!">
+            <Link to="/" className="tw:hover:text-white tw:transition-colors">
               Home
             </Link>
             <ChevronRight className="tw:w-3 tw:h-3" />
-            <span className="tw:text-dark-purple tw:font-medium">
-              Visa Information
-            </span>
+            <span className="tw:text-white tw:font-medium">Visa Information</span>
           </nav>
-          <h1 className="tw:text-2xl tw:md:text-4xl tw:font-bold! tw:text-dark-purple tw:mb-4! tw:leading-tight tw:text-center!">
+          <h1 className="tw:text-2xl tw:md:text-4xl tw:font-bold! tw:text-white tw:mb-4! tw:leading-tight tw:text-center!">
             Visa Information &amp; Travel Requirements
           </h1>
-          <p className="tw:text-gray-600 tw:text-sm tw:md:text-base tw:mb-7! tw:mx-auto! tw:leading-relaxed tw:text-center!">
+          <p className="tw:text-white/80 tw:text-sm tw:md:text-base tw:mb-7! tw:max-w-2xl tw:mx-auto! tw:leading-relaxed tw:text-center!">
             {PAGE_DESCRIPTION}
           </p>
 
           <form
             onSubmit={handleSearch}
-            className="tw:max-w-3xl tw:mx-auto! tw:bg-white tw:rounded-2xl tw:p-4! tw:shadow-lg tw:shadow-gray-200/70 tw:border tw:border-gray-200 tw:text-left"
+            className="tw:max-w-5xl tw:mx-auto! tw:bg-white tw:rounded-2xl tw:p-3! tw:sm:p-4! tw:shadow-xl tw:text-left"
           >
-            {/* Primary search row */}
-            <div className="tw:flex tw:flex-col tw:sm:flex-row tw:gap-3! tw:items-stretch">
-              <div className="tw:relative tw:flex-1">
-                <Search className="tw:absolute tw:left-3.5 tw:top-1/2 tw:-translate-y-1/2 tw:w-4 tw:h-4 tw:text-gray-400 tw:pointer-events-none" />
+            <datalist id="visa-country-options">
+              {countries.map((c) => (
+                <option key={c.id} value={c.countryName} />
+              ))}
+            </datalist>
+
+            {/* Desktop — destination + all three filters on one line; the
+                magnifier inside the field submits, and Enter triggers search */}
+            <div className="tw:hidden tw:sm:flex tw:flex-wrap tw:gap-3! tw:items-stretch">
+              <div className="tw:relative tw:flex-1 tw:min-w-[220px]">
+                <button
+                  type="submit"
+                  aria-label="Search"
+                  className="tw:absolute tw:left-3.5 tw:top-1/2 tw:-translate-y-1/2 tw:text-gray-400! tw:hover:text-primary!"
+                >
+                  <Search className="tw:w-4 tw:h-4" />
+                </button>
                 <input
                   type="text"
                   list="visa-country-options"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder="Enter destination country…"
+                  style={textInputStyle}
                   className={`${fieldClass} tw:pl-10!`}
                 />
               </div>
-              <datalist id="visa-country-options">
-                {countries.map((c) => (
-                  <option key={c.id} value={c.countryName} />
-                ))}
-              </datalist>
-              <button
-                type="submit"
-                className="tw:h-12 tw:px-8! tw:bg-primary! tw:text-white! tw:font-semibold tw:rounded-xl tw:hover:bg-[#3a9cc4]! tw:transition-colors tw:text-sm tw:flex-shrink-0"
-              >
-                Search
-              </button>
-            </div>
-            {/* Optional guided-search refinements */}
-            <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-3 tw:gap-3! tw:mt-3!">
               <input
                 type="text"
                 value={nationality}
                 onChange={(e) => setNationality(e.target.value)}
                 placeholder="Passport nationality"
-                className={fieldClass}
+                style={textInputStyle}
+                className={`${fieldClass} tw:lg:w-44!`}
               />
               <select
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                className={`${fieldClass} tw:appearance-none tw:bg-no-repeat tw:pr-9!`}
-                style={{
-                  backgroundImage:
-                    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
-                  backgroundPosition: "right 0.75rem center",
-                  color: purpose ? "#111827" : "#6b7280",
-                }}
+                className={`${selectBase} tw:lg:w-44!`}
+                style={selectStyle(purpose)}
               >
                 <option value="">Travel purpose</option>
                 {TRAVEL_PURPOSES.map((p) => (
@@ -319,13 +326,8 @@ const VisaInformationHub = () => {
               <select
                 value={stay}
                 onChange={(e) => setStay(e.target.value)}
-                className={`${fieldClass} tw:appearance-none tw:bg-no-repeat tw:pr-9!`}
-                style={{
-                  backgroundImage:
-                    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
-                  backgroundPosition: "right 0.75rem center",
-                  color: stay ? "#111827" : "#6b7280",
-                }}
+                className={`${selectBase} tw:lg:w-44!`}
+                style={selectStyle(stay)}
               >
                 <option value="">Days of stay</option>
                 {STAY_LENGTHS.map((s) => (
@@ -335,10 +337,83 @@ const VisaInformationHub = () => {
                 ))}
               </select>
             </div>
+
+            {/* Mobile — destination always visible; the extra filters collapse
+                behind an accordion to keep the form compact */}
+            <div className="tw:sm:hidden">
+              <div className="tw:relative">
+                <button
+                  type="submit"
+                  aria-label="Search"
+                  className="tw:absolute tw:left-3.5 tw:top-1/2 tw:-translate-y-1/2 tw:text-gray-400! tw:hover:text-primary!"
+                >
+                  <Search className="tw:w-4 tw:h-4" />
+                </button>
+                <input
+                  type="text"
+                  list="visa-country-options"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="Enter destination country…"
+                  style={textInputStyle}
+                  className={`${fieldClass} tw:pl-10!`}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((o) => !o)}
+                className="tw:flex tw:items-center tw:justify-between tw:w-full tw:mt-3! tw:px-4! tw:py-2.5! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-gray-50! tw:text-sm tw:font-medium tw:text-gray-600!"
+              >
+                <span>{filtersOpen ? "Hide filters" : "More filters"}</span>
+                <ChevronDown
+                  className={`tw:w-4 tw:h-4 tw:transition-transform ${
+                    filtersOpen ? "tw:rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {filtersOpen && (
+                <div className="tw:mt-3! tw:space-y-3!">
+                  <input
+                    type="text"
+                    value={nationality}
+                    onChange={(e) => setNationality(e.target.value)}
+                    placeholder="Passport nationality"
+                    style={textInputStyle}
+                    className={fieldClass}
+                  />
+                  <select
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    className={selectBase}
+                    style={selectStyle(purpose)}
+                  >
+                    <option value="">Travel purpose</option>
+                    {TRAVEL_PURPOSES.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={stay}
+                    onChange={(e) => setStay(e.target.value)}
+                    className={selectBase}
+                    style={selectStyle(stay)}
+                  >
+                    <option value="">Days of stay</option>
+                    {STAY_LENGTHS.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
           </form>
 
-          <p className="tw:flex tw:items-center tw:justify-center! tw:gap-1.5! tw:text-gray-500 tw:text-xs tw:mt-5! tw:max-w-2xl tw:mx-auto! tw:leading-relaxed">
-            <Info className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:text-gray-400" />
+          <p className="tw:flex tw:items-center tw:justify-center! tw:gap-1.5! tw:text-white/80 tw:text-xs tw:mt-5! tw:max-w-2xl tw:mx-auto! tw:leading-relaxed">
+            <Info className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:text-white/70" />
             <span>
               Visa and entry requirements can change. Always confirm with the
               official embassy or government website

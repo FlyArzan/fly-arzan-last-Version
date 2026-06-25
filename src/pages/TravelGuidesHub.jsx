@@ -1,16 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import {
-  Search,
-  ArrowRight,
-  Star,
-  Flame,
-  Plane,
-  FileText,
-  Filter,
-  X,
-} from "lucide-react";
+import { Search, ArrowRight, Star, Flame, Plane, FileText } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import CategoryIcon from "../components/travel/CategoryIcon";
@@ -174,16 +165,7 @@ const TravelGuidesHub = () => {
   const [activeCat, setActiveCat] = useState("all");
   const [page, setPage] = useState(0);
   const [searchInput, setSearchInput] = useState("");
-  const [filterOpen, setFilterOpen] = useState(false);
   const navigate = useNavigate();
-
-  // Lock background scroll while the mobile filter drawer is open.
-  useEffect(() => {
-    document.body.style.overflow = filterOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [filterOpen]);
 
   const { data: categories = [] } = useArticleCategories();
   const { data: featured = [] } = useFeaturedArticles();
@@ -200,7 +182,6 @@ const TravelGuidesHub = () => {
   const handleCatFilter = (slug) => {
     setActiveCat(slug);
     setPage(0);
-    setFilterOpen(false);
   };
 
   const activeLabel =
@@ -208,13 +189,17 @@ const TravelGuidesHub = () => {
       ? "All Articles"
       : categories.find((c) => c.slug === activeCat)?.name || "All Articles";
 
-  // Row styling for items inside the mobile filter drawer.
-  const drawerItem = (active) =>
-    `tw:w-full tw:flex tw:items-center tw:justify-between tw:px-3! tw:py-2.5! tw:rounded-lg tw:text-sm tw:text-left tw:transition-colors ${
-      active
-        ? "tw:bg-primary/10! tw:text-dark-purple! tw:font-semibold"
-        : "tw:text-gray-600! tw:hover:bg-gray-50! tw:hover:text-gray-900!"
-    }`;
+  // Brand-aligned select (chevron drawn via inline SVG; explicit dark text so
+  // the legacy cascade can't wash it out).
+  const selectClass =
+    "tw:h-11 tw:pl-4! tw:pr-9! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-white! tw:text-sm tw:font-medium tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20 tw:appearance-none tw:bg-no-repeat tw:cursor-pointer";
+  const selectStyle = {
+    color: "#374151",
+    backgroundColor: "#ffffff",
+    backgroundImage:
+      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
+    backgroundPosition: "right 0.75rem center",
+  };
 
   const handleHeroSearch = (e) => {
     e.preventDefault();
@@ -223,13 +208,6 @@ const TravelGuidesHub = () => {
       navigate(`/travel-guides/all?search=${encodeURIComponent(q)}`);
     }
   };
-
-  const pillClass = (active) =>
-    `tw:px-4! tw:py-2! tw:rounded-full tw:text-sm tw:font-medium tw:border tw:transition-all ${
-      active
-        ? "tw:bg-dark-purple! tw:text-white! tw:border-dark-purple tw:shadow-sm"
-        : "tw:bg-white! tw:text-gray-600! tw:border-gray-200 tw:hover:border-primary tw:hover:text-primary!"
-    }`;
 
   return (
     <>
@@ -254,8 +232,8 @@ const TravelGuidesHub = () => {
 
       <Header />
 
-      {/* Hero — navy brand gradient; top padding clears the fixed header */}
-      <section className="tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:text-white tw:pt-28! tw:md:pt-36! tw:pb-16! tw:px-4!">
+      {/* Hero — soft brand banner (cyan→teal); top padding clears the fixed header */}
+      <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-28! tw:md:pt-36! tw:pb-16! tw:px-4!">
         <div className="tw:max-w-3xl tw:mx-auto! tw:text-center">
           <h1 className="tw:text-4xl tw:md:text-5xl tw:font-bold tw:mb-4! tw:leading-tight">
             Travel Guides &amp; Useful Travel Information
@@ -280,7 +258,7 @@ const TravelGuidesHub = () => {
             </div>
             <button
               type="submit"
-              className="tw:px-6! tw:py-3! tw:bg-primary! tw:text-dark-purple! tw:font-semibold tw:rounded-xl tw:hover:bg-[#6cc0e3]! tw:transition-colors tw:text-sm tw:flex-shrink-0"
+              className="tw:px-6! tw:py-3! tw:bg-dark-purple! tw:text-white! tw:font-semibold tw:rounded-xl tw:hover:bg-[#000080]! tw:transition-colors tw:text-sm tw:flex-shrink-0"
             >
               Search
             </button>
@@ -312,44 +290,37 @@ const TravelGuidesHub = () => {
           {/* LEFT — 3/4 */}
           <div className="tw:flex-1 tw:min-w-0">
 
-            {/* Category filter — pills on desktop */}
-            <div className="tw:hidden tw:lg:flex tw:flex-wrap tw:gap-2! tw:mb-7!">
-              <button onClick={() => handleCatFilter("all")} className={pillClass(activeCat === "all")}>
-                All Articles
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCatFilter(cat.slug)}
-                  className={`${pillClass(activeCat === cat.slug)} tw:inline-flex tw:items-center tw:gap-1.5!`}
-                >
-                  <CategoryIcon slug={cat.slug} className="tw:w-4 tw:h-4" />
-                  <span>{cat.name}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Category filter — compact bar + drawer trigger on mobile/tablet */}
-            <div className="tw:flex tw:lg:hidden tw:items-center tw:justify-between tw:gap-3! tw:mb-5!">
-              <h2 className="tw:text-lg tw:font-bold tw:text-dark-purple tw:truncate">
+            {/* Filter row — active label + category dropdown (top pills removed
+                per feedback; the right-sidebar quick links remain) */}
+            <div className="tw:flex tw:items-center tw:justify-between tw:gap-3! tw:flex-wrap tw:mb-6!">
+              <h2 className="tw:text-xl tw:font-bold! tw:text-dark-purple">
                 {activeLabel}
+                {!isLoading && total > 0 && (
+                  <span className="tw:text-gray-400 tw:font-normal tw:text-base tw:ml-2!">
+                    ({total})
+                  </span>
+                )}
               </h2>
-              <button
-                onClick={() => setFilterOpen(true)}
-                className="tw:inline-flex tw:items-center tw:gap-2! tw:px-4! tw:py-2! tw:rounded-lg tw:border tw:border-gray-200 tw:bg-white! tw:text-sm tw:font-medium tw:text-dark-purple! tw:shadow-sm tw:flex-shrink-0"
-              >
-                <Filter className="tw:w-4 tw:h-4" />
-                Filter
-              </button>
+              <div className="tw:relative">
+                <label htmlFor="cat-filter" className="tw:sr-only">
+                  Filter by category
+                </label>
+                <select
+                  id="cat-filter"
+                  value={activeCat}
+                  onChange={(e) => handleCatFilter(e.target.value)}
+                  className={selectClass}
+                  style={selectStyle}
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-
-            {/* Results count */}
-            {!isLoading && total > 0 && (
-              <p className="tw:text-sm tw:text-gray-400 tw:mb-5!">
-                Showing {articles.length} of {total}{" "}
-                {total === 1 ? "article" : "articles"}
-              </p>
-            )}
 
             {/* Article list */}
             {isLoading ? (
@@ -541,59 +512,6 @@ const TravelGuidesHub = () => {
         </div>
       </main>
       </div>
-
-      {/* Mobile filter drawer — slides in from the right */}
-      {filterOpen && (
-        <div className="tw:fixed tw:inset-0 tw:z-[60] tw:lg:hidden">
-          <div
-            className="tw:absolute tw:inset-0 tw:bg-black/40"
-            onClick={() => setFilterOpen(false)}
-          />
-          <div className="tw:absolute tw:right-0 tw:top-0 tw:h-full tw:w-80 tw:max-w-[85%] tw:bg-white! tw:shadow-2xl tw:flex tw:flex-col tw:animate-in tw:slide-in-from-right tw:duration-300 tw:ease-out">
-            <div className="tw:flex tw:items-center tw:justify-between tw:px-5! tw:py-4! tw:border-b tw:border-gray-100">
-              <h3 className="tw:font-bold tw:text-dark-purple tw:flex tw:items-center tw:gap-2!">
-                <Filter className="tw:w-4 tw:h-4 tw:text-primary" />
-                Filter by Topic
-              </h3>
-              <button
-                onClick={() => setFilterOpen(false)}
-                aria-label="Close filter"
-                className="tw:text-gray-400! tw:hover:text-gray-700!"
-              >
-                <X className="tw:w-5 tw:h-5" />
-              </button>
-            </div>
-            <div className="tw:flex-1 tw:overflow-y-auto tw:p-3! tw:space-y-0.5!">
-              <button
-                onClick={() => handleCatFilter("all")}
-                className={drawerItem(activeCat === "all")}
-              >
-                <span className="tw:flex tw:items-center tw:gap-2.5!">
-                  <Star className="tw:w-4 tw:h-4 tw:text-primary" />
-                  <span>All Articles</span>
-                </span>
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCatFilter(cat.slug)}
-                  className={drawerItem(activeCat === cat.slug)}
-                >
-                  <span className="tw:flex tw:items-center tw:gap-2.5!">
-                    <CategoryIcon slug={cat.slug} className="tw:w-4 tw:h-4" />
-                    <span>{cat.name}</span>
-                  </span>
-                  {cat.articleCount > 0 && (
-                    <span className="tw:text-xs tw:bg-gray-100 tw:text-gray-500 tw:rounded-full tw:px-2! tw:py-0.5! tw:flex-shrink-0">
-                      {cat.articleCount}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </>

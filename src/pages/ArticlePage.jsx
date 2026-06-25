@@ -129,8 +129,9 @@ const ArticlePage = () => {
 
       <Header />
 
-      {/* Top padding clears the fixed header */}
-      <article className="tw:max-w-7xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:pt-28! tw:md:pt-36! tw:pb-12! tw:flex tw:flex-col tw:lg:flex-row tw:gap-10!">
+      {/* Top padding clears the fixed header; max-w-6xl keeps the article
+          column at a comfortable ~800px reading width alongside the sidebar */}
+      <article className="tw:max-w-6xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:pt-28! tw:md:pt-36! tw:pb-12! tw:flex tw:flex-col tw:lg:flex-row tw:gap-10!">
         {/* Main content */}
         <div className="tw:flex-1 tw:min-w-0">
           {/* Breadcrumb */}
@@ -154,7 +155,7 @@ const ArticlePage = () => {
               {articleCategory.name}
             </span>
           )}
-          <h1 className="tw:text-3xl tw:md:text-4xl tw:font-bold tw:text-dark-purple tw:leading-tight tw:mb-4!">
+          <h1 className="tw:text-4xl tw:md:text-5xl tw:font-bold tw:text-dark-purple tw:leading-tight tw:mb-4!">
             {article.title}
           </h1>
           {article.shortSummary && (

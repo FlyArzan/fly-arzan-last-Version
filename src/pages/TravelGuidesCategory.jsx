@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, ArrowRight, Flame, Plane, ChevronRight } from "lucide-react";
+import { Search, ArrowRight, Flame, Plane, ChevronRight, X } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import CategoryIcon from "../components/travel/CategoryIcon";
@@ -155,12 +155,17 @@ const TravelGuidesCategory = () => {
   const metaDescription =
     catDesc || `Browse ${catName} on FlyArzan — your travel information hub.`;
 
-  const pillClass = (active) =>
-    `tw:px-4! tw:py-2! tw:rounded-full tw:text-sm tw:font-medium tw:border tw:transition-all ${
-      active
-        ? "tw:bg-dark-purple! tw:text-white! tw:border-dark-purple tw:shadow-sm"
-        : "tw:bg-white! tw:text-gray-600! tw:border-gray-200 tw:hover:border-primary tw:hover:text-primary!"
-    }`;
+  // Brand-aligned select (chevron via inline SVG; explicit dark text so the
+  // legacy cascade can't wash it out).
+  const selectClass =
+    "tw:h-11 tw:pl-4! tw:pr-9! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-white! tw:text-sm tw:font-medium tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20 tw:appearance-none tw:bg-no-repeat tw:cursor-pointer";
+  const selectStyle = {
+    color: "#374151",
+    backgroundColor: "#ffffff",
+    backgroundImage:
+      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
+    backgroundPosition: "right 0.75rem center",
+  };
 
   return (
     <>
@@ -209,8 +214,8 @@ const TravelGuidesCategory = () => {
 
       <Header />
 
-      {/* Hero — navy brand gradient; top padding clears the fixed header */}
-      <section className="tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:text-white tw:pt-28! tw:md:pt-36! tw:pb-12! tw:px-4!">
+      {/* Hero — soft brand banner (cyan→teal); top padding clears the fixed header */}
+      <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-28! tw:md:pt-36! tw:pb-12! tw:px-4!">
         <div className="tw:max-w-7xl tw:mx-auto! tw:px-0! tw:sm:px-2!">
           <nav className="tw:text-sm tw:text-white/60 tw:mb-5! tw:flex tw:items-center tw:flex-wrap tw:gap-1!">
             <Link to="/" className="tw:hover:text-white tw:transition-colors">
@@ -232,7 +237,7 @@ const TravelGuidesCategory = () => {
           </nav>
           <div className="tw:flex tw:items-center tw:gap-4!">
             <span className="tw:w-14 tw:h-14 tw:rounded-2xl tw:bg-white/10 tw:flex tw:items-center tw:justify-center tw:flex-shrink-0">
-              <CategoryIcon slug={category} className="tw:w-7 tw:h-7 tw:text-primary" />
+              <CategoryIcon slug={category} className="tw:w-7 tw:h-7 tw:text-white" />
             </span>
             <div>
               <h1 className="tw:text-3xl tw:md:text-4xl tw:font-bold tw:leading-tight">
@@ -248,60 +253,63 @@ const TravelGuidesCategory = () => {
         </div>
       </section>
 
+      {/* Subtle primary tint behind the content so white cards pop */}
+      <div className="tw:bg-[#f3fafd]!">
       <main className="tw:max-w-7xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:py-12!">
         <div className="tw:flex tw:flex-col tw:lg:flex-row tw:gap-8!">
 
           {/* LEFT — 3/4 */}
           <div className="tw:flex-1 tw:min-w-0">
 
-            {/* Category pills — navigate to different category pages */}
-            <div className="tw:flex tw:flex-wrap tw:gap-2! tw:mb-6!">
-              <button onClick={() => handleCatNav("all")} className={pillClass(isAll)}>
-                All Articles
-              </button>
-              {categories.map((cat) => (
+            {/* Filter toolbar — wide search (icon inside, Enter to search) +
+                category dropdown. Top pills removed per feedback; the
+                right-sidebar "Other Topics" links remain for navigation. */}
+            <div className="tw:flex tw:flex-col tw:sm:flex-row tw:gap-3! tw:mb-6!">
+              <form onSubmit={handleSearch} className="tw:relative tw:flex-1">
                 <button
-                  key={cat.id}
-                  onClick={() => handleCatNav(cat.slug)}
-                  className={`${pillClass(category === cat.slug)} tw:inline-flex tw:items-center tw:gap-1.5!`}
+                  type="submit"
+                  aria-label="Search"
+                  className="tw:absolute tw:left-3.5 tw:top-1/2 tw:-translate-y-1/2 tw:text-gray-400! tw:hover:text-primary!"
                 >
-                  <CategoryIcon slug={cat.slug} className="tw:w-4 tw:h-4" />
-                  <span>{cat.name}</span>
+                  <Search className="tw:w-4 tw:h-4" />
                 </button>
-              ))}
-            </div>
-
-            {/* Search */}
-            <form onSubmit={handleSearch} className="tw:flex tw:gap-2! tw:mb-6!">
-              <div className="tw:relative tw:flex-1">
-                <Search className="tw:absolute tw:left-4 tw:top-1/2 tw:-translate-y-1/2 tw:w-4 tw:h-4 tw:text-gray-400" />
                 <input
                   type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder={`Search ${catName.toLowerCase()}…`}
-                  className="tw:w-full tw:pl-11! tw:pr-4! tw:py-2.5! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-white tw:text-sm tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/30 tw:transition-colors"
+                  style={{ color: "#111827", backgroundColor: "#ffffff" }}
+                  className="tw:w-full tw:h-11 tw:pl-10! tw:pr-9! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-white! tw:text-gray-900! tw:placeholder:text-gray-400 tw:text-sm tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20"
                 />
-              </div>
-              <button
-                type="submit"
-                className="tw:px-5! tw:py-2.5! tw:bg-dark-purple! tw:text-white! tw:rounded-xl tw:text-sm tw:font-medium tw:hover:bg-[#000080]! tw:transition-colors"
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchInput("");
+                      setSearchParams({ page: 0 });
+                    }}
+                    aria-label="Clear search"
+                    className="tw:absolute tw:right-3 tw:top-1/2 tw:-translate-y-1/2 tw:text-gray-400! tw:hover:text-gray-600!"
+                  >
+                    <X className="tw:w-4 tw:h-4" />
+                  </button>
+                )}
+              </form>
+              <select
+                aria-label="Filter by category"
+                value={isAll ? "all" : category}
+                onChange={(e) => handleCatNav(e.target.value)}
+                className={`${selectClass} tw:sm:w-56`}
+                style={selectStyle}
               >
-                Search
-              </button>
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchInput("");
-                    setSearchParams({ page: 0 });
-                  }}
-                  className="tw:px-4! tw:py-2.5! tw:border tw:border-gray-200 tw:bg-white! tw:rounded-xl tw:text-sm tw:text-gray-500! tw:hover:bg-gray-50! tw:transition-colors"
-                >
-                  Clear
-                </button>
-              )}
-            </form>
+                <option value="all">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.slug}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {/* Results count */}
             {!isLoading && (
@@ -455,6 +463,7 @@ const TravelGuidesCategory = () => {
           </aside>
         </div>
       </main>
+      </div>
 
       <Footer />
     </>

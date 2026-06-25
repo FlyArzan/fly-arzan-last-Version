@@ -16,6 +16,7 @@ import { useFlightOffers } from "@/hooks/useFlightOffers";
 import { useMulticityFlightOffers } from "@/hooks/useMulticityFlightOffers";
 import { useFlexibleDates } from "@/hooks/useFlexibleDates";
 import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { parseDateFromURL, formatDateForURL } from "@/lib/flight-utils";
 import { useSessionStorage } from "usehooks-ts";
@@ -37,10 +38,63 @@ const FlightSearchPage = () => {
   const [hasInitialized, setHasInitialized] = useState(false);
 
   // Session storage for all flight form data
-  const [sessionData] = useSessionStorage("selected-flight", null);
+  const [sessionData, setSessionData] = useSessionStorage("selected-flight", null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Get trip type from session storage or default to one-way
   const tripType = sessionData?.type || "one-way";
+
+  // Hydrate the search from the URL query string when there's no session yet.
+  // This makes /search/flight links work on ANY device — e.g. opened fresh on a
+  // phone or from another app — instead of only in the tab where the search was
+  // performed (the previous behaviour caused a blank/skeleton page on mobile).
+  useEffect(() => {
+    if (sessionData) return; // a search already exists in this session
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    const depart = searchParams.get("depart");
+    if (!from || !to || !depart) return;
+    setSessionData({
+      type: searchParams.get("type") || "one-way",
+      flyingFrom: { city: searchParams.get("fromCity") || "", iataCode: from },
+      flyingTo: { city: searchParams.get("toCity") || "", iataCode: to },
+      travellers: {
+        cabin: searchParams.get("cabin") || "economy",
+        adults: Number(searchParams.get("adults") || 1),
+        children: Number(searchParams.get("children") || 0),
+      },
+      depart,
+      return: searchParams.get("return") || null,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Reflect the active one-way/round-way search into the address bar so the
+  // link is shareable and re-openable on other devices.
+  useEffect(() => {
+    if (!sessionData || sessionData.type === "multicity") return;
+    const fmtDate = (d) =>
+      !d ? "" : typeof d === "string" ? d : formatDateForURL(d);
+    const params = new URLSearchParams();
+    params.set("type", sessionData.type || "one-way");
+    if (sessionData.flyingFrom?.iataCode)
+      params.set("from", sessionData.flyingFrom.iataCode);
+    if (sessionData.flyingFrom?.city)
+      params.set("fromCity", sessionData.flyingFrom.city);
+    if (sessionData.flyingTo?.iataCode)
+      params.set("to", sessionData.flyingTo.iataCode);
+    if (sessionData.flyingTo?.city)
+      params.set("toCity", sessionData.flyingTo.city);
+    if (sessionData.depart) params.set("depart", fmtDate(sessionData.depart));
+    if (sessionData.return) params.set("return", fmtDate(sessionData.return));
+    params.set("adults", String(sessionData.travellers?.adults ?? 1));
+    params.set("children", String(sessionData.travellers?.children ?? 0));
+    params.set("cabin", sessionData.travellers?.cabin || "economy");
+    if (params.toString() !== searchParams.toString()) {
+      setSearchParams(params, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionData]);
 
   // Reset initialization flag when trip type changes
   useEffect(() => {

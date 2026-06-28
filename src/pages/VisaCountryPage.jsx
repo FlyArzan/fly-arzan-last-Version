@@ -99,6 +99,10 @@ const VisaCountryPage = () => {
   if (isError || !country) {
     return (
       <>
+        <Helmet>
+          <title>Country Not Found | FlyArzan</title>
+          <meta name="robots" content="noindex, follow" />
+        </Helmet>
         <Header />
         <div className="tw:max-w-4xl tw:mx-auto tw:px-4! tw:pt-28! tw:md:pt-36! tw:pb-20! tw:text-center">
           <h1 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-3!">Country Not Found</h1>

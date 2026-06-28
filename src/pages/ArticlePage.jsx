@@ -42,6 +42,10 @@ const ArticlePage = () => {
   if (isError || !article) {
     return (
       <>
+        <Helmet>
+          <title>Article Not Found | FlyArzan</title>
+          <meta name="robots" content="noindex, follow" />
+        </Helmet>
         <Header />
         <div className="tw:max-w-3xl tw:mx-auto! tw:px-4! tw:pt-28! tw:md:pt-36! tw:pb-20! tw:text-center">
           <h1 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-3!">Article Not Found</h1>
@@ -56,7 +60,10 @@ const ArticlePage = () => {
   }
 
   const articleCategory = article.articleCategory?.[0];
-  const catSlug = category || articleCategory?.slug || "general-travel-advice";
+  // Canonicalise to the article's TRUE category, not the URL's :category segment.
+  // The article is fetched by slug alone, so any category prefix renders it;
+  // pinning the canonical to the real category avoids duplicate-content variants.
+  const catSlug = articleCategory?.slug || category || "general-travel-advice";
   const pageUrl = `https://flyarzan.com/travel-guides/${catSlug}/${article.slug}`;
   const faqs = Array.isArray(article.faqs) ? article.faqs : [];
   // Prefer the editor-chosen related articles (stored as {slug,title,categorySlug}

@@ -145,6 +145,16 @@ const VisaInformationHub = () => {
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
 
+  // Full published catalogue (no search / no pagination) used only to render the
+  // crawlable "All Destinations" index below. The paginated grid above hides
+  // later-page countries from crawlers; this guarantees every country page is
+  // internally linked from the hub so none become orphan pages. Backend caps
+  // limit at 100 — revisit with a slim dedicated endpoint if the catalogue
+  // ever grows beyond that (the XML sitemap remains the complete backstop).
+  const { data: allData } = useVisaCountries({ page: 0, limit: 100 });
+  const allCountries = allData?.countries || [];
+  const allTotal = allData?.total ?? 0;
+
   const pageWindow = [];
   for (
     let i = Math.max(0, page - 2);
@@ -535,6 +545,34 @@ const VisaInformationHub = () => {
               </nav>
             )}
           </>
+        )}
+
+        {/* All destinations — always-rendered, crawlable index of every
+            published country so each country page is internally linked from the
+            hub (no orphan pages), independent of the paginated/searchable grid
+            above. Only shown once the catalogue exceeds one page; below that the
+            grid already links every country. */}
+        {allCountries.length > 0 && allTotal > PER_PAGE && (
+          <section className="tw:mt-14! tw:pt-10! tw:border-t tw:border-gray-100">
+            <h2 className="tw:text-lg tw:font-bold! tw:text-dark-purple tw:mb-2!">
+              All Visa Destinations
+            </h2>
+            <p className="tw:text-sm tw:text-gray-400 tw:mb-5!">
+              Browse visa information for every destination we cover.
+            </p>
+            <ul className="tw:grid tw:grid-cols-2 tw:sm:grid-cols-3 tw:lg:grid-cols-4 tw:gap-x-6! tw:gap-y-2.5!">
+              {allCountries.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    to={`/visa-information/${c.countrySlug}`}
+                    className="tw:text-sm tw:text-gray-600! tw:hover:text-primary! tw:transition-colors"
+                  >
+                    {c.countryName} visa
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
       </main>
 

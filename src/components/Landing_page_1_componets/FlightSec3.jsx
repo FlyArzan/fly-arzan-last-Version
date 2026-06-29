@@ -1,270 +1,163 @@
-import { forwardRef, useRef, useState } from "react";
-import Useful1 from "../../assets/Images/Useful1.png";
-// import Useful2 from "../../assets/Images/Useful2.png";
-import Useful2 from "../../assets/Images/sagrada_familia.jpeg";
-// import Useful3 from "../../assets/Images/Useful3.png";
-import Useful3 from "../../assets/Images/sophia_grand_mossque.jpeg";
-import { useTranslation } from "react-i18next";
-import Slider from "react-slick";
+import { forwardRef } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useArticles } from "../../hooks/useArticles";
+
+const formatDate = (d) =>
+  d
+    ? new Date(d).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
+
+const ArticleCard = ({ article }) => {
+  const cat = article.articleCategory?.[0];
+  const catSlug = cat?.slug || "general-travel-advice";
+  return (
+    <Link
+      to={`/travel-guides/${catSlug}/${article.slug}`}
+      className="tw:flex tw:flex-col tw:bg-white tw:rounded-2xl tw:overflow-hidden tw:shadow-sm tw:border tw:border-gray-100 tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group tw:h-full"
+    >
+      <div className="tw:w-full tw:h-52 tw:overflow-hidden tw:flex-shrink-0">
+        {article.featuredImage ? (
+          <img
+            src={article.featuredImage}
+            alt={article.imageAlt || article.title}
+            className="tw:w-full tw:h-full tw:object-cover tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+            loading="lazy"
+          />
+        ) : (
+          <div className="tw:w-full tw:h-full tw:bg-gradient-to-br tw:from-primary/10 tw:to-[#3194c4]/10 tw:flex tw:items-center tw:justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="tw:w-12 tw:h-12 tw:text-primary/40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M3 9h18M9 21V9" />
+            </svg>
+          </div>
+        )}
+      </div>
+      <div className="tw:flex tw:flex-col tw:flex-1 tw:p-5!">
+        {cat && (
+          <span className="tw:text-xs tw:font-bold tw:text-primary tw:uppercase tw:tracking-widest tw:mb-2! tw:block">
+            {cat.name}
+          </span>
+        )}
+        <h3 className="tw:font-bold tw:text-[#272727] tw:text-lg tw:leading-snug tw:mb-2! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
+          {article.title}
+        </h3>
+        {article.shortSummary && (
+          <p className="tw:text-gray-500 tw:text-sm tw:line-clamp-3 tw:leading-relaxed tw:mb-3! tw:flex-1">
+            {article.shortSummary}
+          </p>
+        )}
+        <div className="tw:flex tw:items-center tw:justify-between tw:mt-auto!">
+          <span className="tw:text-xs tw:text-gray-400">
+            {article.publishedAt ? formatDate(article.publishedAt) : ""}
+            {article.readingTime
+              ? `${article.publishedAt ? " · " : ""}${article.readingTime} min read`
+              : ""}
+          </span>
+          <span className="tw:inline-flex tw:items-center tw:gap-1! tw:text-xs tw:font-semibold tw:text-primary tw:group-hover:gap-1.5! tw:transition-all">
+            Read more <ArrowRight className="tw:w-3.5 tw:h-3.5" />
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+const SkeletonCard = () => (
+  <div className="tw:bg-white tw:rounded-2xl tw:overflow-hidden tw:border tw:border-gray-100 tw:animate-pulse">
+    <div className="tw:w-full tw:h-52 tw:bg-gray-100" />
+    <div className="tw:p-5!">
+      <div className="tw:h-3 tw:bg-gray-100 tw:rounded tw:w-20 tw:mb-3!" />
+      <div className="tw:h-5 tw:bg-gray-100 tw:rounded tw:w-full tw:mb-2!" />
+      <div className="tw:h-5 tw:bg-gray-100 tw:rounded tw:w-3/4 tw:mb-4!" />
+      <div className="tw:h-4 tw:bg-gray-100 tw:rounded tw:w-full tw:mb-2!" />
+      <div className="tw:h-4 tw:bg-gray-100 tw:rounded tw:w-5/6" />
+    </div>
+  </div>
+);
 
 const FlightSec3 = forwardRef((props, ref) => {
   const { t } = useTranslation();
 
-  const [slideIndex, setSlideIndex] = useState(0);
-  let sliderRef = useRef(null);
-  const next = () => {
-    sliderRef.slickNext();
-  };
-  const previous = () => {
-    sliderRef.slickPrev();
-  };
-  const settings = {
-    dots: false,
-    arrows: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    beforeChange: (current, next) => setSlideIndex(next),
-    responsive: [
-      {
-        breakpoint: 1200,
-        settings: { slidesToShow: 3 },
-      },
-      {
-        breakpoint: 992,
-        settings: { slidesToShow: 2 },
-      },
-      {
-        breakpoint: 640,
-        settings: { slidesToShow: 1 },
-      },
-    ],
-  };
+  const { data, isLoading } = useArticles({ limit: 3 });
+  const articles = data?.articles || [];
 
   return (
-    <>
-      <section ref={ref} className="Sec3-sec" id="flight-article">
-        <div className="container">
-          <div className="main-Sec3">
-            <div className="Sec3-tital">
+    <section ref={ref} className="Sec3-sec" id="flight-article">
+      <div className="container">
+        <div className="tw:w-full">
+          {/* Header row */}
+          <div className="tw:flex tw:items-end tw:justify-between tw:flex-wrap tw:gap-4! tw:mb-8!">
+            <div className="Sec3-tital tw:pb-0!">
               <h2>{t("Useful Articles")}</h2>
-            </div>
-            <div className="Sec3-card-slider">
-              <Slider
-                ref={(slider) => {
-                  sliderRef = slider;
+              <p
+                style={{
+                  color: "#6b7280",
+                  fontFamily: "Rubik",
+                  fontSize: "16px",
+                  marginTop: "8px",
                 }}
-                {...settings}
               >
-                <div key={1} className="Sec3-card">
-                  <div className="Sec3-card-img">
-                    <img src={Useful1} alt={t("Articlestitale.heading1")} />
-                  </div>
-                  <div className="Sec3-card-tital">
-                    <span>
-                      <h3>{t("Articlestitale.heading1")}</h3>
-                      <Link target="_blank" rel="noopener noreferrer" to="https://www.lonelyplanet.com/brazil/rio-de-janeiro/botafogo-and-urca/attractions/pao-de-acucar/a/poi-sig/1012764/1327359">
-                        <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <g clipPath="url(#clip0_340_1466)">
-                          <path
-                            d="M17.2401 23.1094H4.48562C3.4635 23.1094 2.50264 22.7113 1.77997 21.9886C1.0573 21.2659 0.659302 20.305 0.659302 19.283V6.52859C0.659302 5.50651 1.05735 4.54566 1.78002 3.82299C2.50269 3.10032 3.46354 2.70227 4.48566 2.70227H9.58743C10.2919 2.70227 10.8629 3.27328 10.8629 3.97773C10.8629 4.68217 10.2919 5.25318 9.58743 5.25318H4.48562C4.14491 5.25318 3.82465 5.38586 3.58379 5.62672C3.34293 5.86758 3.21021 6.18788 3.21021 6.52859V19.283C3.21021 19.6237 3.34289 19.944 3.58379 20.1849C3.82465 20.4257 4.14491 20.5585 4.48562 20.5585H17.24C17.5807 20.5585 17.901 20.4258 18.1419 20.1848C18.3827 19.944 18.5154 19.6237 18.5154 19.283V14.1813C18.5154 13.4768 19.0865 12.9058 19.7909 12.9058C20.4954 12.9058 21.0664 13.4769 21.0664 14.1813V19.283C21.0664 20.3051 20.6684 21.2659 19.9457 21.9887C19.2229 22.7113 18.262 23.1094 17.2401 23.1094ZM9.58743 15.4567C9.26098 15.4567 8.93457 15.3322 8.68556 15.0831C8.18749 14.5851 8.18749 13.7774 8.68556 13.2793L19.2626 2.70227H14.6892C13.9847 2.70227 13.4138 2.13127 13.4138 1.42682C13.4138 0.722374 13.9847 0.151367 14.6892 0.151367H22.3419C22.5183 0.151367 22.6863 0.187189 22.8391 0.251926C22.9817 0.312252 23.1156 0.399668 23.2328 0.514216L23.2329 0.514306C23.2337 0.515152 23.2346 0.515954 23.2354 0.516801C23.2356 0.517023 23.2359 0.517291 23.2362 0.517514C23.2368 0.518137 23.2375 0.518806 23.2381 0.519474C23.2386 0.519919 23.239 0.52032 23.2394 0.520766C23.2399 0.521256 23.2404 0.521791 23.2408 0.522192C23.2417 0.523083 23.2427 0.524018 23.2436 0.524954C23.2445 0.525845 23.2455 0.526825 23.2464 0.527716C23.2468 0.528162 23.2474 0.528741 23.2477 0.529142C23.2482 0.529588 23.2486 0.529989 23.249 0.530434C23.2497 0.531103 23.2504 0.531726 23.251 0.532439C23.2512 0.532617 23.2515 0.532929 23.2517 0.533152C23.2526 0.533999 23.2534 0.534845 23.2542 0.535692L23.2543 0.535781C23.3688 0.653047 23.4563 0.786977 23.5165 0.929551C23.5813 1.08237 23.6171 1.25034 23.6171 1.42678V9.07945C23.6171 9.78389 23.0461 10.3549 22.3416 10.3549C21.6372 10.3549 21.0662 9.78389 21.0662 9.07945V4.50605L10.4891 15.0832C10.2402 15.3322 9.91383 15.4567 9.58743 15.4567Z"
-                            fill="#50ADD8"
-                          />
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_340_1466">
-                            <rect
-                              width="22.958"
-                              height="22.958"
-                              fill="white"
-                              transform="translate(0.659302 0.151367)"
-                            />
-                          </clipPath>
-                        </defs>
-                      </svg>
-                      </Link>
-                    </span>
-                    <p> {t("Articlestitale.para1")}</p>
-                  </div>
-                </div>
-                <div key={2} className="Sec3-card">
-                  <div className="Sec3-card-img">
-                    <img src={Useful2} alt={t("Articlestitale.heading2")} />
-                  </div>
-                  <div className="Sec3-card-tital">
-                    <span>
-                      <h3>{t("Articlestitale.heading2")}</h3>
-                      <Link target="_blank" rel="noopener noreferrer" to="https://www.lonelyplanet.com/spain/barcelona/leixample/attractions/la-sagrada-familia/a/poi-sig/374867/1320680">
-                        <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <g clipPath="url(#clip0_340_1466)">
-                          <path
-                            d="M17.2401 23.1094H4.48562C3.4635 23.1094 2.50264 22.7113 1.77997 21.9886C1.0573 21.2659 0.659302 20.305 0.659302 19.283V6.52859C0.659302 5.50651 1.05735 4.54566 1.78002 3.82299C2.50269 3.10032 3.46354 2.70227 4.48566 2.70227H9.58743C10.2919 2.70227 10.8629 3.27328 10.8629 3.97773C10.8629 4.68217 10.2919 5.25318 9.58743 5.25318H4.48562C4.14491 5.25318 3.82465 5.38586 3.58379 5.62672C3.34293 5.86758 3.21021 6.18788 3.21021 6.52859V19.283C3.21021 19.6237 3.34289 19.944 3.58379 20.1849C3.82465 20.4257 4.14491 20.5585 4.48562 20.5585H17.24C17.5807 20.5585 17.901 20.4258 18.1419 20.1848C18.3827 19.944 18.5154 19.6237 18.5154 19.283V14.1813C18.5154 13.4768 19.0865 12.9058 19.7909 12.9058C20.4954 12.9058 21.0664 13.4769 21.0664 14.1813V19.283C21.0664 20.3051 20.6684 21.2659 19.9457 21.9887C19.2229 22.7113 18.262 23.1094 17.2401 23.1094ZM9.58743 15.4567C9.26098 15.4567 8.93457 15.3322 8.68556 15.0831C8.18749 14.5851 8.18749 13.7774 8.68556 13.2793L19.2626 2.70227H14.6892C13.9847 2.70227 13.4138 2.13127 13.4138 1.42682C13.4138 0.722374 13.9847 0.151367 14.6892 0.151367H22.3419C22.5183 0.151367 22.6863 0.187189 22.8391 0.251926C22.9817 0.312252 23.1156 0.399668 23.2328 0.514216L23.2329 0.514306C23.2337 0.515152 23.2346 0.515954 23.2354 0.516801C23.2356 0.517023 23.2359 0.517291 23.2362 0.517514C23.2368 0.518137 23.2375 0.518806 23.2381 0.519474C23.2386 0.519919 23.239 0.52032 23.2394 0.520766C23.2399 0.521256 23.2404 0.521791 23.2408 0.522192C23.2417 0.523083 23.2427 0.524018 23.2436 0.524954C23.2445 0.525845 23.2455 0.526825 23.2464 0.527716C23.2468 0.528162 23.2474 0.528741 23.2477 0.529142C23.2482 0.529588 23.2486 0.529989 23.249 0.530434C23.2497 0.531103 23.2504 0.531726 23.251 0.532439C23.2512 0.532617 23.2515 0.532929 23.2517 0.533152C23.2526 0.533999 23.2534 0.534845 23.2542 0.535692L23.2543 0.535781C23.3688 0.653047 23.4563 0.786977 23.5165 0.929551C23.5813 1.08237 23.6171 1.25034 23.6171 1.42678V9.07945C23.6171 9.78389 23.0461 10.3549 22.3416 10.3549C21.6372 10.3549 21.0662 9.78389 21.0662 9.07945V4.50605L10.4891 15.0832C10.2402 15.3322 9.91383 15.4567 9.58743 15.4567Z"
-                            fill="#50ADD8"
-                          />
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_340_1466">
-                            <rect
-                              width="22.958"
-                              height="22.958"
-                              fill="white"
-                              transform="translate(0.659302 0.151367)"
-                            />
-                          </clipPath>
-                        </defs>
-                      </svg>
-                      </Link>
-                    </span>
-                    <p> {t("Articlestitale.para2")}</p>
-                  </div>
-                </div>
-                <div key={3} className="Sec3-card">
-                  <div className="Sec3-card-img">
-                    <img src={Useful3} alt={t("Articlestitale.heading3")} />
-                  </div>
-                  <div className="Sec3-card-tital">
-                    <span>
-                      <h3>{t("Articlestitale.heading3")}</h3>
-                      <Link target="_blank" rel="noopener noreferrer" to="https://www.lonelyplanet.com/turkey/istanbul/sultanahmet/attractions/hagia-sophia-grand-mosque/a/poi-sig/401908/1324696">
-                        <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <g clipPath="url(#clip0_340_1466)">
-                          <path
-                            d="M17.2401 23.1094H4.48562C3.4635 23.1094 2.50264 22.7113 1.77997 21.9886C1.0573 21.2659 0.659302 20.305 0.659302 19.283V6.52859C0.659302 5.50651 1.05735 4.54566 1.78002 3.82299C2.50269 3.10032 3.46354 2.70227 4.48566 2.70227H9.58743C10.2919 2.70227 10.8629 3.27328 10.8629 3.97773C10.8629 4.68217 10.2919 5.25318 9.58743 5.25318H4.48562C4.14491 5.25318 3.82465 5.38586 3.58379 5.62672C3.34293 5.86758 3.21021 6.18788 3.21021 6.52859V19.283C3.21021 19.6237 3.34289 19.944 3.58379 20.1849C3.82465 20.4257 4.14491 20.5585 4.48562 20.5585H17.24C17.5807 20.5585 17.901 20.4258 18.1419 20.1848C18.3827 19.944 18.5154 19.6237 18.5154 19.283V14.1813C18.5154 13.4768 19.0865 12.9058 19.7909 12.9058C20.4954 12.9058 21.0664 13.4769 21.0664 14.1813V19.283C21.0664 20.3051 20.6684 21.2659 19.9457 21.9887C19.2229 22.7113 18.262 23.1094 17.2401 23.1094ZM9.58743 15.4567C9.26098 15.4567 8.93457 15.3322 8.68556 15.0831C8.18749 14.5851 8.18749 13.7774 8.68556 13.2793L19.2626 2.70227H14.6892C13.9847 2.70227 13.4138 2.13127 13.4138 1.42682C13.4138 0.722374 13.9847 0.151367 14.6892 0.151367H22.3419C22.5183 0.151367 22.6863 0.187189 22.8391 0.251926C22.9817 0.312252 23.1156 0.399668 23.2328 0.514216L23.2329 0.514306C23.2337 0.515152 23.2346 0.515954 23.2354 0.516801C23.2356 0.517023 23.2359 0.517291 23.2362 0.517514C23.2368 0.518137 23.2375 0.518806 23.2381 0.519474C23.2386 0.519919 23.239 0.52032 23.2394 0.520766C23.2399 0.521256 23.2404 0.521791 23.2408 0.522192C23.2417 0.523083 23.2427 0.524018 23.2436 0.524954C23.2445 0.525845 23.2455 0.526825 23.2464 0.527716C23.2468 0.528162 23.2474 0.528741 23.2477 0.529142C23.2482 0.529588 23.2486 0.529989 23.249 0.530434C23.2497 0.531103 23.2504 0.531726 23.251 0.532439C23.2512 0.532617 23.2515 0.532929 23.2517 0.533152C23.2526 0.533999 23.2534 0.534845 23.2542 0.535692L23.2543 0.535781C23.3688 0.653047 23.4563 0.786977 23.5165 0.929551C23.5813 1.08237 23.6171 1.25034 23.6171 1.42678V9.07945C23.6171 9.78389 23.0461 10.3549 22.3416 10.3549C21.6372 10.3549 21.0662 9.78389 21.0662 9.07945V4.50605L10.4891 15.0832C10.2402 15.3322 9.91383 15.4567 9.58743 15.4567Z"
-                            fill="#50ADD8"
-                          />
-                        </g>
-                        <defs>
-                          <clipPath id="clip0_340_1466">
-                            <rect
-                              width="22.958"
-                              height="22.958"
-                              fill="white"
-                              transform="translate(0.659302 0.151367)"
-                            />
-                          </clipPath>
-                        </defs>
-                      </svg>
-                      </Link>
-                    </span>
-                    <p> {t("Articlestitale.para3")}</p>
-                  </div>
-                </div>
-              </Slider>
-
-              <div className="Sec3-card-slider-navigation">
-                <button
-                  className="Sec3-card-slider-arrow-left"
-                  onClick={previous}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="48"
-                    height="49"
-                    viewBox="0 0 48 49"
-                    fill="none"
-                  >
-                    <rect
-                      x="1"
-                      y="1.78345"
-                      width="46"
-                      height="46"
-                      rx="23"
-                      fill="white"
-                    />
-                    <rect
-                      x="1"
-                      y="1.78345"
-                      width="46"
-                      height="46"
-                      rx="23"
-                      stroke="#DBDADE"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M28 16.7834L20 24.7834L28 32.7834"
-                      stroke="#A5A2AD"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-                <div className="Sec3-card-slider-dots">
-                  <button
-                    onClick={() => sliderRef?.slickGoTo(0)}
-                    className={slideIndex === 0 ? "active" : ""}
-                  />
-                  <button
-                    onClick={() => sliderRef?.slickGoTo(1)}
-                    className={slideIndex === 1 ? "active" : ""}
-                  />
-                  <button
-                    onClick={() => sliderRef?.slickGoTo(2)}
-                    className={slideIndex === 2 ? "active" : ""}
-                  />
-                </div>
-                <button className="Sec3-card-slider-arrow-right" onClick={next}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="48"
-                    height="49"
-                    viewBox="0 0 48 49"
-                    fill="none"
-                  >
-                    <rect
-                      x="47"
-                      y="47.7834"
-                      width="46"
-                      height="46"
-                      rx="23"
-                      transform="rotate(-180 47 47.7834)"
-                      fill="white"
-                    />
-                    <rect
-                      x="47"
-                      y="47.7834"
-                      width="46"
-                      height="46"
-                      rx="23"
-                      transform="rotate(-180 47 47.7834)"
-                      stroke="#DBDADE"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M20 32.7834L28 24.7834L20 16.7834"
-                      stroke="#A5A2AD"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
+                Travel tips, destination guides, visa advice and more — from our
+                editorial team.
+              </p>
             </div>
+            <Link
+              to="/travel-guides"
+              className="tw:inline-flex tw:items-center tw:gap-1.5! tw:text-sm tw:font-semibold tw:text-primary! tw:hover:text-dark-purple! tw:transition-colors tw:flex-shrink-0"
+            >
+              View all articles <ArrowRight className="tw:w-4 tw:h-4" />
+            </Link>
+          </div>
+
+          {/* 3-column article grid */}
+          <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-6!">
+            {isLoading
+              ? [1, 2, 3].map((i) => <SkeletonCard key={i} />)
+              : articles.length > 0
+              ? articles.map((a) => <ArticleCard key={a.id} article={a} />)
+              : /* graceful empty state — only shown when API returns 0 articles */
+                [1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="tw:bg-white tw:rounded-2xl tw:border tw:border-dashed tw:border-gray-200 tw:h-72 tw:flex tw:items-center tw:justify-center"
+                  >
+                    <span className="tw:text-gray-300 tw:text-sm">
+                      Article coming soon
+                    </span>
+                  </div>
+                ))}
+          </div>
+
+          {/* Bottom CTA */}
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "40px",
+            }}
+          >
+            <Link to="/travel-guides" className="Sec3-explore-btn">
+              Explore All Travel Guides
+              <ArrowRight size={18} />
+            </Link>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 });
 

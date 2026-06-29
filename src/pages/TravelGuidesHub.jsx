@@ -31,11 +31,11 @@ const ArticleListCard = ({ article }) => {
         <img
           src={article.featuredImage}
           alt={article.imageAlt || article.title}
-          className="tw:w-28 tw:h-20 tw:object-cover tw:rounded-xl tw:flex-shrink-0 tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+          className="tw:w-32 tw:h-24 tw:object-cover tw:rounded-xl tw:flex-shrink-0 tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-28 tw:h-20 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
+        <div className="tw:w-32 tw:h-24 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
           <CategoryIcon slug={cat?.slug} className="tw:w-7 tw:h-7" />
         </div>
       )}
@@ -45,11 +45,11 @@ const ArticleListCard = ({ article }) => {
             {cat.name}
           </span>
         )}
-        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-base tw:leading-snug tw:mb-1.5! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
+        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-lg tw:leading-snug tw:mb-1.5! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
           {article.title}
         </h3>
         {article.shortSummary && (
-          <p className="tw:text-gray-500 tw:text-sm tw:line-clamp-2 tw:mb-2! tw:leading-relaxed">
+          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-2 tw:mb-2! tw:leading-relaxed">
             {article.shortSummary}
           </p>
         )}
@@ -101,11 +101,11 @@ const FeaturedCard = ({ article }) => {
             {cat.name}
           </span>
         )}
-        <h3 className="tw:font-bold tw:text-dark-purple tw:text-lg tw:leading-snug tw:mb-2! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
+        <h3 className="tw:font-bold tw:text-dark-purple tw:text-xl tw:leading-snug tw:mb-2! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
           {article.title}
         </h3>
         {article.shortSummary && (
-          <p className="tw:text-gray-500 tw:text-sm tw:line-clamp-2 tw:mb-3! tw:leading-relaxed tw:flex-1">
+          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-2 tw:mb-3! tw:leading-relaxed tw:flex-1">
             {article.shortSummary}
           </p>
         )}

@@ -35,11 +35,11 @@ const ArticleListCard = ({ article, categorySlug }) => {
         <img
           src={article.featuredImage}
           alt={article.imageAlt || article.title}
-          className="tw:w-28 tw:h-20 tw:object-cover tw:rounded-xl tw:flex-shrink-0 tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+          className="tw:w-32 tw:h-24 tw:object-cover tw:rounded-xl tw:flex-shrink-0 tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-28 tw:h-20 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
+        <div className="tw:w-32 tw:h-24 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
           <CategoryIcon slug={catSlug} className="tw:w-7 tw:h-7" />
         </div>
       )}
@@ -49,11 +49,11 @@ const ArticleListCard = ({ article, categorySlug }) => {
             {cat.name}
           </span>
         )}
-        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-base tw:leading-snug tw:mb-1.5! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
+        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-lg tw:leading-snug tw:mb-1.5! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
           {article.title}
         </h3>
         {article.shortSummary && (
-          <p className="tw:text-gray-500 tw:text-sm tw:line-clamp-2 tw:mb-2! tw:leading-relaxed">
+          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-2 tw:mb-2! tw:leading-relaxed">
             {article.shortSummary}
           </p>
         )}
@@ -216,7 +216,7 @@ const TravelGuidesCategory = () => {
 
       {/* Hero — soft brand banner (cyan→teal); top padding clears the fixed header */}
       <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-28! tw:md:pt-36! tw:pb-12! tw:px-4!">
-        <div className="tw:max-w-7xl tw:mx-auto! tw:px-0! tw:sm:px-2!">
+        <div className="tw:max-w-7xl tw:mx-auto! tw:px-4! tw:sm:px-6!">
           <nav className="tw:text-sm tw:text-white/60 tw:mb-5! tw:flex tw:items-center tw:flex-wrap tw:gap-1!">
             <Link to="/" className="tw:hover:text-white tw:transition-colors">
               Home
@@ -244,7 +244,7 @@ const TravelGuidesCategory = () => {
                 {catName}
               </h1>
               {catDesc && (
-                <p className="tw:text-white/70 tw:mt-1.5! tw:text-sm tw:max-w-2xl tw:leading-relaxed">
+                <p className="tw:text-white/70 tw:mt-1.5! tw:text-base tw:max-w-2xl tw:leading-relaxed">
                   {catDesc}
                 </p>
               )}

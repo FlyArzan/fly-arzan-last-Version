@@ -55,18 +55,18 @@ const ArticleCard = ({ article }) => {
           {article.title}
         </h3>
         {article.shortSummary && (
-          <p className="tw:text-gray-500 tw:text-sm tw:line-clamp-3 tw:leading-relaxed tw:mb-3! tw:flex-1">
+          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-3 tw:leading-relaxed tw:mb-3! tw:flex-1">
             {article.shortSummary}
           </p>
         )}
         <div className="tw:flex tw:items-center tw:justify-between tw:mt-auto!">
-          <span className="tw:text-xs tw:text-gray-400">
+          <span className="tw:text-sm tw:text-gray-400">
             {article.publishedAt ? formatDate(article.publishedAt) : ""}
             {article.readingTime
               ? `${article.publishedAt ? " · " : ""}${article.readingTime} min read`
               : ""}
           </span>
-          <span className="tw:inline-flex tw:items-center tw:gap-1! tw:text-xs tw:font-semibold tw:text-primary tw:group-hover:gap-1.5! tw:transition-all">
+          <span className="tw:inline-flex tw:items-center tw:gap-1! tw:text-sm tw:font-semibold tw:text-primary tw:group-hover:gap-1.5! tw:transition-all">
             Read more <ArrowRight className="tw:w-3.5 tw:h-3.5" />
           </span>
         </div>

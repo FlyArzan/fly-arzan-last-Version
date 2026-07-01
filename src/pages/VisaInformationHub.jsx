@@ -64,7 +64,7 @@ const CountryCard = ({ country }) => {
         <FlagBadge country={country} />
       </div>
       <div className="tw:flex-1 tw:min-w-0">
-        <p className="tw:font-semibold tw:text-dark-purple tw:text-sm tw:group-hover:text-primary tw:transition-colors">
+        <p className="tw:font-semibold tw:text-dark-purple tw:text-base tw:group-hover:text-primary tw:transition-colors">
           {country.countryName}
         </p>
         <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-1.5! tw:mt-1.5!">
@@ -265,8 +265,8 @@ const VisaInformationHub = () => {
       <Header />
 
       {/* Hero — soft brand banner (cyan→teal); top padding clears the fixed header */}
-      <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-24! tw:md:pt-28! tw:pb-12! tw:px-4!">
-        <div className="tw:max-w-5xl tw:mx-auto! tw:text-center!">
+      <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-24! tw:md:pt-28! tw:pb-12! tw:px-4! tw:sm:px-6!">
+        <div className="tw:max-w-6xl tw:mx-auto! tw:text-center!">
           <nav className="tw:flex tw:items-center tw:justify-center tw:gap-1! tw:text-xs tw:text-white/70 tw:mb-5!">
             <Link to="/" className="tw:hover:text-white tw:transition-colors">
               Home
@@ -318,12 +318,12 @@ const VisaInformationHub = () => {
                 onChange={(e) => setNationality(e.target.value)}
                 placeholder="Passport nationality"
                 style={textInputStyle}
-                className={`${fieldClass} tw:lg:w-44!`}
+                className={`${fieldClass} tw:w-full tw:sm:w-40! tw:lg:w-44! tw:flex-shrink-0`}
               />
               <select
                 value={purpose}
                 onChange={(e) => setPurpose(e.target.value)}
-                className={`${selectBase} tw:lg:w-44!`}
+                className={`${selectBase} tw:w-full tw:sm:w-40! tw:lg:w-44! tw:flex-shrink-0`}
                 style={selectStyle(purpose)}
               >
                 <option value="">Travel purpose</option>
@@ -336,7 +336,7 @@ const VisaInformationHub = () => {
               <select
                 value={stay}
                 onChange={(e) => setStay(e.target.value)}
-                className={`${selectBase} tw:lg:w-44!`}
+                className={`${selectBase} tw:w-full tw:sm:w-40! tw:lg:w-44! tw:flex-shrink-0`}
                 style={selectStyle(stay)}
               >
                 <option value="">Days of stay</option>

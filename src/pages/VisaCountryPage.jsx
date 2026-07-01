@@ -331,13 +331,15 @@ const VisaCountryPage = () => {
           </Section>
         )}
 
-        {/* B. Visa types */}
-        {visaTypes.length > 0 && (
+        {/* B. Visa types — skip blank rows left over from the admin form (e.g.
+            an "Add Visa Type" click with nothing filled in) so no empty card
+            shells render on the public page. */}
+        {visaTypes.filter(hasContent).length > 0 && (
           <Section title="Visa Types" icon={Layers}>
             <div className="tw:grid tw:gap-4!">
-              {visaTypes.map((vt, i) => (
+              {visaTypes.filter(hasContent).map((vt, i) => (
                 <div key={i} className="tw:p-4! tw:bg-white tw:border tw:border-gray-100 tw:rounded-xl tw:shadow-sm">
-                  <h3 className="tw:font-semibold tw:text-dark-purple tw:text-lg tw:mb-1!">{vt.type}</h3>
+                  {vt.type && <h3 className="tw:font-semibold tw:text-dark-purple tw:text-lg tw:mb-1!">{vt.type}</h3>}
                   {vt.description && <p className="tw:text-gray-600 tw:text-base tw:mb-2!">{vt.description}</p>}
                   <div className="tw:flex tw:flex-wrap tw:gap-3! tw:text-sm tw:text-gray-500">
                     {vt.validity && <span>Validity: <strong>{vt.validity}</strong></span>}
@@ -525,9 +527,9 @@ const VisaCountryPage = () => {
             <div className="tw:space-y-3!">
               {faqs.map((faq, i) => (
                 <details key={i} className="tw:border tw:border-gray-200 tw:rounded-xl tw:overflow-hidden tw:group">
-                  <summary className="tw:px-5! tw:py-4! tw:font-semibold tw:text-dark-purple tw:text-lg tw:cursor-pointer tw:hover:bg-gray-50 tw:list-none tw:flex tw:items-center tw:justify-between">
-                    {faq.question}
-                    <Plus className="tw:w-4 tw:h-4 tw:text-gray-400 tw:ml-2! tw:flex-shrink-0 tw:transition-transform tw:group-open:rotate-45" />
+                  <summary className="tw:list-none! tw:[&::-webkit-details-marker]:hidden tw:px-5! tw:py-4! tw:cursor-pointer tw:hover:bg-gray-50 tw:flex! tw:items-center tw:justify-between tw:gap-3!">
+                    <span className="tw:font-semibold tw:text-dark-purple tw:text-lg">{faq.question}</span>
+                    <Plus className="tw:w-5 tw:h-5 tw:text-dark-purple tw:flex-shrink-0 tw:transition-transform tw:group-open:rotate-45" />
                   </summary>
                   <div className="tw:px-5! tw:pb-4! tw:text-gray-600 tw:text-base tw:leading-relaxed">
                     {faq.answer}
@@ -539,7 +541,7 @@ const VisaCountryPage = () => {
         )}
 
         {/* Disclaimer */}
-        <div className="tw:mt-8! tw:flex tw:gap-3! tw:p-5! tw:bg-amber-50 tw:border tw:border-amber-200 tw:rounded-2xl tw:text-base tw:text-amber-800">
+        <div className="tw:mt-8! tw:mb-10! tw:flex tw:gap-3! tw:p-5! tw:bg-amber-50 tw:border tw:border-amber-200 tw:rounded-2xl tw:text-base tw:text-amber-800">
           <Info className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:mt-0.5! tw:text-amber-600" />
           <p>
             <strong>Important Disclaimer:</strong> Visa, passport and entry requirements can change at any time. FlyArzan provides this information as a general travel guide only. Travellers should always confirm the latest requirements with the official embassy, immigration authority, airline or government website before booking or travelling.

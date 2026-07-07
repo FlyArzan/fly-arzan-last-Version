@@ -16,7 +16,7 @@ const FlightHero = () => {
           width={1920}
           height={1080}
           decoding="async"
-          fetchPriority="high"
+          fetchpriority="high"
           aria-hidden
         />
         <div className="container">

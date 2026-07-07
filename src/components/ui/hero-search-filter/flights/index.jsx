@@ -61,7 +61,7 @@ const HeroSearchFilter = () => {
           width={1920}
           height={1080}
           decoding="async"
-          fetchPriority="high"
+          fetchpriority="high"
           className="tw:pointer-events-none tw:absolute tw:inset-0 tw:h-full tw:w-full tw:object-cover tw:object-center tw:z-0"
           aria-hidden
         />

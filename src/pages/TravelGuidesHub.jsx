@@ -31,11 +31,11 @@ const ArticleListCard = ({ article }) => {
         <img
           src={article.featuredImage}
           alt={article.imageAlt || article.title}
-          className="tw:w-32 tw:h-24 tw:object-cover tw:rounded-xl tw:flex-shrink-0 tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+          className="tw:w-36 tw:self-stretch tw:min-h-24 tw:object-cover tw:rounded-xl tw:flex-shrink-0 tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-32 tw:h-24 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
+        <div className="tw:w-36 tw:self-stretch tw:min-h-24 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
           <CategoryIcon slug={cat?.slug} className="tw:w-7 tw:h-7" />
         </div>
       )}
@@ -133,11 +133,11 @@ const SidebarArticleCard = ({ article }) => {
         <img
           src={article.featuredImage}
           alt={article.imageAlt || article.title}
-          className="tw:w-14 tw:h-10 tw:object-cover tw:rounded-lg tw:flex-shrink-0"
+          className="tw:w-16 tw:self-stretch tw:min-h-10 tw:object-cover tw:rounded-lg tw:flex-shrink-0"
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-14 tw:h-10 tw:bg-primary/10 tw:text-dark-purple tw:rounded-lg tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
+        <div className="tw:w-16 tw:self-stretch tw:min-h-10 tw:bg-primary/10 tw:text-dark-purple tw:rounded-lg tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
           <CategoryIcon slug={cat?.slug} className="tw:w-4 tw:h-4" />
         </div>
       )}
@@ -385,7 +385,7 @@ const TravelGuidesHub = () => {
 
             {/* Category Grid — full section below article list */}
             {categories.length > 0 && (
-              <section className="tw:mt-14! tw:pt-10! tw:border-t tw:border-gray-100">
+              <section className="tw:mt-10!">
                 <div className="tw:flex tw:items-center tw:justify-between tw:mb-6!">
                   <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple">
                     Browse by Topic
@@ -459,7 +459,7 @@ const TravelGuidesHub = () => {
                         <span>{cat.name}</span>
                       </span>
                       {cat.articleCount > 0 && (
-                        <span className="tw:text-xs tw:bg-gray-100 tw:text-gray-500 tw:rounded-full tw:px-2! tw:py-0.5! tw:flex-shrink-0">
+                        <span className="tw:text-xs tw:bg-primary/15 tw:text-dark-purple tw:font-semibold tw:rounded-full tw:px-2! tw:py-0.5! tw:flex-shrink-0">
                           {cat.articleCount}
                         </span>
                       )}
@@ -470,20 +470,20 @@ const TravelGuidesHub = () => {
             )}
 
             {/* Flight CTA */}
-            <div className="tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:rounded-2xl tw:p-5! tw:text-white">
-              <span className="tw:inline-flex tw:w-11 tw:h-11 tw:rounded-xl tw:bg-white/10 tw:items-center tw:justify-center tw:mb-3!">
-                <Plane className="tw:w-5 tw:h-5 tw:text-primary" />
+            <div className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:rounded-2xl tw:p-5! tw:text-white">
+              <span className="tw:inline-flex tw:w-11 tw:h-11 tw:rounded-xl tw:bg-white/15 tw:items-center tw:justify-center tw:mb-3!">
+                <Plane className="tw:w-5 tw:h-5 tw:text-white" />
               </span>
               <h2 className="tw:text-base tw:font-bold tw:mb-2!">
                 Find Cheap Flights
               </h2>
-              <p className="tw:text-white/70 tw:text-sm tw:mb-4! tw:leading-relaxed">
+              <p className="tw:text-white/80 tw:text-sm tw:mb-4! tw:leading-relaxed">
                 Compare flights from hundreds of airlines and find the best
                 travel deals.
               </p>
               <Link
                 to="/search/flight"
-                className="tw:block tw:text-center tw:bg-primary! tw:text-dark-purple! tw:font-semibold tw:rounded-xl tw:px-4! tw:py-2.5! tw:text-sm tw:hover:bg-[#6cc0e3]! tw:transition-colors"
+                className="tw:block tw:text-center tw:bg-white! tw:text-[#1c6993]! tw:font-semibold tw:rounded-xl tw:px-4! tw:py-2.5! tw:text-sm tw:hover:bg-white/90! tw:transition-colors"
               >
                 Search Flights
               </Link>

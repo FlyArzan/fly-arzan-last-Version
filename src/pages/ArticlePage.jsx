@@ -235,12 +235,12 @@ const ArticlePage = () => {
           </div>
 
           {/* CTA */}
-          <div className="tw:mt-8! tw:p-7! tw:bg-gradient-to-br tw:from-dark-purple tw:to-[#1a2a7a] tw:rounded-2xl tw:text-white tw:text-center">
+          <div className="tw:mt-8! tw:p-7! tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:rounded-2xl tw:text-white tw:text-center">
             <p className="tw:font-semibold tw:text-lg tw:mb-2!">Ready to Book Your Flight?</p>
-            <p className="tw:text-white/70 tw:text-sm tw:mb-5!">Search and compare flights on FlyArzan for the best deals.</p>
+            <p className="tw:text-white/80 tw:text-sm tw:mb-5!">Search and compare flights on FlyArzan for the best deals.</p>
             <Link
               to="/search/flight"
-              className="tw:inline-block tw:bg-primary! tw:text-dark-purple! tw:font-semibold tw:px-6! tw:py-2.5! tw:rounded-xl tw:text-sm tw:hover:bg-[#6cc0e3]! tw:transition-colors"
+              className="tw:inline-block tw:bg-white! tw:text-[#1c6993]! tw:font-semibold tw:px-6! tw:py-2.5! tw:rounded-xl tw:text-sm tw:hover:bg-white/90! tw:transition-colors"
             >
               Search Flights
             </Link>

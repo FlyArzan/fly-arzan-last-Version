@@ -46,7 +46,11 @@ function App() {
       <RegionalSettingsProvider>
         <WebSocketProvider>
           <TravelAgencySchema />
-          <RouterProvider router={router} fallbackElement={<InitialLoader />} />
+          <RouterProvider
+            router={router}
+            fallbackElement={<InitialLoader />}
+            future={{ v7_startTransition: true }}
+          />
           <Toaster richColors position="top-right" />
           <CookieConsent />
         </WebSocketProvider>

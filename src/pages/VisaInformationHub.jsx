@@ -266,12 +266,12 @@ const VisaInformationHub = () => {
 
       {/* Hero — soft brand banner (cyan→teal); top padding clears the fixed header */}
       <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-24! tw:md:pt-28! tw:pb-12! tw:px-4! tw:sm:px-6!">
-        <div className="tw:max-w-6xl tw:mx-auto! tw:text-center!">
-          <nav className="tw:flex tw:items-center tw:justify-center tw:gap-1! tw:text-xs tw:text-white/70 tw:mb-5!">
+        <div className="container tw:text-center!">
+          <nav className="tw:flex tw:items-center tw:justify-center tw:gap-1.5! tw:text-sm tw:text-white/70 tw:mb-5!">
             <Link to="/" className="tw:hover:text-white tw:transition-colors">
               Home
             </Link>
-            <ChevronRight className="tw:w-3 tw:h-3" />
+            <ChevronRight className="tw:w-3.5 tw:h-3.5" />
             <span className="tw:text-white tw:font-medium">Visa Information</span>
           </nav>
           <h1 className="tw:text-2xl tw:md:text-4xl tw:font-bold! tw:text-white tw:mb-4! tw:leading-tight tw:text-center!">
@@ -283,7 +283,7 @@ const VisaInformationHub = () => {
 
           <form
             onSubmit={handleSearch}
-            className="tw:max-w-5xl tw:mx-auto! tw:bg-white tw:rounded-2xl tw:p-3! tw:sm:p-4! tw:shadow-xl tw:text-left"
+            className="tw:w-full tw:bg-white tw:rounded-2xl tw:p-3! tw:sm:p-4! tw:shadow-xl tw:text-left"
           >
             <datalist id="visa-country-options">
               {countries.map((c) => (
@@ -303,7 +303,7 @@ const VisaInformationHub = () => {
                   <Search className="tw:w-4 tw:h-4" />
                 </button>
                 <input
-                  type="text"
+                  type="search"
                   list="visa-country-options"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
@@ -318,7 +318,7 @@ const VisaInformationHub = () => {
                 onChange={(e) => setNationality(e.target.value)}
                 placeholder="Passport nationality"
                 style={textInputStyle}
-                className={`${fieldClass} tw:w-full tw:sm:w-40! tw:lg:w-44! tw:flex-shrink-0`}
+                className={`${fieldClass} tw:w-full tw:sm:w-48! tw:lg:w-56! tw:flex-shrink-0`}
               />
               <select
                 value={purpose}
@@ -360,7 +360,7 @@ const VisaInformationHub = () => {
                   <Search className="tw:w-4 tw:h-4" />
                 </button>
                 <input
-                  type="text"
+                  type="search"
                   list="visa-country-options"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
@@ -422,8 +422,8 @@ const VisaInformationHub = () => {
             </div>
           </form>
 
-          <p className="tw:flex tw:items-center tw:justify-center! tw:gap-1.5! tw:text-white/80 tw:text-xs tw:mt-5! tw:max-w-2xl tw:mx-auto! tw:leading-relaxed">
-            <Info className="tw:w-5 tw:h-5 tw:flex-shrink-0 tw:text-white/70" />
+          <p className="tw:flex tw:items-center tw:justify-center! tw:gap-2! tw:text-white/80 tw:text-sm tw:mt-5! tw:max-w-3xl tw:mx-auto! tw:leading-relaxed">
+            <Info className="tw:w-6 tw:h-6 tw:flex-shrink-0 tw:text-white/70" />
             <span>
               Visa and entry requirements can change. Always confirm with the
               official embassy or government website
@@ -432,7 +432,7 @@ const VisaInformationHub = () => {
         </div>
       </section>
 
-      <main className="tw:max-w-6xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:pt-8! tw:pb-14!">
+      <main className="container tw:pt-8! tw:pb-14!">
         {/* Heading row — only shown when there are results or an active search */}
         {(total > 0 || search) && (
           <div className="tw:flex tw:items-center tw:justify-between tw:flex-wrap tw:gap-3! tw:mb-6!">

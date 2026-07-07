@@ -25,7 +25,7 @@ const ArticlePage = () => {
     return (
       <>
         <Header />
-        <div className="tw:max-w-3xl tw:mx-auto! tw:px-4! tw:pt-28! tw:md:pt-36! tw:pb-16! tw:animate-pulse">
+        <div className="container tw:pt-28! tw:md:pt-36! tw:pb-16! tw:animate-pulse">
           <div className="tw:h-8 tw:bg-gray-200 tw:rounded tw:mb-4! tw:w-3/4" />
           <div className="tw:h-64 tw:bg-gray-100 tw:rounded-2xl tw:mb-6!" />
           <div className="tw:space-y-3!">
@@ -47,7 +47,7 @@ const ArticlePage = () => {
           <meta name="robots" content="noindex, follow" />
         </Helmet>
         <Header />
-        <div className="tw:max-w-3xl tw:mx-auto! tw:px-4! tw:pt-28! tw:md:pt-36! tw:pb-20! tw:text-center">
+        <div className="container tw:pt-28! tw:md:pt-36! tw:pb-20! tw:text-center">
           <h1 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-3!">Article Not Found</h1>
           <p className="tw:text-gray-500 tw:mb-6!">This article may have been moved or removed.</p>
           <Link to="/travel-guides" className="tw:text-primary tw:font-medium tw:hover:underline">
@@ -138,7 +138,7 @@ const ArticlePage = () => {
 
       {/* Top padding clears the fixed header; max-w-6xl keeps the article
           column at a comfortable ~800px reading width alongside the sidebar */}
-      <article className="tw:max-w-6xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:pt-28! tw:md:pt-36! tw:pb-12! tw:flex tw:flex-col tw:lg:flex-row tw:gap-10!">
+      <article className="container tw:pt-28! tw:md:pt-36! tw:pb-12! tw:flex tw:flex-col tw:lg:flex-row tw:gap-10!">
         {/* Main content */}
         <div className="tw:flex-1 tw:min-w-0">
           {/* Breadcrumb */}

@@ -216,7 +216,7 @@ const TravelGuidesCategory = () => {
 
       {/* Hero — soft brand banner (cyan→teal); top padding clears the fixed header */}
       <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-28! tw:md:pt-36! tw:pb-12! tw:px-4!">
-        <div className="tw:max-w-7xl tw:mx-auto! tw:px-4! tw:sm:px-6!">
+        <div className="container">
           <nav className="tw:text-sm tw:text-white/60 tw:mb-5! tw:flex tw:items-center tw:flex-wrap tw:gap-1!">
             <Link to="/" className="tw:hover:text-white tw:transition-colors">
               Home
@@ -255,7 +255,7 @@ const TravelGuidesCategory = () => {
 
       {/* Subtle primary tint behind the content so white cards pop */}
       <div className="tw:bg-[#f3fafd]!">
-      <main className="tw:max-w-7xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:py-12!">
+      <main className="container tw:py-12!">
         <div className="tw:flex tw:flex-col tw:lg:flex-row tw:gap-8!">
 
           {/* LEFT — 3/4 */}

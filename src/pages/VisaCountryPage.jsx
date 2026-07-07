@@ -99,7 +99,7 @@ const VisaCountryPage = () => {
     return (
       <>
         <Header />
-        <div className="tw:max-w-4xl tw:mx-auto tw:px-4! tw:pt-28! tw:md:pt-36! tw:pb-16! tw:animate-pulse">
+        <div className="container tw:pt-28! tw:md:pt-36! tw:pb-16! tw:animate-pulse">
           <div className="tw:h-10 tw:bg-gray-200 tw:rounded tw:mb-4! tw:w-1/2" />
           <div className="tw:h-48 tw:bg-gray-100 tw:rounded-2xl tw:mb-6!" />
           <div className="tw:grid tw:grid-cols-2 tw:gap-4! tw:mb-8!">
@@ -119,7 +119,7 @@ const VisaCountryPage = () => {
           <meta name="robots" content="noindex, follow" />
         </Helmet>
         <Header />
-        <div className="tw:max-w-4xl tw:mx-auto tw:px-4! tw:pt-28! tw:md:pt-36! tw:pb-20! tw:text-center">
+        <div className="container tw:pt-28! tw:md:pt-36! tw:pb-20! tw:text-center">
           <h1 className="tw:text-2xl tw:font-bold tw:text-dark-purple tw:mb-3!">Country Not Found</h1>
           <p className="tw:text-gray-500 tw:mb-6!">We don&apos;t have visa information for this country yet.</p>
           <Link to="/visa-information" className="tw:text-primary tw:font-medium tw:hover:underline">← Back to Visa Information</Link>
@@ -212,7 +212,7 @@ const VisaCountryPage = () => {
             className="tw:absolute tw:inset-0 tw:w-full tw:h-full tw:object-cover tw:opacity-20"
           />
         )}
-        <div className="tw:relative tw:max-w-4xl tw:mx-auto">
+        <div className="tw:relative container">
           {/* Breadcrumb */}
           <nav className="tw:text-sm tw:text-white/60 tw:mb-6! tw:flex tw:flex-wrap tw:items-center tw:gap-1!">
             <Link to="/" className="tw:hover:text-white tw:transition-colors">Home</Link>
@@ -253,7 +253,7 @@ const VisaCountryPage = () => {
         </div>
       </section>
 
-      <main className="tw:max-w-4xl tw:mx-auto tw:px-4! tw:sm:px-6! tw:py-10!">
+      <main className="container tw:py-10!">
 
         {/* Guided-search context from the visa hub */}
         {hasSearchContext && (

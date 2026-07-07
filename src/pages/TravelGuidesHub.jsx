@@ -234,7 +234,7 @@ const TravelGuidesHub = () => {
 
       {/* Hero — soft brand banner (cyan→teal); top padding clears the fixed header */}
       <section className="tw:bg-gradient-to-br tw:from-[#3194c4] tw:to-[#1c6993] tw:text-white tw:pt-28! tw:md:pt-36! tw:pb-16! tw:px-4!">
-        <div className="tw:max-w-3xl tw:mx-auto! tw:text-center">
+        <div className="container tw:text-center">
           <h1 className="tw:text-4xl tw:md:text-5xl tw:font-bold tw:mb-4! tw:leading-tight">
             Travel Guides &amp; Useful Travel Information
           </h1>
@@ -243,22 +243,22 @@ const TravelGuidesHub = () => {
           </p>
           <form
             onSubmit={handleHeroSearch}
-            className="tw:flex tw:gap-2! tw:max-w-lg tw:mx-auto!"
+            className="tw:flex tw:gap-3! tw:max-w-4xl tw:mx-auto!"
           >
             <div className="tw:relative tw:flex-1">
-              <Search className="tw:absolute tw:left-4 tw:top-1/2 tw:-translate-y-1/2 tw:w-4 tw:h-4 tw:text-gray-400" />
+              <Search className="tw:absolute tw:left-4 tw:top-1/2 tw:-translate-y-1/2 tw:w-5 tw:h-5 tw:text-gray-400" />
               <input
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search travel guides, airport information, visa tips…"
                 style={{ color: "#111827", backgroundColor: "#ffffff" }}
-                className="tw:w-full tw:pl-11! tw:pr-4! tw:py-3! tw:rounded-xl tw:bg-white! tw:text-gray-900! tw:placeholder:text-gray-400 tw:text-sm tw:outline-none tw:border tw:border-transparent tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/30 tw:shadow-sm"
+                className="tw:w-full tw:pl-12! tw:pr-5! tw:py-4! tw:rounded-xl tw:bg-white! tw:text-gray-900! tw:placeholder:text-gray-400 tw:text-base tw:outline-none tw:border tw:border-transparent tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/30 tw:shadow-sm"
               />
             </div>
             <button
               type="submit"
-              className="tw:px-6! tw:py-3! tw:bg-dark-purple! tw:text-white! tw:font-semibold tw:rounded-xl tw:hover:bg-[#000080]! tw:transition-colors tw:text-sm tw:flex-shrink-0"
+              className="tw:px-8! tw:py-4! tw:bg-dark-purple! tw:text-white! tw:font-semibold tw:rounded-xl tw:hover:bg-[#000080]! tw:transition-colors tw:text-base tw:flex-shrink-0"
             >
               Search
             </button>
@@ -271,7 +271,7 @@ const TravelGuidesHub = () => {
 
       {/* Featured Articles — highlighted cards below the hero */}
       {featured.length > 0 && (
-        <section className="tw:max-w-7xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:pt-12!">
+        <section className="container tw:pt-12!">
           <div className="tw:flex tw:items-center tw:gap-2! tw:mb-6!">
             <Star className="tw:w-6 tw:h-6 tw:text-primary tw:fill-primary" />
             <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple">Featured Articles</h2>
@@ -284,7 +284,7 @@ const TravelGuidesHub = () => {
         </section>
       )}
 
-      <main className="tw:max-w-7xl tw:mx-auto! tw:px-4! tw:sm:px-6! tw:py-12!">
+      <main className="container tw:py-12!">
         <div className="tw:flex tw:flex-col tw:lg:flex-row tw:gap-8!">
 
           {/* LEFT — 3/4 */}

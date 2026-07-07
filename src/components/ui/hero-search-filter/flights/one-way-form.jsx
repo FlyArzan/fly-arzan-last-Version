@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { OneWayFormSchema } from "@/schema/one-way-schema";
 import { useCityLocation } from "@/hooks/useCityLocation";
 import { useDebounceValue, useSessionStorage } from "usehooks-ts";
-import { formatDateForURL } from "@/lib/flight-utils";
+import { formatDateForURL, getDefaultDepartDate } from "@/lib/flight-utils";
 import { useRegionalSettings } from "../../../../context/RegionalSettingsContext";
 import Calendar from "../../calendar";
 import PropTypes from "prop-types";
@@ -94,13 +94,21 @@ const OneWayForm = ({ initialValues }) => {
 
   useEffect(() => {
     if (initialValues) {
+      const departDate = initialValues.depart || getDefaultDepartDate();
       reset({
         flyingFrom: initialValues.flyingFrom,
         flyingTo: initialValues.flyingTo,
         travellers: initialValues.travellers,
-        depart: initialValues.depart || "",
+        depart: departDate,
       });
-      setTempDepart(initialValues.depart || undefined);
+      setTempDepart(departDate);
+      // appliedTravellers drives the read-only "Travellers & Cabin Class" input
+      // and previously only got set on first mount or manual popover apply — it
+      // never picked up a later-arriving initialValues (e.g. session hydrating
+      // asynchronously), leaving the field blank even though real values existed.
+      setAppliedTravellers(
+        initialValues.travellers ? { ...initialValues.travellers } : null,
+      );
     }
   }, [initialValues, reset]);
 
@@ -216,7 +224,9 @@ const OneWayForm = ({ initialValues }) => {
             >
               <ComboboxInput
                 id="flyingFrom"
-                displayValue={(data) => data?.city}
+                displayValue={(data) =>
+                  data?.city ? (data.iataCode ? `${data.city} (${data.iataCode})` : data.city) : ""
+                }
                 onChange={(event) => setQueryFrom(event.target.value)}
                 className="tw:peer tw:py-[10px] tw:px-5 tw:h-[62px] tw:block tw:w-full tw:border tw:!border-muted tw:text-[15px] tw:!font-semibold tw:rounded-lg tw:placeholder:text-transparent tw:focus:border-primary tw:focus-visible:tw:border-primary tw:focus-visible:outline-hidden tw:focus:ring-primary tw:disabled:opacity-50 tw:disabled:pointer-events-none tw:focus:pt-6 tw:focus:pb-2 tw:not-placeholder-shown:pt-6 tw:not-placeholder-shown:pb-2 tw:autofill:pt-6 tw:autofill:pb-2 tw:focus-visible:ring-0"
                 placeholder="From"
@@ -307,7 +317,9 @@ const OneWayForm = ({ initialValues }) => {
             >
               <ComboboxInput
                 id="flyingTo"
-                displayValue={(data) => data?.city}
+                displayValue={(data) =>
+                  data?.city ? (data.iataCode ? `${data.city} (${data.iataCode})` : data.city) : ""
+                }
                 onChange={(event) => setQueryTo(event.target.value)}
                 className="tw:peer tw:py-[10px] tw:px-5 tw:h-[62px] tw:block tw:w-full tw:border tw:!border-muted tw:text-[15px] tw:!font-semibold tw:rounded-lg tw:placeholder:text-transparent tw:focus:border-primary tw:focus-visible:tw:border-primary tw:focus-visible:outline-hidden tw:focus:ring-primary tw:disabled:opacity-50 tw:disabled:pointer-events-none tw:focus:pt-6 tw:focus:pb-2 tw:not-placeholder-shown:pt-6 tw:not-placeholder-shown:pb-2 tw:autofill:pt-6 tw:autofill:pb-2 tw:focus-visible:ring-0"
                 placeholder="To"

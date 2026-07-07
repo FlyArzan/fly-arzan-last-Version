@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 import { RoundWayFormSchema } from "@/schema/round-way-schema";
 import { useCityLocation } from "@/hooks/useCityLocation";
 import { useDebounceValue, useSessionStorage } from "usehooks-ts";
-import { formatDateForURL } from "@/lib/flight-utils";
+import { formatDateForURL, getDefaultDepartDate } from "@/lib/flight-utils";
 import { useRegionalSettings } from "../../../../context/RegionalSettingsContext";
 import Calendar from "../../calendar";
 import PropTypes from "prop-types";
@@ -100,18 +100,19 @@ const RoundWayForm = ({ initialValues }) => {
 
   useEffect(() => {
     if (initialValues) {
+      const departDate = initialValues.depart || getDefaultDepartDate();
       reset({
         flyingFrom: initialValues.flyingFrom,
         flyingTo: initialValues.flyingTo,
         travellers: initialValues.travellers,
-        depart: initialValues.depart || "",
+        depart: departDate,
         return: initialValues.return || "",
       });
       if (initialValues.travellers) {
         setAppliedTravellers(initialValues.travellers);
       }
       setTempDateRange({
-        from: initialValues.depart || undefined,
+        from: departDate,
         to: initialValues.return || undefined,
       });
     }
@@ -224,7 +225,9 @@ const RoundWayForm = ({ initialValues }) => {
             >
               <ComboboxInput
                 id="flyingFrom"
-                displayValue={(data) => data?.city}
+                displayValue={(data) =>
+                  data?.city ? (data.iataCode ? `${data.city} (${data.iataCode})` : data.city) : ""
+                }
                 onChange={(event) => setQueryFrom(event.target.value)}
                 className="tw:peer tw:py-[10px] tw:px-5 tw:h-[62px] tw:block tw:w-full tw:border tw:!border-muted tw:text-[15px] tw:!font-semibold tw:rounded-lg tw:placeholder:text-transparent tw:focus:border-primary tw:focus-visible:tw:border-primary tw:focus-visible:outline-hidden tw:focus:ring-primary tw:disabled:opacity-50 tw:disabled:pointer-events-none tw:focus:pt-6 tw:focus:pb-2 tw:not-placeholder-shown:pt-6 tw:not-placeholder-shown:pb-2 tw:autofill:pt-6 tw:autofill:pb-2 tw:focus-visible:ring-0"
                 placeholder="From"
@@ -315,7 +318,9 @@ const RoundWayForm = ({ initialValues }) => {
             >
               <ComboboxInput
                 id="flyingTo"
-                displayValue={(data) => data?.city}
+                displayValue={(data) =>
+                  data?.city ? (data.iataCode ? `${data.city} (${data.iataCode})` : data.city) : ""
+                }
                 onChange={(event) => setQueryTo(event.target.value)}
                 className="tw:peer tw:py-[10px] tw:px-5 tw:h-[62px] tw:block tw:w-full tw:border tw:!border-muted tw:text-[15px] tw:!font-semibold tw:rounded-lg tw:placeholder:text-transparent tw:focus:border-primary tw:focus-visible:tw:border-primary tw:focus-visible:outline-hidden tw:focus:ring-primary tw:disabled:opacity-50 tw:disabled:pointer-events-none tw:focus:pt-6 tw:focus:pb-2 tw:not-placeholder-shown:pt-6 tw:not-placeholder-shown:pb-2 tw:autofill:pt-6 tw:autofill:pb-2 tw:focus-visible:ring-0"
                 placeholder="To"

@@ -17,7 +17,8 @@ import { useVisaCountries } from "../hooks/useVisa";
 // Two-letter country code shown when a country has no flag image. Clean,
 // informative and on-brand — no emoji fallback.
 const FlagBadge = ({ country, size = "tw:w-12 tw:h-12" }) => {
-  if (country.flagImage) {
+  const [error, setError] = useState(false);
+  if (country.flagImage && !error) {
     return (
       <img
         src={country.flagImage}
@@ -25,6 +26,7 @@ const FlagBadge = ({ country, size = "tw:w-12 tw:h-12" }) => {
         width="48"
         height="48"
         loading="lazy"
+        onError={() => setError(true)}
         className={`${size} tw:object-cover tw:rounded-lg`}
       />
     );

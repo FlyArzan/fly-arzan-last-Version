@@ -4,12 +4,13 @@ import {
   Box, Typography, Button, TextField, Stack, Card, CardHeader,
   CardContent, Alert, FormControl, InputLabel, Select, MenuItem,
   IconButton, Accordion, AccordionSummary, AccordionDetails, Divider,
+  Autocomplete,
 } from "@mui/material";
 import {
   Save as SaveIcon, ArrowBack as ArrowBackIcon,
   Add as AddIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon,
 } from "@mui/icons-material";
-import { useAdminVisaCountry, useSaveVisaCountry } from "@/hooks/useVisa";
+import { useAdminVisaCountry, useSaveVisaCountry, useCountryList } from "@/hooks/useVisa";
 import ImageUpload from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
 
@@ -67,6 +68,7 @@ export default function VisaCountryForm() {
   const isEdit = Boolean(id && id !== "new");
 
   const { data: existing, isLoading } = useAdminVisaCountry(isEdit ? id : null);
+  const { data: countries = [] } = useCountryList();
   const saveMutation = useSaveVisaCountry();
 
   const [form, setForm] = useState(defaultForm);
@@ -238,15 +240,47 @@ export default function VisaCountryForm() {
         <CardContent sx={{ px: 2.5, pb: 2.5 }}>
           <Stack spacing={2}>
             <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              <TextField fullWidth label="Country Name *" value={form.countryName}
-                onChange={(e) => { setSlugManuallySet(false); set("countryName")(e); }} sx={textFieldSx} />
+              <Autocomplete
+                fullWidth
+                options={countries}
+                getOptionLabel={(opt) => opt?.name || ""}
+                isOptionEqualToValue={(opt, val) => opt.iso === val?.iso}
+                value={
+                  form.countryCode
+                    ? countries.find((c) => c.iso === form.countryCode) || { iso: form.countryCode, name: form.countryName }
+                    : null
+                }
+                onChange={(_, selected) => {
+                  setSlugManuallySet(false);
+                  setForm((p) => ({
+                    ...p,
+                    countryName: selected?.name || "",
+                    countryCode: selected?.iso || "",
+                    countrySlug: slugify(selected?.name || ""),
+                  }));
+                }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      bgcolor: "#1A1D23",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      "& .MuiAutocomplete-option": { color: "#e5e7eb" },
+                      "& .MuiAutocomplete-option.Mui-focused": { bgcolor: "rgba(59,130,246,0.15)" },
+                      "& .MuiAutocomplete-noOptions": { color: "#71717A" },
+                    },
+                  },
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} label="Country *"
+                    sx={{ ...textFieldSx, "& .MuiAutocomplete-endAdornment .MuiSvgIcon-root": { color: "#9ca3af" } }}
+                    helperText="Selecting a country sets its official ISO code automatically"
+                    FormHelperTextProps={{ sx: { color: "#71717A" } }} />
+                )}
+              />
               <TextField fullWidth label="Country Slug *" value={form.countrySlug}
                 onChange={(e) => { setSlugManuallySet(true); setForm((p) => ({ ...p, countrySlug: slugify(e.target.value) })); }} sx={textFieldSx}
                 helperText="/visa-information/[slug]" FormHelperTextProps={{ sx: { color: "#71717A" } }}
               />
-              <TextField label="ISO Code" placeholder="TR" value={form.countryCode}
-                onChange={(e) => setForm((p) => ({ ...p, countryCode: e.target.value.toUpperCase().slice(0, 2) }))}
-                inputProps={{ maxLength: 2 }} sx={{ ...textFieldSx, minWidth: 100 }} />
             </Stack>
             <TextField fullWidth multiline minRows={3} label="Travel Introduction" value={form.travelIntroduction} onChange={set("travelIntroduction")} sx={textFieldSx} />
             <Stack direction={{ xs: "column", md: "row" }} spacing={2}>

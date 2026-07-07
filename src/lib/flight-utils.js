@@ -1,5 +1,14 @@
 import { format, parseISO } from "date-fns";
 
+// Sensible default departure date (tomorrow) so search forms never show an
+// empty Depart field when no date has been chosen yet.
+export const getDefaultDepartDate = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
 // Helper to convert "HH:mm" to minutes from midnight
 export const timeToMinutes = (timeStr) => {
   try {

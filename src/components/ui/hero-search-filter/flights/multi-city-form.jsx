@@ -81,7 +81,9 @@ const SegmentRow = memo(
               <ComboboxInput
                 id={`from-${segmentIndex}`}
                 name={`segments.${segmentIndex}.from`}
-                displayValue={(data) => data?.city || ""}
+                displayValue={(data) =>
+                  data?.city ? (data.iataCode ? `${data.city} (${data.iataCode})` : data.city) : ""
+                }
                 onChange={(event) => setQueryFrom(event.target.value)}
                 placeholder="From"
                 aria-labelledby={`from-label-${segmentIndex}`}
@@ -141,7 +143,9 @@ const SegmentRow = memo(
               <ComboboxInput
                 id={`to-${segmentIndex}`}
                 name={`segments.${segmentIndex}.to`}
-                displayValue={(data) => data?.city || ""}
+                displayValue={(data) =>
+                  data?.city ? (data.iataCode ? `${data.city} (${data.iataCode})` : data.city) : ""
+                }
                 onChange={(event) => setQueryTo(event.target.value)}
                 placeholder="To"
                 aria-labelledby={`to-label-${segmentIndex}`}

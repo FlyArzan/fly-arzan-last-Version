@@ -32,6 +32,17 @@ export const useVisaCountries = ({ search = "", page = 0, limit = 50 } = {}) => 
   });
 };
 
+// Full ISO country list (iso, name) — powers the validated country picker in
+// the admin visa form so a country's code is always a real ISO code, never
+// free-typed. Static reference data, safe to cache for the whole session.
+export const useCountryList = () =>
+  useQuery({
+    queryKey: ["locations", "countries"],
+    queryFn: () => fetcher("/locations/countries"),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
 export const useVisaCountry = (slug) =>
   useQuery({
     queryKey: ["visa", "public", slug],

@@ -393,7 +393,7 @@ const FlightSearchPage = () => {
 
               <div className="tw:rounded-xl tw:bg-white tw:shadow tw:!p-5">
                 {/* One Way Form */}
-                {tripType === "one-way" && initialValues && (
+                {tripType === "one-way" && (
                   <OneWayForm initialValues={initialValues} />
                 )}
                 {/* Round Way Form */}

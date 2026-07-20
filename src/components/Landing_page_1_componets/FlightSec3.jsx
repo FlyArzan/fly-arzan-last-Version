@@ -114,15 +114,15 @@ const SlideArrow = ({ direction, onClick, className, side }) => {
 const FlightSec3 = forwardRef((props, ref) => {
   const { t } = useTranslation();
 
-  // Fetch more than fits on screen so there's something to slide through.
-  const { data, isLoading } = useArticles({ limit: 10 });
+  // Fetch up to 6 so there's always plenty to slide through as content grows.
+  const { data, isLoading } = useArticles({ limit: 6 });
   const articles = data?.articles || [];
 
+  // Loop the carousel whenever there's more than one card, so the arrows are
+  // always visible and it reads as a slider even with only 3 articles.
   const sliderSettings = {
     dots: false,
-    // Only loop when there are genuinely more cards than a row can show,
-    // otherwise slick clones cards and the arrows never disable.
-    infinite: articles.length > 3,
+    infinite: articles.length > 1,
     speed: 400,
     slidesToShow: 3,
     slidesToScroll: 1,
@@ -132,7 +132,7 @@ const FlightSec3 = forwardRef((props, ref) => {
     responsive: [
       {
         breakpoint: 1024,
-        settings: { slidesToShow: 2, infinite: articles.length > 2 },
+        settings: { slidesToShow: 2, infinite: articles.length > 1 },
       },
       {
         breakpoint: 640,

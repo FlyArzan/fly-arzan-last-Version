@@ -225,6 +225,27 @@ export const resolveMeta = async (pathname) => {
     return meta;
   }
 
+  // /travel-guides hub — static meta enriched with links to recent articles,
+  // so every article has an incoming internal link from the hub as well as
+  // from its category page (avoids the "only one internal link" flag).
+  if (pathname === "/travel-guides") {
+    const cached = getCached(pathname);
+    if (cached) return cached;
+    const list = await fetchJson(`${resolveApiUrl()}/api/articles?limit=24`);
+    const links = (list?.articles || []).map((a) => ({
+      href: `/travel-guides/${a?.articleCategory?.[0]?.slug || "general-travel-advice"}/${a.slug}`,
+      label: a.title,
+    }));
+    const meta = {
+      ...ROUTE_META["/travel-guides"],
+      h1: "Travel Guides & Useful Travel Information",
+      intro: ROUTE_META["/travel-guides"].description,
+      links,
+    };
+    setCached(pathname, meta);
+    return meta;
+  }
+
   // Exact static match first.
   if (ROUTE_META[pathname]) return ROUTE_META[pathname];
 

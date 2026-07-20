@@ -1,16 +1,27 @@
 import compression from "compression";
 import express from "express";
 import path from "path";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   hasNonHtmlFileExtension,
   isKnownSpaPath,
   normalizePathname,
 } from "./spa-route-allowlist.mjs";
+import { resolveMeta, injectSeo, canonicalFor } from "./seo.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(__dirname, "dist");
 const indexHtmlPath = path.join(dist, "index.html");
+
+// Read the built shell once at startup (it only changes per build/deploy) so we
+// can rewrite its <head> per request without touching disk on every navigation.
+let INDEX_HTML = "";
+try {
+  INDEX_HTML = readFileSync(indexHtmlPath, "utf8");
+} catch {
+  INDEX_HTML = "";
+}
 const CANONICAL_HOST = "flyarzan.com";
 
 const STRICT_TRANSPORT_SECURITY =
@@ -37,7 +48,10 @@ app.use((req, res, next) => {
 
 app.use(compression());
 
-app.use(express.static(dist));
+// index: false so "/" is NOT auto-served the raw index.html here — it must fall
+// through to the SEO-injecting handler below (which rewrites the <head>). Other
+// static assets (JS/CSS/images) are still served normally.
+app.use(express.static(dist, { index: false }));
 
 // Dynamic sitemaps proxied from the backend so new content appears automatically.
 const resolveApiUrl = () =>
@@ -60,7 +74,7 @@ const proxySitemap = (backendPath) => async (req, res) => {
 app.get("/sitemap-articles.xml", proxySitemap("/api/articles/sitemap.xml"));
 app.get("/sitemap-visa.xml", proxySitemap("/api/visa-info/sitemap.xml"));
 
-app.use((req, res) => {
+app.use(async (req, res) => {
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.sendStatus(404);
     return;
@@ -74,7 +88,27 @@ app.use((req, res) => {
 
   const normalized = normalizePathname(pathname);
   const status = isKnownSpaPath(normalized) ? 200 : 404;
-  res.status(status).sendFile(indexHtmlPath);
+
+  // Serve the SPA shell with per-route SEO tags injected into the <head> so
+  // crawlers see the correct title/description/canonical for this page (not the
+  // homepage defaults). Fully fail-safe: any error falls back to the raw shell,
+  // so the site can never break because of SEO injection.
+  try {
+    if (!INDEX_HTML) {
+      res.status(status).sendFile(indexHtmlPath);
+      return;
+    }
+    const meta = await resolveMeta(normalized);
+    // Unknown paths render as a client-side 404 — keep them out of the index.
+    const finalMeta = status === 404 ? { ...meta, noindex: true } : meta;
+    const html = injectSeo(INDEX_HTML, finalMeta, canonicalFor(normalized));
+    res
+      .status(status)
+      .setHeader("Content-Type", "text/html; charset=utf-8")
+      .send(html);
+  } catch {
+    res.status(status).sendFile(indexHtmlPath);
+  }
 });
 
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);

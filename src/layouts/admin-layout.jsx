@@ -1,6 +1,8 @@
 import { useState, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { ThemeProvider } from "@mui/material/styles";
+import adminTheme from "@/theme/adminTheme";
 import { useSession, useSignOut } from "@/hooks/useAuth";
 import {
   AppBar,
@@ -65,7 +67,7 @@ const navSections = [
     title: "Content",
     items: [
       { label: "Articles", icon: ArticleIcon, path: "/admin/content/articles" },
-      { label: "Visa Database", icon: TravelExploreIcon, path: "/admin/visa-db" },
+      { label: "Visa Requirements", icon: TravelExploreIcon, path: "/admin/visa-db" },
     ],
   },
   {
@@ -84,11 +86,6 @@ const navSections = [
         path: "/admin/cms/terms-conditions",
       },
       { label: "Contact", icon: ContactPageIcon, path: "/admin/cms/contact" },
-      {
-        label: "Visa Requirements",
-        icon: PublicIcon,
-        path: "/admin/cms/visa-requirements",
-      },
       {
         label: "COVID-19 Info",
         icon: PublicIcon,
@@ -234,6 +231,7 @@ const AdminLayout = () => {
   const drawer = <AdminLayoutDrawer onItemClick={() => setMobileOpen(false)} />;
 
   return (
+    <ThemeProvider theme={adminTheme}>
     <Box
       sx={{
         display: "flex",
@@ -458,6 +456,7 @@ const AdminLayout = () => {
         </Suspense>
       </Box>
     </Box>
+    </ThemeProvider>
   );
 };
 

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, ArrowRight, Star, Flame, Plane, FileText } from "lucide-react";
+import { Search, ArrowRight, Plane, FileText } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import CategoryIcon from "../components/travel/CategoryIcon";
@@ -9,7 +9,18 @@ import {
   useArticles,
   useArticleCategories,
   useFeaturedArticles,
+  useHighlightedArticles,
 } from "../hooks/useArticles";
+
+// Full-width, thin, no-shadow section heading used across the wide content
+// sections (All Articles, Highlights) so every section reads as
+// clearly separated instead of a plain line of bold text.
+const SectionHeadingBar = ({ children, right }) => (
+  <div className="tw:bg-white tw:rounded-xl tw:border tw:border-gray-100 tw:min-h-[52px]! tw:px-4! tw:py-2! tw:mb-4! tw:flex tw:items-center tw:justify-between tw:gap-3! tw:flex-wrap">
+    {children}
+    {right}
+  </div>
+);
 
 const formatDate = (d) =>
   d
@@ -25,18 +36,18 @@ const ArticleListCard = ({ article }) => {
   return (
     <Link
       to={`/travel-guides/${cat?.slug || "general-travel-advice"}/${article.slug}`}
-      className="tw:flex tw:gap-4! tw:bg-white tw:rounded-2xl tw:p-4! tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group tw:items-start"
+      className="tw:flex tw:gap-4! tw:py-5! tw:border-b tw:border-gray-100 tw:last:border-0 tw:group tw:items-start"
     >
       {article.featuredImage ? (
         <img
           src={article.featuredImage}
           alt={article.imageAlt || article.title}
-          className="tw:w-36 tw:self-stretch tw:min-h-24 tw:object-cover tw:rounded-xl tw:flex-shrink-0 tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+          className="tw:w-56! tw:h-44! tw:object-cover! tw:rounded-xl! tw:flex-shrink-0! tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-36 tw:self-stretch tw:min-h-24 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
-          <CategoryIcon slug={cat?.slug} className="tw:w-7 tw:h-7" />
+        <div className="tw:w-56! tw:h-44! tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl! tw:flex-shrink-0! tw:flex tw:items-center tw:justify-center">
+          <CategoryIcon slug={cat?.slug} className="tw:w-8 tw:h-8" />
         </div>
       )}
       <div className="tw:flex-1 tw:min-w-0">
@@ -45,11 +56,11 @@ const ArticleListCard = ({ article }) => {
             {cat.name}
           </span>
         )}
-        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-lg tw:leading-snug tw:mb-1.5! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
+        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-lg tw:leading-snug tw:mb-1.5! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2!">
           {article.title}
         </h3>
         {article.shortSummary && (
-          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-2 tw:mb-2! tw:leading-relaxed">
+          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-2! tw:mb-2! tw:leading-relaxed">
             {article.shortSummary}
           </p>
         )}
@@ -74,12 +85,15 @@ const ArticleListCard = ({ article }) => {
   );
 };
 
-const FeaturedCard = ({ article }) => {
+// `compact` (used by the Highlights section) clamps the description to 2
+// lines instead of 3 — everything else about the card stays identical, so it
+// only looks smaller because Highlights sits in a narrower column.
+const FeaturedCard = ({ article, compact = false }) => {
   const cat = article.articleCategory?.[0];
   return (
     <Link
       to={`/travel-guides/${cat?.slug || "general-travel-advice"}/${article.slug}`}
-      className="tw:flex tw:flex-col tw:bg-white tw:rounded-2xl tw:overflow-hidden tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group"
+      className="tw:flex tw:flex-col tw:group"
     >
       {article.featuredImage ? (
         <img
@@ -88,24 +102,33 @@ const FeaturedCard = ({ article }) => {
           width="400"
           height="200"
           loading="lazy"
-          className="tw:w-full tw:h-44 tw:object-cover tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+          className="tw:w-full! tw:h-56! tw:object-cover! tw:rounded-2xl! tw:mb-3! tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
         />
       ) : (
-        <div className="tw:w-full tw:h-44 tw:bg-primary/10 tw:text-dark-purple tw:flex tw:items-center tw:justify-center">
+        <div className="tw:w-full! tw:h-56! tw:bg-primary/10 tw:text-dark-purple tw:rounded-2xl! tw:mb-3! tw:flex tw:items-center tw:justify-center">
           <CategoryIcon slug={cat?.slug} className="tw:w-12 tw:h-12" />
         </div>
       )}
-      <div className="tw:flex tw:flex-col tw:flex-1 tw:p-5!">
+      <div className="tw:flex tw:flex-col tw:flex-1">
         {cat && (
           <span className="tw:text-xs tw:font-semibold tw:text-primary tw:uppercase tw:tracking-wide tw:mb-2! tw:block">
             {cat.name}
           </span>
         )}
-        <h3 className="tw:font-bold tw:text-dark-purple tw:text-xl tw:leading-snug tw:mb-2! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
+        <h3 className="tw:font-bold tw:text-dark-purple tw:text-xl tw:leading-snug tw:mb-2! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2!">
           {article.title}
         </h3>
         {article.shortSummary && (
-          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-2 tw:mb-3! tw:leading-relaxed tw:flex-1">
+          // line-clamp-N alone isn't reliable here: this paragraph is a flex
+          // item (flex-1 pushed it to grow so "Read more" aligns across a
+          // row), and -webkit-line-clamp inside a growing flex item lets an
+          // extra line leak past the clip in some browsers. An explicit
+          // maxHeight (N lines * leading-relaxed's 1.625 line-height) hard-
+          // caps the box so the leak is physically impossible.
+          <p
+            className={`tw:text-gray-500 tw:text-base tw:mb-3! tw:leading-relaxed tw:overflow-hidden! ${compact ? "tw:line-clamp-2!" : "tw:line-clamp-3!"}`}
+            style={{ maxHeight: compact ? "3.25em" : "4.875em" }}
+          >
             {article.shortSummary}
           </p>
         )}
@@ -122,33 +145,67 @@ const FeaturedCard = ({ article }) => {
   );
 };
 
+// Matches FeaturedCard's shape (image + label + title + summary) so the
+// swap from skeleton to real content doesn't shift layout.
+const FeaturedCardSkeleton = () => (
+  <div className="tw:animate-pulse">
+    <div className="tw:w-full tw:h-56 tw:bg-gray-200/70 tw:rounded-2xl tw:mb-3!" />
+    <div className="tw:h-3 tw:w-20 tw:bg-gray-200/70 tw:rounded tw:mb-2!" />
+    <div className="tw:h-5 tw:w-full tw:bg-gray-200/70 tw:rounded tw:mb-2!" />
+    <div className="tw:h-4 tw:w-full tw:bg-gray-200/70 tw:rounded tw:mb-1.5!" />
+    <div className="tw:h-4 tw:w-2/3 tw:bg-gray-200/70 tw:rounded" />
+  </div>
+);
+
+// Matches SidebarArticleCard's shape.
+const SidebarCardSkeleton = () => (
+  <div className="tw:animate-pulse">
+    <div className="tw:w-full tw:h-32 tw:bg-gray-200/70 tw:rounded-xl! tw:mb-2.5!" />
+    <div className="tw:h-4 tw:w-full tw:bg-gray-200/70 tw:rounded tw:mb-1.5!" />
+    <div className="tw:h-3 tw:w-1/2 tw:bg-gray-200/70 tw:rounded" />
+  </div>
+);
+
 const SidebarArticleCard = ({ article }) => {
   const cat = article.articleCategory?.[0];
   return (
     <Link
       to={`/travel-guides/${cat?.slug || "general-travel-advice"}/${article.slug}`}
-      className="tw:flex tw:gap-3! tw:py-3! tw:border-b tw:border-gray-100 tw:last:border-0 tw:group tw:items-start"
+      className="tw:flex tw:flex-col tw:group"
     >
       {article.featuredImage ? (
         <img
           src={article.featuredImage}
           alt={article.imageAlt || article.title}
-          className="tw:w-16 tw:self-stretch tw:min-h-10 tw:object-cover tw:rounded-lg tw:flex-shrink-0"
+          className="tw:w-full! tw:h-32! tw:object-cover! tw:rounded-xl! tw:mb-2.5! tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-16 tw:self-stretch tw:min-h-10 tw:bg-primary/10 tw:text-dark-purple tw:rounded-lg tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
-          <CategoryIcon slug={cat?.slug} className="tw:w-4 tw:h-4" />
+        <div className="tw:w-full! tw:h-32! tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl! tw:mb-2.5! tw:flex tw:items-center tw:justify-center">
+          <CategoryIcon slug={cat?.slug} className="tw:w-7 tw:h-7" />
         </div>
       )}
-      <div className="tw:min-w-0">
-        <p className="tw:text-sm tw:font-medium tw:text-gray-800 tw:line-clamp-2 tw:group-hover:text-primary tw:transition-colors tw:leading-snug">
-          {article.title}
+      <p className="tw:text-sm tw:font-semibold tw:text-gray-800 tw:line-clamp-2! tw:group-hover:text-primary tw:transition-colors tw:leading-snug">
+        {article.title}
+      </p>
+      {article.shortSummary && (
+        <p className="tw:text-xs tw:text-gray-500 tw:line-clamp-2! tw:mt-1! tw:leading-relaxed">
+          {article.shortSummary}
         </p>
+      )}
+      <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-1! tw:text-xs tw:text-gray-400 tw:mt-1.5!">
+        {article.authorName && <span>{article.authorName}</span>}
         {article.readingTime && (
-          <p className="tw:text-xs tw:text-gray-400 tw:mt-0.5!">
-            {article.readingTime} min read
-          </p>
+          <>
+            {article.authorName && <span>·</span>}
+            <span>{article.readingTime} min read</span>
+          </>
+        )}
+        {article.publishedAt && (
+          <>
+            {(article.authorName || article.readingTime) && <span>·</span>}
+            <span>{formatDate(article.publishedAt)}</span>
+          </>
         )}
       </div>
     </Link>
@@ -167,8 +224,9 @@ const TravelGuidesHub = () => {
   const [searchInput, setSearchInput] = useState("");
   const navigate = useNavigate();
 
-  const { data: categories = [] } = useArticleCategories();
-  const { data: featured = [] } = useFeaturedArticles();
+  const { data: categories = [], isLoading: catLoading } = useArticleCategories();
+  const { data: featured = [], isLoading: featuredLoading } = useFeaturedArticles();
+  const { data: highlights = [], isLoading: highlightsLoading } = useHighlightedArticles();
   const { data, isLoading } = useArticles({
     category: activeCat !== "all" ? activeCat : undefined,
     page,
@@ -178,6 +236,19 @@ const TravelGuidesHub = () => {
   const articles = data?.articles || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / LIMIT);
+
+  // All the page's sections load from independent parallel queries. Letting
+  // each one pop in whenever it happens to resolve causes the page to keep
+  // reflowing during initial load. Instead, wait for everything at once (a
+  // "Promise.all" over the hooks) and show matching skeletons meanwhile, so
+  // the layout settles once instead of piece by piece. Once ready, it stays
+  // ready — later filter/pagination-triggered reloads use the article list's
+  // own local skeleton instead of hiding the whole page again.
+  const initialLoading = catLoading || featuredLoading || highlightsLoading || isLoading;
+  const [pageReady, setPageReady] = useState(false);
+  useEffect(() => {
+    if (!initialLoading) setPageReady(true);
+  }, [initialLoading]);
 
   const handleCatFilter = (slug) => {
     setActiveCat(slug);
@@ -192,7 +263,7 @@ const TravelGuidesHub = () => {
   // Brand-aligned select (chevron drawn via inline SVG; explicit dark text so
   // the legacy cascade can't wash it out).
   const selectClass =
-    "tw:h-11 tw:pl-4! tw:pr-9! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-white! tw:text-sm tw:font-medium tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20 tw:appearance-none tw:bg-no-repeat tw:cursor-pointer";
+    "tw:h-9 tw:pl-3.5! tw:pr-8! tw:rounded-lg tw:border tw:border-gray-200 tw:bg-white! tw:text-sm tw:font-medium tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20 tw:appearance-none tw:bg-no-repeat tw:cursor-pointer";
   const selectStyle = {
     color: "#374151",
     backgroundColor: "#ffffff",
@@ -270,18 +341,34 @@ const TravelGuidesHub = () => {
       <div className="tw:bg-[#f3fafd]!">
 
       {/* Featured Articles — highlighted cards below the hero */}
-      {featured.length > 0 && (
+      {!pageReady ? (
         <section className="container tw:pt-12!">
-          <div className="tw:flex tw:items-center tw:gap-2! tw:mb-6!">
-            <Star className="tw:w-6 tw:h-6 tw:text-primary tw:fill-primary" />
-            <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple">Featured Articles</h2>
-          </div>
+          <div className="tw:h-7 tw:w-48 tw:bg-gray-200/70 tw:rounded tw:mb-6! tw:animate-pulse" />
           <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-5!">
-            {featured.slice(0, 6).map((a) => (
-              <FeaturedCard key={a.id} article={a} />
-            ))}
+            {[...Array(3)].map((_, i) => <FeaturedCardSkeleton key={i} />)}
           </div>
         </section>
+      ) : (
+        featured.length > 0 && (
+          <section className="container tw:pt-12!">
+            <div className="tw:flex tw:items-center tw:justify-between tw:gap-3! tw:flex-wrap tw:mb-6!">
+              <div className="tw:flex tw:items-center tw:gap-2!">
+                <h2 className="tw:text-2xl tw:font-extrabold! tw:text-dark-purple">Featured Articles</h2>
+              </div>
+              <Link
+                to="/travel-guides/all"
+                className="tw:inline-flex tw:items-center tw:gap-1.5! tw:text-sm tw:font-semibold tw:text-primary! tw:bg-white! tw:border tw:border-gray-200 tw:rounded-full tw:px-4! tw:py-2! tw:hover:border-primary/40 tw:hover:bg-gray-50! tw:transition-colors"
+              >
+                View All <ArrowRight className="tw:w-4 tw:h-4" />
+              </Link>
+            </div>
+            <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-5!">
+              {featured.slice(0, 6).map((a) => (
+                <FeaturedCard key={a.id} article={a} />
+              ))}
+            </div>
+          </section>
+        )
       )}
 
       <main className="container tw:py-12!">
@@ -290,9 +377,32 @@ const TravelGuidesHub = () => {
           {/* LEFT — 3/4 */}
           <div className="tw:flex-1 tw:min-w-0">
 
-            {/* Filter row — active label + category dropdown (top pills removed
-                per feedback; the right-sidebar quick links remain) */}
-            <div className="tw:flex tw:items-center tw:justify-between tw:gap-3! tw:flex-wrap tw:mb-6!">
+            {/* Section heading — thin white bar, no shadow: heading + count on
+                the left, category filter on the right (top pills removed per
+                feedback; the right-sidebar quick links remain) */}
+            <SectionHeadingBar
+              right={
+                <div className="tw:relative">
+                  <label htmlFor="cat-filter" className="tw:sr-only">
+                    Filter by category
+                  </label>
+                  <select
+                    id="cat-filter"
+                    value={activeCat}
+                    onChange={(e) => handleCatFilter(e.target.value)}
+                    className={selectClass}
+                    style={selectStyle}
+                  >
+                    <option value="all">All Categories</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.slug}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              }
+            >
               <h2 className="tw:text-xl tw:font-bold! tw:text-dark-purple">
                 {activeLabel}
                 {!isLoading && total > 0 && (
@@ -301,26 +411,7 @@ const TravelGuidesHub = () => {
                   </span>
                 )}
               </h2>
-              <div className="tw:relative">
-                <label htmlFor="cat-filter" className="tw:sr-only">
-                  Filter by category
-                </label>
-                <select
-                  id="cat-filter"
-                  value={activeCat}
-                  onChange={(e) => handleCatFilter(e.target.value)}
-                  className={selectClass}
-                  style={selectStyle}
-                >
-                  <option value="all">All Categories</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.slug}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            </SectionHeadingBar>
 
             {/* Article list */}
             {isLoading ? (
@@ -353,7 +444,7 @@ const TravelGuidesHub = () => {
                 )}
               </div>
             ) : (
-              <div className="tw:flex tw:flex-col tw:gap-4!">
+              <div className="tw:flex tw:flex-col">
                 {articles.map((a) => (
                   <ArticleListCard key={a.id} article={a} />
                 ))}
@@ -383,66 +474,92 @@ const TravelGuidesHub = () => {
               </div>
             )}
 
-            {/* Category Grid — full section below article list */}
-            {categories.length > 0 && (
-              <section className="tw:mt-10!">
-                <div className="tw:flex tw:items-center tw:justify-between tw:mb-6!">
-                  <h2 className="tw:text-2xl tw:font-bold tw:text-dark-purple">
-                    Browse by Topic
-                  </h2>
+            {/* Highlights — admin-curated (highlighted: true),
+                same top-image/bottom-text style as Featured Articles.
+                Replaces the old "Browse by Topic" grid, which duplicated the
+                sidebar's "Browse Topics" list; category browsing now lives
+                in exactly one place. Heading always renders (with an empty
+                state when nothing's curated yet) instead of the section
+                appearing/disappearing once data loads. */}
+            <section className="tw:mt-10!">
+              <SectionHeadingBar>
+                <h2 className="tw:text-xl tw:font-extrabold! tw:text-dark-purple">
+                  Highlights
+                </h2>
+              </SectionHeadingBar>
+              {!pageReady ? (
+                <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-5!">
+                  {[...Array(3)].map((_, i) => <FeaturedCardSkeleton key={i} />)}
                 </div>
-                <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4!">
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.id}
-                      to={`/travel-guides/${cat.slug}`}
-                      className="tw:flex tw:flex-col tw:p-5! tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group"
-                    >
-                      <span className="tw:w-11 tw:h-11 tw:rounded-xl tw:bg-primary/10 tw:text-dark-purple tw:flex tw:items-center tw:justify-center tw:mb-3! tw:group-hover:bg-primary/20 tw:transition-colors">
-                        <CategoryIcon slug={cat.slug} className="tw:w-5 tw:h-5" />
-                      </span>
-                      <span className="tw:font-semibold tw:text-dark-purple tw:text-sm tw:mb-1! tw:group-hover:text-primary tw:transition-colors">
-                        {cat.name}
-                      </span>
-                      {cat.description && (
-                        <span className="tw:text-gray-400 tw:text-xs tw:line-clamp-2 tw:leading-relaxed">
-                          {cat.description}
-                        </span>
-                      )}
-                      {cat.articleCount > 0 && (
-                        <span className="tw:mt-2! tw:text-xs tw:text-primary tw:font-medium">
-                          {cat.articleCount}{" "}
-                          {cat.articleCount === 1 ? "article" : "articles"}
-                        </span>
-                      )}
-                    </Link>
+              ) : highlights.length > 0 ? (
+                <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-5!">
+                  {highlights.slice(0, 6).map((a) => (
+                    <FeaturedCard key={a.id} article={a} compact />
                   ))}
                 </div>
-              </section>
-            )}
+              ) : (
+                <p className="tw:text-sm tw:text-gray-400 tw:py-6! tw:text-center">
+                  No articles curated here yet. Check back soon.
+                </p>
+              )}
+            </section>
           </div>
 
-          {/* RIGHT — 1/4 sidebar */}
-          <aside className="tw:lg:w-72 tw:xl:w-80 tw:flex-shrink-0 tw:space-y-6!">
+          {/* RIGHT — narrower sidebar; the main column's images stay the
+              visually dominant ones, sidebar is a compact companion */}
+          <aside className="tw:lg:w-72 tw:xl:w-80 tw:flex-shrink-0 tw:space-y-8!">
 
-            {/* Popular Reads */}
-            {featured.length > 0 && (
-              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
-                <h2 className="tw:text-base tw:font-bold tw:text-dark-purple tw:mb-4! tw:flex tw:items-center tw:gap-2!">
-                  <Flame className="tw:w-4 tw:h-4 tw:text-primary" /> Popular Reads
-                </h2>
-                {featured.slice(0, 4).map((a) => (
-                  <SidebarArticleCard key={a.id} article={a} />
-                ))}
+            {/* Popular Reads — plain image + text, no card chrome */}
+            {!pageReady ? (
+              <div>
+                <SectionHeadingBar>
+                  <h2 className="tw:text-base tw:font-extrabold! tw:text-dark-purple">
+                    Popular Reads
+                  </h2>
+                </SectionHeadingBar>
+                <div className="tw:space-y-5!">
+                  {[...Array(6)].map((_, i) => <SidebarCardSkeleton key={i} />)}
+                </div>
               </div>
+            ) : (
+              featured.length > 0 && (
+                <div>
+                  <SectionHeadingBar>
+                    <h2 className="tw:text-base tw:font-extrabold! tw:text-dark-purple">
+                      Popular Reads
+                    </h2>
+                  </SectionHeadingBar>
+                  <div className="tw:space-y-5!">
+                    {featured.slice(0, 6).map((a) => (
+                      <SidebarArticleCard key={a.id} article={a} />
+                    ))}
+                  </div>
+                </div>
+              )
             )}
 
-            {/* Browse Topics */}
-            {categories.length > 0 && (
-              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
-                <h2 className="tw:text-base tw:font-bold tw:text-dark-purple tw:mb-3!">
-                  Browse Topics
-                </h2>
+            {/* Browse Topics — plain hoverable list, no card chrome */}
+            {!pageReady ? (
+              <div>
+                <SectionHeadingBar>
+                  <h2 className="tw:text-base tw:font-bold! tw:text-dark-purple">
+                    Browse Topics
+                  </h2>
+                </SectionHeadingBar>
+                <div className="tw:space-y-2! tw:animate-pulse">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="tw:h-9 tw:bg-gray-200/70 tw:rounded-lg" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              categories.length > 0 && (
+              <div>
+                <SectionHeadingBar>
+                  <h2 className="tw:text-base tw:font-bold! tw:text-dark-purple">
+                    Browse Topics
+                  </h2>
+                </SectionHeadingBar>
                 <div className="tw:space-y-0.5!">
                   {categories.map((cat) => (
                     <button
@@ -451,7 +568,7 @@ const TravelGuidesHub = () => {
                       className={`tw:w-full tw:flex tw:items-center tw:justify-between tw:px-3! tw:py-2! tw:rounded-lg tw:text-sm tw:transition-colors tw:text-left ${
                         activeCat === cat.slug
                           ? "tw:bg-primary/10! tw:text-dark-purple! tw:font-medium"
-                          : "tw:text-gray-600! tw:hover:bg-gray-50! tw:hover:text-gray-900!"
+                          : "tw:text-gray-600! tw:hover:bg-white! tw:hover:text-dark-purple!"
                       }`}
                     >
                       <span className="tw:flex tw:items-center tw:gap-2!">
@@ -459,7 +576,7 @@ const TravelGuidesHub = () => {
                         <span>{cat.name}</span>
                       </span>
                       {cat.articleCount > 0 && (
-                        <span className="tw:text-xs tw:bg-primary/15 tw:text-dark-purple tw:font-semibold tw:rounded-full tw:px-2! tw:py-0.5! tw:flex-shrink-0">
+                        <span className="tw:text-xs tw:bg-primary! tw:text-white! tw:font-bold tw:rounded-full tw:px-2! tw:py-0.5! tw:flex-shrink-0">
                           {cat.articleCount}
                         </span>
                       )}
@@ -467,6 +584,7 @@ const TravelGuidesHub = () => {
                   ))}
                 </div>
               </div>
+              )
             )}
 
             {/* Flight CTA */}
@@ -482,7 +600,7 @@ const TravelGuidesHub = () => {
                 travel deals.
               </p>
               <Link
-                to="/search/flight"
+                to="/"
                 className="tw:block tw:text-center tw:bg-white! tw:text-[#1c6993]! tw:font-semibold tw:rounded-xl tw:px-4! tw:py-2.5! tw:text-sm tw:hover:bg-white/90! tw:transition-colors"
               >
                 Search Flights
@@ -490,7 +608,7 @@ const TravelGuidesHub = () => {
             </div>
 
             {/* Visa CTA */}
-            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
+            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:p-5!">
               <span className="tw:inline-flex tw:w-11 tw:h-11 tw:rounded-xl tw:bg-primary/10 tw:items-center tw:justify-center tw:mb-3!">
                 <FileText className="tw:w-5 tw:h-5 tw:text-dark-purple" />
               </span>

@@ -1,7 +1,8 @@
 import { forwardRef } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Slider from "react-slick";
 import { useArticles } from "../../hooks/useArticles";
 
 const formatDate = (d) =>
@@ -88,11 +89,57 @@ const SkeletonCard = () => (
   </div>
 );
 
+// Custom slider arrow. react-slick clones this and injects `onClick` plus a
+// `className` that contains "slick-disabled" when there's nothing more to
+// scroll to — we read that to disable/dim the button. currentSlide/slideCount
+// are injected too; we deliberately don't forward them to the DOM <button>.
+const SlideArrow = ({ direction, onClick, className, side }) => {
+  const disabled = (className || "").includes("slick-disabled");
+  const Icon = direction === "prev" ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      type="button"
+      aria-label={direction === "prev" ? "Previous articles" : "Next articles"}
+      onClick={onClick}
+      disabled={disabled}
+      className={`tw:absolute tw:top-1/2 tw:-translate-y-1/2 tw:z-10 tw:flex tw:items-center tw:justify-center tw:w-10 tw:h-10 tw:rounded-full tw:bg-white tw:shadow-md tw:border tw:border-gray-100 tw:text-dark-purple tw:transition-all tw:hover:bg-primary! tw:hover:text-white! tw:hover:border-primary! ${
+        disabled ? "tw:opacity-0! tw:pointer-events-none!" : "tw:opacity-100"
+      } ${side === "left" ? "tw:-left-3 tw:md:-left-5" : "tw:-right-3 tw:md:-right-5"}`}
+    >
+      <Icon className="tw:w-5 tw:h-5" />
+    </button>
+  );
+};
+
 const FlightSec3 = forwardRef((props, ref) => {
   const { t } = useTranslation();
 
-  const { data, isLoading } = useArticles({ limit: 3 });
+  // Fetch more than fits on screen so there's something to slide through.
+  const { data, isLoading } = useArticles({ limit: 10 });
   const articles = data?.articles || [];
+
+  const sliderSettings = {
+    dots: false,
+    // Only loop when there are genuinely more cards than a row can show,
+    // otherwise slick clones cards and the arrows never disable.
+    infinite: articles.length > 3,
+    speed: 400,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    swipeToSlide: true,
+    prevArrow: <SlideArrow direction="prev" side="left" />,
+    nextArrow: <SlideArrow direction="next" side="right" />,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: { slidesToShow: 2, infinite: articles.length > 2 },
+      },
+      {
+        breakpoint: 640,
+        settings: { slidesToShow: 1, infinite: articles.length > 1 },
+      },
+    ],
+  };
 
   return (
     <section ref={ref} className="Sec3-sec" id="flight-article">
@@ -122,24 +169,42 @@ const FlightSec3 = forwardRef((props, ref) => {
             </Link>
           </div>
 
-          {/* 3-column article grid */}
-          <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-6!">
-            {isLoading
-              ? [1, 2, 3].map((i) => <SkeletonCard key={i} />)
-              : articles.length > 0
-              ? articles.map((a) => <ArticleCard key={a.id} article={a} />)
-              : /* graceful empty state — only shown when API returns 0 articles */
-                [1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="tw:bg-white tw:rounded-2xl tw:border tw:border-dashed tw:border-gray-200 tw:h-72 tw:flex tw:items-center tw:justify-center"
-                  >
-                    <span className="tw:text-gray-300 tw:text-sm">
-                      Article coming soon
-                    </span>
+          {/* Article slider — arrows on both sides, swipeable on touch. Cards
+              keep the exact same design; only the layout changed from a static
+              grid to a slider. */}
+          {isLoading ? (
+            <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-6!">
+              {[1, 2, 3].map((i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : articles.length > 0 ? (
+            <div className="tw:relative tw:px-1!">
+              <Slider {...sliderSettings} className="useful-articles-slider">
+                {articles.map((a) => (
+                  <div key={a.id} className="tw:h-full">
+                    <div className="tw:h-full tw:px-3!">
+                      <ArticleCard article={a} />
+                    </div>
                   </div>
                 ))}
-          </div>
+              </Slider>
+            </div>
+          ) : (
+            /* graceful empty state — only shown when API returns 0 articles */
+            <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-6!">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="tw:bg-white tw:rounded-2xl tw:border tw:border-dashed tw:border-gray-200 tw:h-72 tw:flex tw:items-center tw:justify-center"
+                >
+                  <span className="tw:text-gray-300 tw:text-sm">
+                    Article coming soon
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Bottom CTA */}
           <div

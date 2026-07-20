@@ -213,11 +213,38 @@ p {
 }
 .article-content a {
     color: var(--primary-color);
+    font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 .article-content a:hover {
     color: var(--dark-purple-color);
+}
+/* Links whose visible text was a raw pasted URL (see ArticlePage.jsx) get
+   relabelled to their hostname + an arrow at render time — style that as a
+   bordered resource-link row (matching the visa-information page's Official
+   Links) instead of an underlined URL string. */
+.article-content a.article-content-link-cleaned {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.75rem 1rem !important;
+    margin: 0.5em 0 !important;
+    font-weight: 500;
+    color: #1f2937;
+    text-decoration: none;
+    transition:
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+.article-content a.article-content-link-cleaned:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    text-decoration: none;
 }
 
 /* Search inputs bound to a <datalist> (e.g. visa destination search) get a
@@ -234,6 +261,12 @@ input[type="search"]::-webkit-search-cancel-button {
 .article-content strong {
     color: #111827;
     font-weight: 700;
+}
+.article-content mark {
+    background: #fde047;
+    color: #1a1a1a;
+    padding: 0.1em 0.25em;
+    border-radius: 4px;
 }
 .article-content ul,
 .article-content ol {
@@ -1300,6 +1333,24 @@ section.Sec3-sec {
     justify-content: center;
 }
 
+/* Useful Articles slider (react-slick) — makes all cards in a row equal height
+   and cancels the per-slide horizontal padding so the first/last card sit flush
+   with the section edges. */
+.useful-articles-slider .slick-track {
+    display: flex;
+    align-items: stretch;
+}
+.useful-articles-slider .slick-slide {
+    height: auto;
+}
+.useful-articles-slider .slick-slide > div {
+    height: 100%;
+}
+.useful-articles-slider .slick-list {
+    margin: 0 -12px;
+    padding: 4px 0;
+}
+
 /* Sec________Styling________Css */
 /* Sec________Styling________Css */
 /* Sec________Styling________Css */
@@ -1544,7 +1595,7 @@ footer {
     font-weight: 600;
     line-height: 28px;
     /* 155.556% */
-    padding-bottom: 25px;
+    padding-bottom: 5px;
 }
 
 .footer-ul-list-box ul {

@@ -21,6 +21,11 @@ export const ALLOWED_IMAGE_TYPES = [
 // 5 MB — generous for web imagery, small enough to keep pages fast.
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
+export const ALLOWED_PDF_TYPES = ["application/pdf"];
+
+// 50 MB — generous for a document, still reasonable to serve inline.
+export const MAX_PDF_BYTES = 50 * 1024 * 1024;
+
 const api = async (path, options = {}) => {
   const res = await fetch(`${API_BASE_URL}/api${path}`, {
     credentials: "include",
@@ -52,7 +57,20 @@ export const validateImageFile = (file) => {
   return null;
 };
 
-// Presign + PUT to the bucket. Returns { url, key }.
+// Validate a PDF File before we even talk to the server.
+export const validatePdfFile = (file) => {
+  if (!file) return "No file selected.";
+  if (!ALLOWED_PDF_TYPES.includes(file.type)) {
+    return "Unsupported file type. Use PDF.";
+  }
+  if (file.size > MAX_PDF_BYTES) {
+    return `File is too large (max ${Math.round(MAX_PDF_BYTES / 1024 / 1024)} MB).`;
+  }
+  return null;
+};
+
+// Presign + PUT to the bucket. Returns { url, key }. Generic — works for any
+// allowed content type (images, PDFs), not just images despite the name.
 export const uploadImage = async (file, folder, { signal } = {}) => {
   const { uploadUrl, key, publicUrl, contentType } = await api(
     "/admin/uploads/presign",
@@ -90,14 +108,24 @@ export const deleteUpload = async (key) => {
   });
 };
 
-// Best-effort key recovery from a stored public URL (for removing images that
-// were saved in a previous session, where we no longer hold the key in memory).
+// Managed upload folders — must match the backend's ALLOWED_FOLDERS.
+const UPLOAD_FOLDERS = [
+  "articles",
+  "visa-flags",
+  "visa-destinations",
+  "article-documents",
+];
+
+// Best-effort key recovery from a stored URL (for removing images that were
+// saved in a previous session, where we no longer hold the key in memory).
+// The stored value may be a proxied /api/media URL, a raw bucket URL, or a
+// path-style URL that includes the bucket name — so extract just the
+// "<folder>/<file>" tail (what the backend's delete endpoint expects) rather
+// than blindly taking the whole pathname.
 export const keyFromUrl = (url) => {
   if (!url) return "";
-  try {
-    const path = new URL(url).pathname.replace(/^\/+/, "");
-    return path;
-  } catch {
-    return "";
-  }
+  const match = url.match(
+    new RegExp(`(${UPLOAD_FOLDERS.join("|")})/[^/?#]+$`),
+  );
+  return match ? match[0] : "";
 };

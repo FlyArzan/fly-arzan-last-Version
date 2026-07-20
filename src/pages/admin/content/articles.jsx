@@ -10,7 +10,8 @@ import {
   Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon,
   Refresh as RefreshIcon, Article as ArticleIcon,
 } from "@mui/icons-material";
-import { useAdminArticles, useDeleteArticle, useSeedCategories } from "@/hooks/useArticles";
+import { useAdminArticles, useArticleCategories, useDeleteArticle } from "@/hooks/useArticles";
+import { chipStyles } from "@/pages/admin/styles/dashboard-styles";
 import { toast } from "sonner";
 
 const cardSx = {
@@ -30,9 +31,11 @@ const textFieldSx = {
   "& input, & .MuiSelect-select": { color: "#e5e7eb" },
 };
 
+// Explicit contrast-checked styles instead of MUI's bare "success"/"default"
+// color prop, which falls back to low-contrast defaults with no theme.
 const STATUS_COLORS = {
-  published: { label: "Published", color: "success" },
-  draft: { label: "Draft", color: "default" },
+  published: { label: "Published", sx: chipStyles.success },
+  draft: { label: "Draft", sx: chipStyles.neutral },
 };
 
 const formatDate = (d) =>
@@ -44,11 +47,18 @@ export default function ArticlesAdmin() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [deleteId, setDeleteId] = useState(null);
 
-  const { data, isLoading, refetch } = useAdminArticles({ page, limit: 20, search, status: statusFilter });
+  const { data, isLoading, refetch } = useAdminArticles({
+    page,
+    limit: 20,
+    search,
+    status: statusFilter,
+    category: categoryFilter,
+  });
+  const { data: categories = [] } = useArticleCategories();
   const deleteMutation = useDeleteArticle();
-  const seedMutation = useSeedCategories();
 
   const articles = data?.articles || [];
   const total = data?.total || 0;
@@ -67,13 +77,6 @@ export default function ArticlesAdmin() {
     });
   };
 
-  const handleSeedCategories = () => {
-    seedMutation.mutate(undefined, {
-      onSuccess: (r) => toast.success(`Seeded ${r.seeded} categories`),
-      onError: () => toast.error("Failed to seed categories"),
-    });
-  };
-
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {/* Header */}
@@ -87,15 +90,6 @@ export default function ArticlesAdmin() {
           </Typography>
         </Box>
         <Stack direction="row" spacing={1.5}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={handleSeedCategories}
-            disabled={seedMutation.isPending}
-            sx={{ color: "#9ca3af", borderColor: "rgba(255,255,255,0.1)", textTransform: "none" }}
-          >
-            Seed Categories
-          </Button>
           <Button
             variant="outlined"
             size="small"
@@ -123,8 +117,21 @@ export default function ArticlesAdmin() {
           placeholder="Search articles…"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          sx={{ ...textFieldSx, minWidth: 240 }}
+          sx={{ ...textFieldSx, flex: 1, minWidth: 320 }}
         />
+        <FormControl size="small" sx={{ minWidth: 180, ...textFieldSx }}>
+          <InputLabel>Category</InputLabel>
+          <Select
+            value={categoryFilter}
+            label="Category"
+            onChange={(e) => { setCategoryFilter(e.target.value); setPage(0); }}
+          >
+            <MenuItem value="">All</MenuItem>
+            {categories.map((cat) => (
+              <MenuItem key={cat.id} value={cat.slug}>{cat.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <FormControl size="small" sx={{ minWidth: 140, ...textFieldSx }}>
           <InputLabel>Status</InputLabel>
           <Select
@@ -194,7 +201,7 @@ export default function ArticlesAdmin() {
                         </Stack>
                       </TableCell>
                       <TableCell sx={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                        <Chip label={sc.label} size="small" color={sc.color} />
+                        <Chip label={sc.label} size="small" sx={sc.sx} />
                       </TableCell>
                       <TableCell sx={{ color: "#9ca3af", borderColor: "rgba(255,255,255,0.06)", fontSize: 12, fontFamily: "Inter" }}>
                         {a.authorName || "—"}

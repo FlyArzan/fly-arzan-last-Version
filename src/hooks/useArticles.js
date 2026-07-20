@@ -34,6 +34,13 @@ export const useFeaturedArticles = () =>
     staleTime: 1000 * 60 * 5,
   });
 
+export const useHighlightedArticles = () =>
+  useQuery({
+    queryKey: ["articles", "highlights"],
+    queryFn: () => fetcher("/articles/highlights"),
+    staleTime: 1000 * 60 * 5,
+  });
+
 export const useArticleCategories = () =>
   useQuery({
     queryKey: ["articles", "categories"],
@@ -53,12 +60,13 @@ export const useArticleBySlug = (slug) =>
 // ADMIN
 // ============================================
 
-export const useAdminArticles = ({ page = 0, limit = 20, search = "", status = "" } = {}) => {
+export const useAdminArticles = ({ page = 0, limit = 20, search = "", status = "", category = "" } = {}) => {
   const params = new URLSearchParams({ page, limit });
   if (search) params.set("search", search);
   if (status) params.set("status", status);
+  if (category) params.set("category", category);
   return useQuery({
-    queryKey: ["articles", "admin", "list", { page, limit, search, status }],
+    queryKey: ["articles", "admin", "list", { page, limit, search, status, category }],
     queryFn: () => fetcher(`/admin/articles/admin/list?${params}`),
     staleTime: 1000 * 30,
   });
@@ -95,10 +103,3 @@ export const useDeleteArticle = () => {
   });
 };
 
-export const useSeedCategories = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: () => fetcher("/admin/articles/admin/seed-categories", { method: "POST" }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["articles", "categories"] }),
-  });
-};

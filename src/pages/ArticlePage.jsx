@@ -1,6 +1,7 @@
+import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ChevronRight, Plus, Info } from "lucide-react";
+import { ChevronRight, Plus, Info, Download } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import CategoryIcon from "../components/travel/CategoryIcon";
@@ -8,6 +9,14 @@ import { useArticleBySlug, useFeaturedArticles } from "../hooks/useArticles";
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+
+// Thin white heading bar, no shadow — matches the pattern used on the Travel
+// Guides hub/category pages so sidebar sections read consistently site-wide.
+const SectionHeadingBar = ({ children }) => (
+  <div className="tw:bg-white tw:rounded-xl tw:border tw:border-gray-100 tw:min-h-[52px]! tw:px-4! tw:py-2! tw:mb-3! tw:flex tw:items-center">
+    {children}
+  </div>
+);
 
 const POPULAR_GUIDES = [
   { slug: "airport-guides", label: "Airport Guides" },
@@ -20,6 +29,42 @@ const ArticlePage = () => {
   const { category, slug } = useParams();
   const { data: article, isLoading, isError } = useArticleBySlug(slug);
   const { data: related = [] } = useFeaturedArticles();
+  const bodyRef = useRef(null);
+
+  // Some published articles have links whose visible text is the raw pasted
+  // URL (an authoring artifact — the WYSIWYG editor's link tool only prompts
+  // for a URL, not display text). Rather than leave that unfixable for
+  // already-published content, relabel any such link at render time to just
+  // its hostname + an arrow, matching the cleaner link style used elsewhere
+  // (e.g. the visa pages' Official Links section).
+  useEffect(() => {
+    const container = bodyRef.current;
+    if (!container) return;
+    container.querySelectorAll("a[href]").forEach((link) => {
+      const text = link.textContent.trim();
+      if (!/^https?:\/\//i.test(text)) return;
+      const href = link.getAttribute("href") || "";
+      let hostname;
+      try {
+        hostname = new URL(href).hostname.replace(/^www\./, "");
+      } catch {
+        return;
+      }
+      link.textContent = "";
+      const label = document.createElement("span");
+      label.textContent = hostname;
+      link.appendChild(label);
+      const arrow = document.createElement("span");
+      arrow.setAttribute("aria-hidden", "true");
+      arrow.textContent = " ↗";
+      link.appendChild(arrow);
+      link.classList.add("article-content-link-cleaned");
+      if (!link.hasAttribute("target")) {
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+      }
+    });
+  }, [article?.body]);
 
   if (isLoading) {
     return (
@@ -73,14 +118,14 @@ const ArticlePage = () => {
     : [];
   const relatedFiltered =
     relatedManual.length > 0
-      ? relatedManual.slice(0, 4).map((r) => ({
+      ? relatedManual.slice(0, 6).map((r) => ({
           id: r.slug,
           slug: r.slug,
           title: r.title || r.slug,
           readingTime: r.readingTime,
           articleCategory: r.categorySlug ? [{ slug: r.categorySlug }] : [],
         }))
-      : related.filter((r) => r.slug !== article.slug).slice(0, 3);
+      : related.filter((r) => r.slug !== article.slug).slice(0, 6);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -198,15 +243,45 @@ const ArticlePage = () => {
               alt={article.imageAlt || article.title}
               width="800"
               height="384"
-              className="tw:w-full tw:max-h-96 tw:object-cover tw:rounded-2xl tw:mb-8!"
+              className="tw:w-full! tw:h-96! tw:object-cover! tw:rounded-2xl! tw:mb-8!"
             />
           )}
 
-          {/* Article body — on-brand typography defined in index.css (.article-content) */}
-          <div
-            className="article-content"
-            dangerouslySetInnerHTML={{ __html: article.body }}
-          />
+          {/* Article body — a rich-text article, or an embedded PDF viewer +
+              download link for PDF-type articles */}
+          {article.articleType === "pdf" && article.pdfFile ? (
+            <div className="tw:mb-8!">
+              <div className="tw:rounded-2xl! tw:overflow-hidden! tw:border tw:border-gray-200 tw:mb-4!">
+                <iframe
+                  src={article.pdfFile}
+                  title={article.title}
+                  className="tw:w-full! tw:h-[80vh]! tw:border-0!"
+                />
+              </div>
+              <a
+                href={article.pdfFile}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="tw:inline-flex tw:items-center tw:gap-2! tw:bg-primary! tw:text-dark-purple! tw:font-semibold tw:px-5! tw:py-2.5! tw:rounded-xl tw:text-sm tw:hover:bg-[#6cc0e3]! tw:transition-colors"
+              >
+                <Download className="tw:w-4 tw:h-4" /> Download PDF
+              </a>
+            </div>
+          ) : article.body ? (
+            <div
+              ref={bodyRef}
+              className="article-content"
+              dangerouslySetInnerHTML={{ __html: article.body }}
+            />
+          ) : (
+            // Defensive fallback: `body` is nullable (PDF-type articles store
+            // their content in `pdfFile` instead), so this only renders if a
+            // "pdf" article somehow has no pdfFile — otherwise unreachable.
+            <p className="tw:text-gray-400 tw:italic tw:mb-8!">
+              This article has no content yet.
+            </p>
+          )}
 
           {/* FAQs */}
           {faqs.length > 0 && (
@@ -215,11 +290,11 @@ const ArticlePage = () => {
               <div className="tw:space-y-4!">
                 {faqs.map((faq, i) => (
                   <details key={i} className="tw:border tw:border-gray-200 tw:rounded-xl tw:overflow-hidden tw:group">
-                    <summary className="tw:px-5! tw:py-4! tw:font-semibold tw:text-dark-purple tw:cursor-pointer tw:hover:bg-gray-50 tw:list-none tw:flex tw:items-center tw:justify-between">
-                      {faq.question}
-                      <Plus className="tw:w-4 tw:h-4 tw:text-gray-400 tw:ml-2! tw:flex-shrink-0 tw:transition-transform tw:group-open:rotate-45" />
+                    <summary className="tw:list-none! tw:[&::-webkit-details-marker]:hidden tw:px-5! tw:py-4! tw:cursor-pointer tw:hover:bg-gray-50 tw:flex! tw:items-center tw:justify-between tw:gap-3!">
+                      <span className="tw:font-semibold tw:text-dark-purple tw:text-lg">{faq.question}</span>
+                      <Plus className="tw:w-5 tw:h-5 tw:text-dark-purple tw:flex-shrink-0 tw:transition-transform tw:group-open:rotate-45" />
                     </summary>
-                    <div className="tw:px-5! tw:pb-4! tw:text-gray-600 tw:text-sm tw:leading-relaxed">
+                    <div className="tw:px-5! tw:pt-3! tw:pb-4! tw:text-gray-600 tw:text-base tw:leading-relaxed tw:border-t tw:border-gray-100">
                       {faq.answer}
                     </div>
                   </details>
@@ -248,32 +323,34 @@ const ArticlePage = () => {
         </div>
 
         {/* Sidebar — stacks below the article on mobile, sticky on desktop */}
-        <aside className="tw:w-full tw:lg:w-72 tw:flex-shrink-0">
+        <aside className="tw:w-full tw:lg:w-80 tw:xl:w-96 tw:flex-shrink-0">
           <div className="tw:lg:sticky tw:lg:top-28 tw:space-y-6!">
-            {/* Related articles */}
+            {/* Related articles — plain hoverable list, no card chrome */}
             {relatedFiltered.length > 0 && (
-              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
-                <h3 className="tw:font-bold tw:text-dark-purple tw:mb-4!">Related Guides</h3>
-                <div className="tw:space-y-4!">
+              <div>
+                <SectionHeadingBar>
+                  <h3 className="tw:font-extrabold! tw:text-dark-purple tw:text-base">Related Guides</h3>
+                </SectionHeadingBar>
+                <div className="tw:space-y-1!">
                   {relatedFiltered.map((r) => {
                     const rc = r.articleCategory?.[0];
                     return (
                       <Link
                         key={r.id}
                         to={`/travel-guides/${rc?.slug || "general-travel-advice"}/${r.slug}`}
-                        className="tw:block tw:group"
+                        className="tw:block tw:px-3! tw:py-2.5! tw:rounded-lg tw:hover:bg-gray-50! tw:transition-colors tw:group"
                       >
-                        <p className="tw:text-sm tw:font-medium tw:text-gray-900 tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
+                        <p className="tw:text-base tw:font-semibold tw:text-gray-800 tw:group-hover:text-primary tw:transition-colors tw:leading-snug tw:line-clamp-2">
                           {r.title}
                         </p>
                         {r.readingTime && (
-                          <p className="tw:text-xs tw:text-gray-400 tw:mt-0.5!">{r.readingTime} min read</p>
+                          <p className="tw:text-sm tw:text-gray-400 tw:mt-0.5!">{r.readingTime} min read</p>
                         )}
                       </Link>
                     );
                   })}
                 </div>
-                <Link to="/travel-guides" className="tw:block tw:text-xs tw:text-primary tw:font-medium tw:mt-4! tw:hover:underline">
+                <Link to="/travel-guides" className="tw:block tw:text-sm tw:text-primary tw:font-semibold tw:mt-2! tw:px-3! tw:hover:underline">
                   View all guides →
                 </Link>
               </div>
@@ -294,7 +371,7 @@ const ArticlePage = () => {
             </div>
 
             {/* Flight search CTA */}
-            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
+            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:p-5!">
               <h3 className="tw:font-bold tw:text-dark-purple tw:mb-2!">Find Cheap Flights</h3>
               <p className="tw:text-gray-600 tw:text-sm tw:mb-3!">
                 Search and compare flights to your next destination.
@@ -307,15 +384,18 @@ const ArticlePage = () => {
               </Link>
             </div>
 
-            {/* Popular guides — quick links */}
-            <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
-              <h3 className="tw:font-bold tw:text-dark-purple tw:mb-3!">Popular Guides</h3>
-              <div className="tw:space-y-1!">
+            {/* Popular guides — plain hoverable list, no card chrome (same
+                pattern as the Travel Guides hub's "Browse Topics") */}
+            <div>
+              <SectionHeadingBar>
+                <h3 className="tw:font-extrabold! tw:text-dark-purple tw:text-base">Popular Guides</h3>
+              </SectionHeadingBar>
+              <div className="tw:space-y-0.5!">
                 {POPULAR_GUIDES.map((g) => (
                   <Link
                     key={g.slug}
                     to={`/travel-guides/${g.slug}`}
-                    className="tw:flex tw:items-center tw:gap-2.5! tw:px-2! tw:py-1.5! tw:rounded-lg tw:text-sm tw:text-gray-600 tw:hover:bg-gray-50 tw:hover:text-primary tw:transition-colors"
+                    className="tw:flex tw:items-center tw:gap-2.5! tw:px-3! tw:py-2! tw:rounded-lg tw:text-sm tw:text-gray-600! tw:hover:bg-gray-50! tw:hover:text-dark-purple! tw:transition-colors"
                   >
                     <CategoryIcon slug={g.slug} className="tw:w-4 tw:h-4 tw:text-primary tw:flex-shrink-0" />
                     <span>{g.label}</span>

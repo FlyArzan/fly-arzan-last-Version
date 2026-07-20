@@ -67,7 +67,6 @@ const AdminCmsFaq = lazy(() => import("../pages/admin/cms/faq"));
 const AdminCmsPrivacy = lazy(() => import("../pages/admin/cms/privacy-policy"));
 const AdminCmsTerms = lazy(() => import("../pages/admin/cms/terms-conditions"));
 const AdminCmsContact = lazy(() => import("../pages/admin/cms/contact"));
-const AdminCmsVisa = lazy(() => import("../pages/admin/cms/visa-requirements"));
 const AdminCmsCovid = lazy(() => import("../pages/admin/cms/covid-19"));
 const AdminCmsAirport = lazy(() => import("../pages/admin/cms/airport"));
 
@@ -131,7 +130,6 @@ export const router = createBrowserRouter(
             { path: "cms/privacy-policy", element: <AdminCmsPrivacy /> },
             { path: "cms/terms-conditions", element: <AdminCmsTerms /> },
             { path: "cms/contact", element: <AdminCmsContact /> },
-            { path: "cms/visa-requirements", element: <Navigate to="/admin/visa-db" replace /> },
             { path: "content/articles", element: <AdminArticles /> },
             { path: "content/articles/new", element: <AdminArticleForm /> },
             { path: "content/articles/:id", element: <AdminArticleForm /> },

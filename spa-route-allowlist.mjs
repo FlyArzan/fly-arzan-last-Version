@@ -42,7 +42,6 @@ const KNOWN_PATHS = new Set([
   "/admin/cms/privacy-policy",
   "/admin/cms/terms-conditions",
   "/admin/cms/contact",
-  "/admin/cms/visa-requirements",
   "/admin/cms/covid-19",
   "/admin/cms/airport",
   "/admin/monitoring/health",

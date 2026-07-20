@@ -10,6 +10,8 @@ import Table from "@tiptap/extension-table";
 import TableRow from "@tiptap/extension-table-row";
 import TableHeader from "@tiptap/extension-table-header";
 import TableCell from "@tiptap/extension-table-cell";
+import TextAlign from "@tiptap/extension-text-align";
+import Highlight from "@tiptap/extension-highlight";
 import {
   Bold as BoldIcon,
   Italic as ItalicIcon,
@@ -29,6 +31,12 @@ import {
   Redo2,
   RemoveFormatting,
   Minus,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Highlighter,
+  Code as CodeIcon,
+  Code2,
 } from "lucide-react";
 
 // Brand-aligned dark theme tokens (match the admin panel).
@@ -95,6 +103,8 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
       TableRow,
       TableHeader,
       TableCell,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Highlight.configure({ multicolor: false }),
     ],
     content: value || "",
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -220,6 +230,39 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
           () => editor.chain().focus().toggleStrike().run(),
           editor.isActive("strike"),
         )}
+        {btn(
+          "Highlight",
+          <Highlighter {...ICON} />,
+          () => editor.chain().focus().toggleHighlight().run(),
+          editor.isActive("highlight"),
+        )}
+        {btn(
+          "Inline code",
+          <CodeIcon {...ICON} />,
+          () => editor.chain().focus().toggleCode().run(),
+          editor.isActive("code"),
+        )}
+
+        <Divider orientation="vertical" flexItem sx={{ mx: 0.5, borderColor: BORDER }} />
+
+        {btn(
+          "Align left",
+          <AlignLeft {...ICON} />,
+          () => editor.chain().focus().setTextAlign("left").run(),
+          editor.isActive({ textAlign: "left" }),
+        )}
+        {btn(
+          "Align center",
+          <AlignCenter {...ICON} />,
+          () => editor.chain().focus().setTextAlign("center").run(),
+          editor.isActive({ textAlign: "center" }),
+        )}
+        {btn(
+          "Align right",
+          <AlignRight {...ICON} />,
+          () => editor.chain().focus().setTextAlign("right").run(),
+          editor.isActive({ textAlign: "right" }),
+        )}
 
         <Divider orientation="vertical" flexItem sx={{ mx: 0.5, borderColor: BORDER }} />
 
@@ -240,6 +283,12 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
           <Quote {...ICON} />,
           () => editor.chain().focus().toggleBlockquote().run(),
           editor.isActive("blockquote"),
+        )}
+        {btn(
+          "Code block",
+          <Code2 {...ICON} />,
+          () => editor.chain().focus().toggleCodeBlock().run(),
+          editor.isActive("codeBlock"),
         )}
         {btn(
           "Divider",
@@ -340,6 +389,12 @@ export default function RichTextEditor({ value, onChange, placeholder }) {
             cursor: "pointer",
           },
           "& .ProseMirror strong": { color: "#fff", fontWeight: 700 },
+          "& .ProseMirror mark": {
+            bgcolor: "#facc15",
+            color: "#1a1a1a",
+            borderRadius: 0.25,
+            px: 0.25,
+          },
           "& .ProseMirror blockquote": {
             borderLeft: `3px solid ${ACCENT}`,
             paddingLeft: "1em",

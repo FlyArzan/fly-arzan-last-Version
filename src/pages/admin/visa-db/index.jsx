@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Public as PublicIcon } from "@mui/icons-material";
 import { useAdminVisaList, useDeleteVisaCountry } from "@/hooks/useVisa";
+import { chipStyles } from "@/pages/admin/styles/dashboard-styles";
 import { toast } from "sonner";
 
 const cardSx = {
@@ -32,11 +33,18 @@ const getFlagEmoji = (code) => {
   return code.toUpperCase().split("").map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65)).join("");
 };
 
+// Explicit contrast-checked styles instead of MUI's bare "success"/"default"
+// color prop, which falls back to low-contrast defaults with no theme.
 const VISA_LABELS = {
-  yes: { label: "Visa Required", color: "error" },
-  no: { label: "Visa Free", color: "success" },
-  depends: { label: "Depends", color: "warning" },
-  check: { label: "Check", color: "default" },
+  yes: { label: "Visa Required", sx: chipStyles.danger },
+  no: { label: "Visa Free", sx: chipStyles.success },
+  depends: { label: "Depends", sx: chipStyles.warning },
+  check: { label: "Check", sx: chipStyles.neutral },
+};
+
+const STATUS_CHIP_SX = {
+  published: chipStyles.success,
+  draft: chipStyles.neutral,
 };
 
 const formatDate = (d) =>
@@ -154,7 +162,7 @@ export default function VisaAdmin() {
                         </Box>
                       </TableCell>
                       <TableCell sx={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                        <Chip label={visaLabel.label} size="small" color={visaLabel.color} />
+                        <Chip label={visaLabel.label} size="small" sx={visaLabel.sx} />
                       </TableCell>
                       <TableCell sx={{ color: "#9ca3af", borderColor: "rgba(255,255,255,0.06)", fontSize: 12 }}>
                         {c.eVisaAvailable === "yes" ? "✓" : c.eVisaAvailable === "no" ? "✗" : "—"}
@@ -163,7 +171,7 @@ export default function VisaAdmin() {
                         {c.visaOnArrival === "yes" ? "✓" : c.visaOnArrival === "no" ? "✗" : "—"}
                       </TableCell>
                       <TableCell sx={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                        <Chip label={c.status} size="small" color={c.status === "published" ? "success" : "default"} />
+                        <Chip label={c.status} size="small" sx={STATUS_CHIP_SX[c.status] || STATUS_CHIP_SX.draft} />
                       </TableCell>
                       <TableCell sx={{ color: "#9ca3af", borderColor: "rgba(255,255,255,0.06)", fontSize: 12 }}>
                         {formatDate(c.updatedAt)}

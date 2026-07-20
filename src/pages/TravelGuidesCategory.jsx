@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, ArrowRight, Flame, Plane, ChevronRight, X } from "lucide-react";
+import { Search, ArrowRight, Plane, ChevronRight, X } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
 import CategoryIcon from "../components/travel/CategoryIcon";
@@ -9,7 +9,16 @@ import {
   useArticles,
   useArticleCategories,
   useFeaturedArticles,
+  useHighlightedArticles,
 } from "../hooks/useArticles";
+
+// Shared thin white heading-bar: heading (left) + optional filter/action (right)
+const SectionHeadingBar = ({ children, right }) => (
+  <div className="tw:bg-white tw:rounded-xl tw:border tw:border-gray-100 tw:min-h-[52px]! tw:px-4! tw:py-2! tw:mb-4! tw:flex tw:items-center tw:justify-between tw:gap-3! tw:flex-wrap">
+    {children}
+    {right}
+  </div>
+);
 
 const formatDate = (d) =>
   d
@@ -29,18 +38,18 @@ const ArticleListCard = ({ article, categorySlug }) => {
   return (
     <Link
       to={`/travel-guides/${catSlug}/${article.slug}`}
-      className="tw:flex tw:gap-4! tw:bg-white tw:rounded-2xl tw:p-4! tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group tw:items-start"
+      className="tw:flex tw:gap-4! tw:py-5! tw:border-b tw:border-gray-100 tw:last:border-0 tw:group tw:items-start"
     >
       {article.featuredImage ? (
         <img
           src={article.featuredImage}
           alt={article.imageAlt || article.title}
-          className="tw:w-36 tw:self-stretch tw:min-h-24 tw:object-cover tw:rounded-xl tw:flex-shrink-0 tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+          className="tw:w-56! tw:h-44! tw:object-cover! tw:rounded-xl! tw:flex-shrink-0! tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-36 tw:self-stretch tw:min-h-24 tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
-          <CategoryIcon slug={catSlug} className="tw:w-7 tw:h-7" />
+        <div className="tw:w-56! tw:h-44! tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl! tw:flex-shrink-0! tw:flex tw:items-center tw:justify-center">
+          <CategoryIcon slug={catSlug} className="tw:w-8 tw:h-8" />
         </div>
       )}
       <div className="tw:flex-1 tw:min-w-0">
@@ -49,11 +58,11 @@ const ArticleListCard = ({ article, categorySlug }) => {
             {cat.name}
           </span>
         )}
-        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-lg tw:leading-snug tw:mb-1.5! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2">
+        <h3 className="tw:font-semibold tw:text-dark-purple tw:text-lg tw:leading-snug tw:mb-1.5! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2!">
           {article.title}
         </h3>
         {article.shortSummary && (
-          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-2 tw:mb-2! tw:leading-relaxed">
+          <p className="tw:text-gray-500 tw:text-base tw:line-clamp-2! tw:mb-2! tw:leading-relaxed">
             {article.shortSummary}
           </p>
         )}
@@ -83,29 +92,119 @@ const SidebarArticleCard = ({ article }) => {
   return (
     <Link
       to={`/travel-guides/${cat?.slug || "general-travel-advice"}/${article.slug}`}
-      className="tw:flex tw:gap-3! tw:py-3! tw:border-b tw:border-gray-100 tw:last:border-0 tw:group tw:items-start"
+      className="tw:flex tw:flex-col tw:group"
     >
       {article.featuredImage ? (
         <img
           src={article.featuredImage}
           alt={article.imageAlt || article.title}
-          className="tw:w-16 tw:self-stretch tw:min-h-10 tw:object-cover tw:rounded-lg tw:flex-shrink-0"
+          className="tw:w-full! tw:h-32! tw:object-cover! tw:rounded-xl! tw:mb-2.5! tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
           loading="lazy"
         />
       ) : (
-        <div className="tw:w-16 tw:self-stretch tw:min-h-10 tw:bg-primary/10 tw:text-dark-purple tw:rounded-lg tw:flex-shrink-0 tw:flex tw:items-center tw:justify-center">
-          <CategoryIcon slug={cat?.slug} className="tw:w-4 tw:h-4" />
+        <div className="tw:w-full! tw:h-32! tw:bg-primary/10 tw:text-dark-purple tw:rounded-xl! tw:mb-2.5! tw:flex tw:items-center tw:justify-center">
+          <CategoryIcon slug={cat?.slug} className="tw:w-7 tw:h-7" />
         </div>
       )}
-      <div className="tw:min-w-0">
-        <p className="tw:text-sm tw:font-medium tw:text-gray-800 tw:line-clamp-2 tw:group-hover:text-primary tw:transition-colors tw:leading-snug">
-          {article.title}
+      <p className="tw:text-sm tw:font-semibold tw:text-gray-800 tw:line-clamp-2! tw:group-hover:text-primary tw:transition-colors tw:leading-snug">
+        {article.title}
+      </p>
+      {article.shortSummary && (
+        <p className="tw:text-xs tw:text-gray-500 tw:line-clamp-2! tw:mt-1! tw:leading-relaxed">
+          {article.shortSummary}
         </p>
+      )}
+      <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-1! tw:text-xs tw:text-gray-400 tw:mt-1.5!">
+        {article.authorName && <span>{article.authorName}</span>}
         {article.readingTime && (
-          <p className="tw:text-xs tw:text-gray-400 tw:mt-0.5!">
-            {article.readingTime} min read
+          <>
+            {article.authorName && <span>·</span>}
+            <span>{article.readingTime} min read</span>
+          </>
+        )}
+        {article.publishedAt && (
+          <>
+            {(article.authorName || article.readingTime) && <span>·</span>}
+            <span>{formatDate(article.publishedAt)}</span>
+          </>
+        )}
+      </div>
+    </Link>
+  );
+};
+
+// Matches FeaturedCard's shape so the skeleton→real swap doesn't shift layout.
+const FeaturedCardSkeleton = () => (
+  <div className="tw:animate-pulse">
+    <div className="tw:w-full tw:h-56 tw:bg-gray-200/70 tw:rounded-2xl tw:mb-3!" />
+    <div className="tw:h-3 tw:w-20 tw:bg-gray-200/70 tw:rounded tw:mb-2!" />
+    <div className="tw:h-5 tw:w-full tw:bg-gray-200/70 tw:rounded tw:mb-2!" />
+    <div className="tw:h-4 tw:w-full tw:bg-gray-200/70 tw:rounded tw:mb-1.5!" />
+    <div className="tw:h-4 tw:w-2/3 tw:bg-gray-200/70 tw:rounded" />
+  </div>
+);
+
+// Matches SidebarArticleCard's shape.
+const SidebarCardSkeleton = () => (
+  <div className="tw:animate-pulse">
+    <div className="tw:w-full tw:h-32 tw:bg-gray-200/70 tw:rounded-xl! tw:mb-2.5!" />
+    <div className="tw:h-4 tw:w-full tw:bg-gray-200/70 tw:rounded tw:mb-1.5!" />
+    <div className="tw:h-3 tw:w-1/2 tw:bg-gray-200/70 tw:rounded" />
+  </div>
+);
+
+// Top-image/bottom-text card — same style as Featured Articles, reused for
+// the Highlights section. `compact` (used there) clamps the description to
+// 2 lines instead of 3 — everything else stays identical, so it only looks
+// smaller because Highlights sits in a narrower column.
+const FeaturedCard = ({ article, compact = false }) => {
+  const cat = article.articleCategory?.[0];
+  return (
+    <Link
+      to={`/travel-guides/${cat?.slug || "general-travel-advice"}/${article.slug}`}
+      className="tw:flex tw:flex-col tw:group"
+    >
+      {article.featuredImage ? (
+        <img
+          src={article.featuredImage}
+          alt={article.imageAlt || article.title}
+          width="400"
+          height="200"
+          loading="lazy"
+          className="tw:w-full! tw:h-56! tw:object-cover! tw:rounded-2xl! tw:mb-3! tw:group-hover:scale-105 tw:transition-transform tw:duration-300"
+        />
+      ) : (
+        <div className="tw:w-full! tw:h-56! tw:bg-primary/10 tw:text-dark-purple tw:rounded-2xl! tw:mb-3! tw:flex tw:items-center tw:justify-center">
+          <CategoryIcon slug={cat?.slug} className="tw:w-12 tw:h-12" />
+        </div>
+      )}
+      <div className="tw:flex tw:flex-col tw:flex-1">
+        {cat && (
+          <span className="tw:text-xs tw:font-semibold tw:text-primary tw:uppercase tw:tracking-wide tw:mb-2! tw:block">
+            {cat.name}
+          </span>
+        )}
+        <h3 className="tw:font-bold tw:text-dark-purple tw:text-xl tw:leading-snug tw:mb-2! tw:group-hover:text-primary tw:transition-colors tw:line-clamp-2!">
+          {article.title}
+        </h3>
+        {article.shortSummary && (
+          // Explicit maxHeight hard-caps the clamp so no line leaks past it
+          // (see TravelGuidesHub.jsx's FeaturedCard for the full rationale).
+          <p
+            className={`tw:text-gray-500 tw:text-base tw:mb-3! tw:leading-relaxed tw:overflow-hidden! ${compact ? "tw:line-clamp-2!" : "tw:line-clamp-3!"}`}
+            style={{ maxHeight: compact ? "3.25em" : "4.875em" }}
+          >
+            {article.shortSummary}
           </p>
         )}
+        <div className="tw:flex tw:items-center tw:flex-wrap tw:gap-1.5! tw:text-xs tw:text-gray-400 tw:mb-3!">
+          {article.readingTime && <span>{article.readingTime} min read</span>}
+          {article.readingTime && article.publishedAt && <span>·</span>}
+          {article.publishedAt && <span>{formatDate(article.publishedAt)}</span>}
+        </div>
+        <span className="tw:inline-flex tw:items-center tw:gap-1! tw:text-sm tw:font-semibold tw:text-primary tw:mt-auto!">
+          Read more <ArrowRight className="tw:w-4 tw:h-4 tw:group-hover:translate-x-0.5 tw:transition-transform" />
+        </span>
       </div>
     </Link>
   );
@@ -123,8 +222,9 @@ const TravelGuidesCategory = () => {
   const page = parseInt(searchParams.get("page") || "0");
   const search = searchParams.get("search") || "";
 
-  const { data: categories = [] } = useArticleCategories();
-  const { data: featured = [] } = useFeaturedArticles();
+  const { data: categories = [], isLoading: catLoading } = useArticleCategories();
+  const { data: featured = [], isLoading: featuredLoading } = useFeaturedArticles();
+  const { data: highlights = [], isLoading: highlightsLoading } = useHighlightedArticles();
   const isAll = !category || category === "all";
   const catMeta = isAll ? null : categories.find((c) => c.slug === category);
 
@@ -138,6 +238,17 @@ const TravelGuidesCategory = () => {
   const articles = data?.articles || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / LIMIT);
+
+  // See TravelGuidesHub.jsx for the rationale: wait for every parallel query
+  // at once (a "Promise.all" over the hooks) instead of letting each section
+  // pop in whenever it happens to resolve, which causes layout jumps during
+  // initial load. Once ready, it stays ready — later filter/search/pagination
+  // reloads use the article list's own local skeleton instead.
+  const initialLoading = catLoading || featuredLoading || highlightsLoading || isLoading;
+  const [pageReady, setPageReady] = useState(false);
+  useEffect(() => {
+    if (!initialLoading) setPageReady(true);
+  }, [initialLoading]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -158,7 +269,7 @@ const TravelGuidesCategory = () => {
   // Brand-aligned select (chevron via inline SVG; explicit dark text so the
   // legacy cascade can't wash it out).
   const selectClass =
-    "tw:h-11 tw:pl-4! tw:pr-9! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-white! tw:text-sm tw:font-medium tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20 tw:appearance-none tw:bg-no-repeat tw:cursor-pointer";
+    "tw:h-9 tw:pl-3.5! tw:pr-8! tw:rounded-lg tw:border tw:border-gray-200 tw:bg-white! tw:text-sm tw:font-medium tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20 tw:appearance-none tw:bg-no-repeat tw:cursor-pointer";
   const selectStyle = {
     color: "#374151",
     backgroundColor: "#ffffff",
@@ -261,63 +372,73 @@ const TravelGuidesCategory = () => {
           {/* LEFT — 3/4 */}
           <div className="tw:flex-1 tw:min-w-0">
 
-            {/* Filter toolbar — wide search (icon inside, Enter to search) +
-                category dropdown. Top pills removed per feedback; the
-                right-sidebar "Other Topics" links remain for navigation. */}
-            <div className="tw:flex tw:flex-col tw:sm:flex-row tw:gap-3! tw:mb-6!">
-              <form onSubmit={handleSearch} className="tw:relative tw:flex-1">
-                <button
-                  type="submit"
-                  aria-label="Search"
-                  className="tw:absolute tw:left-3.5 tw:top-1/2 tw:-translate-y-1/2 tw:text-gray-400! tw:hover:text-primary!"
-                >
-                  <Search className="tw:w-4 tw:h-4" />
-                </button>
-                <input
-                  type="text"
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder={`Search ${catName.toLowerCase()}…`}
-                  style={{ color: "#111827", backgroundColor: "#ffffff" }}
-                  className="tw:w-full tw:h-11 tw:pl-10! tw:pr-9! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-white! tw:text-gray-900! tw:placeholder:text-gray-400 tw:text-sm tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20"
-                />
-                {search && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearchInput("");
-                      setSearchParams({ page: 0 });
-                    }}
-                    aria-label="Clear search"
-                    className="tw:absolute tw:right-3 tw:top-1/2 tw:-translate-y-1/2 tw:text-gray-400! tw:hover:text-gray-600!"
-                  >
-                    <X className="tw:w-4 tw:h-4" />
-                  </button>
-                )}
-              </form>
-              <select
-                aria-label="Filter by category"
-                value={isAll ? "all" : category}
-                onChange={(e) => handleCatNav(e.target.value)}
-                className={`${selectClass} tw:sm:w-56`}
-                style={selectStyle}
+            {/* Search — full width, icon inside, Enter to search */}
+            <form onSubmit={handleSearch} className="tw:relative tw:mb-3!">
+              <button
+                type="submit"
+                aria-label="Search"
+                className="tw:absolute tw:left-3.5 tw:top-1/2 tw:-translate-y-1/2 tw:text-gray-400! tw:hover:text-primary!"
               >
-                <option value="all">All Categories</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.slug}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <Search className="tw:w-4 tw:h-4" />
+              </button>
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder={`Search ${catName.toLowerCase()}…`}
+                style={{ color: "#111827", backgroundColor: "#ffffff" }}
+                className="tw:w-full tw:h-11 tw:pl-10! tw:pr-9! tw:rounded-xl tw:border tw:border-gray-200 tw:bg-white! tw:text-gray-900! tw:placeholder:text-gray-400 tw:text-sm tw:outline-none tw:focus:border-primary tw:focus:ring-2 tw:focus:ring-primary/20"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchInput("");
+                    setSearchParams({ page: 0 });
+                  }}
+                  aria-label="Clear search"
+                  className="tw:absolute tw:right-3 tw:top-1/2 tw:-translate-y-1/2 tw:text-gray-400! tw:hover:text-gray-600!"
+                >
+                  <X className="tw:w-4 tw:h-4" />
+                </button>
+              )}
+            </form>
 
-            {/* Results count */}
-            {!isLoading && (
-              <p className="tw:text-sm tw:text-gray-400 tw:mb-5!">
-                {total} {total === 1 ? "article" : "articles"}
-                {search && ` matching "${search}"`}
-              </p>
-            )}
+            {/* Section heading — thin white bar, no shadow: heading + count on
+                the left, category filter on the right */}
+            <SectionHeadingBar
+              right={
+                <div className="tw:relative">
+                  <label htmlFor="cat-filter" className="tw:sr-only">
+                    Filter by category
+                  </label>
+                  <select
+                    id="cat-filter"
+                    aria-label="Filter by category"
+                    value={isAll ? "all" : category}
+                    onChange={(e) => handleCatNav(e.target.value)}
+                    className={selectClass}
+                    style={selectStyle}
+                  >
+                    <option value="all">All Categories</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.slug}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              }
+            >
+              <h2 className="tw:text-xl tw:font-bold! tw:text-dark-purple">
+                {catName}
+                {!isLoading && (
+                  <span className="tw:text-gray-400 tw:font-normal tw:text-base tw:ml-2!">
+                    ({total})
+                  </span>
+                )}
+              </h2>
+            </SectionHeadingBar>
 
             {/* Article list */}
             {isLoading ? (
@@ -342,7 +463,7 @@ const TravelGuidesCategory = () => {
                 </p>
               </div>
             ) : (
-              <div className="tw:flex tw:flex-col tw:gap-4!">
+              <div className="tw:flex tw:flex-col">
                 {articles.map((a) => (
                   <ArticleListCard
                     key={a.id}
@@ -375,14 +496,43 @@ const TravelGuidesCategory = () => {
                 </button>
               </div>
             )}
+
+            {/* Highlights — admin-curated (highlighted: true),
+                same top-image/bottom-text style as Featured Articles. Heading
+                always renders (with an empty state when nothing's curated
+                yet) instead of the section appearing/disappearing once data
+                loads. */}
+            <section className="tw:mt-10!">
+              <SectionHeadingBar>
+                <h2 className="tw:text-xl tw:font-extrabold! tw:text-dark-purple">
+                  Highlights
+                </h2>
+              </SectionHeadingBar>
+              {!pageReady ? (
+                <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-5!">
+                  {[...Array(3)].map((_, i) => <FeaturedCardSkeleton key={i} />)}
+                </div>
+              ) : highlights.length > 0 ? (
+                <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-5!">
+                  {highlights.slice(0, 6).map((a) => (
+                    <FeaturedCard key={a.id} article={a} compact />
+                  ))}
+                </div>
+              ) : (
+                <p className="tw:text-sm tw:text-gray-400 tw:py-6! tw:text-center">
+                  No articles curated here yet. Check back soon.
+                </p>
+              )}
+            </section>
           </div>
 
-          {/* RIGHT — 1/4 sidebar */}
-          <aside className="tw:lg:w-72 tw:xl:w-80 tw:flex-shrink-0 tw:space-y-6!">
+          {/* RIGHT — narrower sidebar; the main column's images stay the
+              visually dominant ones, sidebar is a compact companion */}
+          <aside className="tw:lg:w-72 tw:xl:w-80 tw:flex-shrink-0 tw:space-y-8!">
 
             {/* About this category */}
             {!isAll && catMeta && catMeta.description && (
-              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
+              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:p-5!">
                 <h2 className="tw:text-base tw:font-bold tw:text-dark-purple tw:mb-2!">
                   About this category
                 </h2>
@@ -399,24 +549,57 @@ const TravelGuidesCategory = () => {
               </div>
             )}
 
-            {/* Popular Reads */}
-            {featured.length > 0 && (
-              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
-                <h2 className="tw:text-base tw:font-bold tw:text-dark-purple tw:mb-4! tw:flex tw:items-center tw:gap-2!">
-                  <Flame className="tw:w-4 tw:h-4 tw:text-primary" /> Popular Reads
-                </h2>
-                {featured.slice(0, 4).map((a) => (
-                  <SidebarArticleCard key={a.id} article={a} />
-                ))}
+            {/* Popular Reads — plain image + text, no card chrome */}
+            {!pageReady ? (
+              <div>
+                <SectionHeadingBar>
+                  <h2 className="tw:text-base tw:font-extrabold! tw:text-dark-purple">
+                    Popular Reads
+                  </h2>
+                </SectionHeadingBar>
+                <div className="tw:space-y-5!">
+                  {[...Array(6)].map((_, i) => <SidebarCardSkeleton key={i} />)}
+                </div>
               </div>
+            ) : (
+              featured.length > 0 && (
+                <div>
+                  <SectionHeadingBar>
+                    <h2 className="tw:text-base tw:font-extrabold! tw:text-dark-purple">
+                      Popular Reads
+                    </h2>
+                  </SectionHeadingBar>
+                  <div className="tw:space-y-5!">
+                    {featured.slice(0, 6).map((a) => (
+                      <SidebarArticleCard key={a.id} article={a} />
+                    ))}
+                  </div>
+                </div>
+              )
             )}
 
-            {/* Other Topics */}
-            {categories.length > 0 && (
-              <div className="tw:bg-white tw:rounded-2xl tw:border tw:border-gray-100 tw:shadow-sm tw:p-5!">
-                <h2 className="tw:text-base tw:font-bold tw:text-dark-purple tw:mb-3!">
-                  Other Topics
-                </h2>
+            {/* Browse by Topics — plain hoverable list, no card chrome */}
+            {!pageReady ? (
+              <div>
+                <SectionHeadingBar>
+                  <h2 className="tw:text-base tw:font-bold! tw:text-dark-purple">
+                    Browse by Topics
+                  </h2>
+                </SectionHeadingBar>
+                <div className="tw:space-y-2! tw:animate-pulse">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="tw:h-9 tw:bg-gray-200/70 tw:rounded-lg" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              categories.length > 0 && (
+              <div>
+                <SectionHeadingBar>
+                  <h2 className="tw:text-base tw:font-bold! tw:text-dark-purple">
+                    Browse by Topics
+                  </h2>
+                </SectionHeadingBar>
                 <div className="tw:space-y-0.5!">
                   {categories
                     .filter((c) => c.slug !== category)
@@ -424,14 +607,14 @@ const TravelGuidesCategory = () => {
                       <Link
                         key={cat.id}
                         to={`/travel-guides/${cat.slug}`}
-                        className="tw:flex tw:items-center tw:justify-between tw:px-3! tw:py-2! tw:rounded-lg tw:text-sm tw:text-gray-600 tw:hover:bg-gray-50 tw:hover:text-dark-purple tw:transition-colors"
+                        className="tw:flex tw:items-center tw:justify-between tw:px-3! tw:py-2! tw:rounded-lg tw:text-sm tw:text-gray-600! tw:hover:bg-white! tw:hover:text-dark-purple! tw:transition-colors"
                       >
                         <span className="tw:flex tw:items-center tw:gap-2!">
                           <CategoryIcon slug={cat.slug} className="tw:w-4 tw:h-4" />
                           <span>{cat.name}</span>
                         </span>
                         {cat.articleCount > 0 && (
-                          <span className="tw:text-xs tw:bg-gray-100 tw:text-gray-500 tw:rounded-full tw:px-2! tw:py-0.5! tw:flex-shrink-0">
+                          <span className="tw:text-xs tw:bg-primary! tw:text-white! tw:font-bold tw:rounded-full tw:px-2! tw:py-0.5! tw:flex-shrink-0">
                             {cat.articleCount}
                           </span>
                         )}
@@ -439,6 +622,7 @@ const TravelGuidesCategory = () => {
                     ))}
                 </div>
               </div>
+              )
             )}
 
             {/* Flight CTA */}
@@ -454,7 +638,7 @@ const TravelGuidesCategory = () => {
                 travel deals.
               </p>
               <Link
-                to="/search/flight"
+                to="/"
                 className="tw:block tw:text-center tw:bg-white! tw:text-[#1c6993]! tw:font-semibold tw:rounded-xl tw:px-4! tw:py-2.5! tw:text-sm tw:hover:bg-white/90! tw:transition-colors"
               >
                 Search Flights

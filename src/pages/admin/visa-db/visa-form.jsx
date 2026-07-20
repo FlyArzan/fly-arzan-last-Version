@@ -73,6 +73,11 @@ export default function VisaCountryForm() {
 
   const [form, setForm] = useState(defaultForm);
   const [slugManuallySet, setSlugManuallySet] = useState(false);
+  // See article-form.jsx's `hydrated` flag for why this is needed: gates
+  // rendering until `form` is actually filled, not just until the network
+  // request resolves, so fields never mount empty then get filled post-mount
+  // (which can desync the outlined notch from the shrunk label).
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     if (isEdit && existing) {
@@ -115,6 +120,7 @@ export default function VisaCountryForm() {
         },
       });
       setSlugManuallySet(true);
+      setHydrated(true);
     }
   }, [isEdit, existing]);
 
@@ -195,7 +201,7 @@ export default function VisaCountryForm() {
     );
   };
 
-  if (isEdit && isLoading) return <Box sx={{ p: 4, color: "#9ca3af" }}>Loading…</Box>;
+  if (isEdit && (isLoading || !hydrated)) return <Box sx={{ p: 4, color: "#9ca3af" }}>Loading…</Box>;
 
   const selectField = (label, field, options) => (
     <FormControl fullWidth size="small" sx={textFieldSx}>

@@ -4,6 +4,7 @@ import {
   Box, Typography, Button, TextField, Stack, Card, CardHeader,
   CardContent, Alert, Chip, FormControl, InputLabel, Select,
   MenuItem, OutlinedInput, Checkbox, ListItemText, IconButton, Divider,
+  FormControlLabel,
 } from "@mui/material";
 import {
   Save as SaveIcon, ArrowBack as ArrowBackIcon,
@@ -11,6 +12,7 @@ import {
 } from "@mui/icons-material";
 import { useAdminArticle, useAdminArticles, useSaveArticle, useArticleCategories } from "@/hooks/useArticles";
 import ImageUpload from "@/components/admin/ImageUpload";
+import PdfUpload from "@/components/admin/PdfUpload";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import { toast } from "sonner";
 
@@ -34,10 +36,13 @@ const textFieldSx = {
 const labelSx = { color: "#9ca3af", fontFamily: "Inter", fontSize: 13, mb: 0.5 };
 
 const defaultForm = {
-  title: "", slug: "", shortSummary: "", body: "", featuredImage: "",
+  title: "", slug: "", shortSummary: "",
+  articleType: "article", body: "", pdfFile: "", pdfFileKey: "",
+  featuredImage: "",
   featuredImageKey: "",
   imageAlt: "", authorName: "Fly Arzan Travel Team", readingTime: "",
   metaTitle: "", metaDescription: "", keywords: "", status: "draft",
+  featured: false, highlighted: false,
   publishedAt: "", categoryIds: [], faqs: [], relatedArticles: [],
 };
 
@@ -56,6 +61,13 @@ export default function ArticleForm() {
 
   const [form, setForm] = useState(defaultForm);
   const [slugManuallySet, setSlugManuallySet] = useState(false);
+  // Edit mode fetches the article async, then fills `form` via this effect —
+  // a render happens in between with fields mounted but still empty. Letting
+  // outlined TextFields go from "mounted empty" to "filled" post-mount is
+  // what causes their notch to sometimes desync from the shrunk label (a
+  // stray line through the floating label). Gate rendering on this instead
+  // of just the network isLoading flag so fields never mount pre-fill.
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     if (isEdit && existing) {
@@ -63,7 +75,10 @@ export default function ArticleForm() {
         title: existing.title || "",
         slug: existing.slug || "",
         shortSummary: existing.shortSummary || "",
+        articleType: existing.articleType || "article",
         body: existing.body || "",
+        pdfFile: existing.pdfFile || "",
+        pdfFileKey: "",
         featuredImage: existing.featuredImage || "",
         featuredImageKey: "",
         imageAlt: existing.imageAlt || "",
@@ -73,12 +88,15 @@ export default function ArticleForm() {
         metaDescription: existing.metaDescription || "",
         keywords: existing.keywords || "",
         status: existing.status || "draft",
+        featured: Boolean(existing.featured),
+        highlighted: Boolean(existing.highlighted),
         publishedAt: existing.publishedAt ? existing.publishedAt.substring(0, 10) : "",
         categoryIds: (existing.articleCategory || []).map((c) => c.id),
         faqs: Array.isArray(existing.faqs) ? existing.faqs : [],
         relatedArticles: Array.isArray(existing.relatedArticles) ? existing.relatedArticles : [],
       });
       setSlugManuallySet(true);
+      setHydrated(true);
     }
   }, [isEdit, existing]);
 
@@ -122,16 +140,27 @@ export default function ArticleForm() {
   };
 
   const handleSave = () => {
-    // TipTap emits "<p></p>" for an empty document — treat that (and any
-    // tag-only/whitespace body without media) as missing content.
-    const bodyText = (form.body || "").replace(/<[^>]*>/g, "").trim();
-    const bodyHasMedia = /<(img|table|iframe|hr)/i.test(form.body || "");
-    const isBodyEmpty = !bodyText && !bodyHasMedia;
-    if (!form.title || !form.slug || isBodyEmpty) {
-      toast.error("Title, slug, and body are required");
+    if (!form.title || !form.slug) {
+      toast.error("Title and slug are required");
       return;
     }
-    const payload = { ...form, body: form.body };
+    if (form.articleType === "pdf") {
+      if (!form.pdfFile) {
+        toast.error("Please upload a PDF file");
+        return;
+      }
+    } else {
+      // TipTap emits "<p></p>" for an empty document — treat that (and any
+      // tag-only/whitespace body without media) as missing content.
+      const bodyText = (form.body || "").replace(/<[^>]*>/g, "").trim();
+      const bodyHasMedia = /<(img|table|iframe|hr)/i.test(form.body || "");
+      const isBodyEmpty = !bodyText && !bodyHasMedia;
+      if (isBodyEmpty) {
+        toast.error("Body is required");
+        return;
+      }
+    }
+    const payload = { ...form };
     saveMutation.mutate(
       { id: isEdit ? id : null, data: payload },
       {
@@ -144,7 +173,7 @@ export default function ArticleForm() {
     );
   };
 
-  if (isEdit && isLoading) {
+  if (isEdit && (isLoading || !hydrated)) {
     return (
       <Box sx={{ p: 4, color: "#9ca3af", fontFamily: "Inter" }}>Loading article…</Box>
     );
@@ -192,6 +221,20 @@ export default function ArticleForm() {
 
       {saveMutation.isError && <Alert severity="error">Failed to save article</Alert>}
 
+      {/* Article Type — first row; switches the body between a rich-text
+          editor and a PDF uploader */}
+      <Card sx={cardSx}>
+        <CardContent sx={{ px: 2.5, py: 2.5 }}>
+          <FormControl size="small" sx={{ ...textFieldSx, minWidth: 240 }}>
+            <InputLabel>Article Type</InputLabel>
+            <Select value={form.articleType} label="Article Type" onChange={set("articleType")}>
+              <MenuItem value="article">Article</MenuItem>
+              <MenuItem value="pdf">PDF</MenuItem>
+            </Select>
+          </FormControl>
+        </CardContent>
+      </Card>
+
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 320px" }, gap: 3 }}>
         {/* Main */}
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -216,21 +259,40 @@ export default function ArticleForm() {
             </CardContent>
           </Card>
 
-          {/* Article body */}
-          <Card sx={cardSx}>
-            <CardHeader
-              title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Article Body *</Typography>}
-              subheader={<Typography variant="caption" sx={{ color: "#71717A", fontFamily: "Inter" }}>Format with the toolbar — headings, lists, links, images and tables. Saved as clean HTML.</Typography>}
-              sx={{ px: 2.5, pt: 2.25, pb: 1 }}
-            />
-            <CardContent sx={{ px: 2.5, pb: 2.5 }}>
-              <RichTextEditor
-                value={form.body}
-                onChange={(html) => setForm((p) => ({ ...p, body: html }))}
-                placeholder="Write the article content…"
+          {/* Article body — a rich-text editor for normal articles, or a PDF
+              uploader for PDF-type articles (mutually exclusive) */}
+          {form.articleType === "pdf" ? (
+            <Card sx={cardSx}>
+              <CardHeader
+                title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>PDF Document *</Typography>}
+                subheader={<Typography variant="caption" sx={{ color: "#71717A", fontFamily: "Inter" }}>Shown to visitors instead of a written article.</Typography>}
+                sx={{ px: 2.5, pt: 2.25, pb: 1 }}
               />
-            </CardContent>
-          </Card>
+              <CardContent sx={{ px: 2.5, pb: 2.5 }}>
+                <PdfUpload
+                  value={form.pdfFile}
+                  objectKey={form.pdfFileKey}
+                  onChange={(url, key) => setForm((p) => ({ ...p, pdfFile: url, pdfFileKey: key }))}
+                  helperText="Uploading a new file replaces the previous one; removing deletes it from storage."
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <Card sx={cardSx}>
+              <CardHeader
+                title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Article Body *</Typography>}
+                subheader={<Typography variant="caption" sx={{ color: "#71717A", fontFamily: "Inter" }}>Format with the toolbar — headings, lists, links, images and tables. Saved as clean HTML.</Typography>}
+                sx={{ px: 2.5, pt: 2.25, pb: 1 }}
+              />
+              <CardContent sx={{ px: 2.5, pb: 2.5 }}>
+                <RichTextEditor
+                  value={form.body}
+                  onChange={(html) => setForm((p) => ({ ...p, body: html }))}
+                  placeholder="Write the article content…"
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {/* FAQs */}
           <Card sx={cardSx}>
@@ -289,6 +351,26 @@ export default function ArticleForm() {
                   value={form.publishedAt} onChange={set("publishedAt")}
                   InputLabelProps={{ shrink: true }}
                   sx={textFieldSx}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={form.featured}
+                      onChange={(e) => setForm((p) => ({ ...p, featured: e.target.checked }))}
+                      sx={{ color: "#9ca3af" }}
+                    />
+                  }
+                  label={<Typography sx={{ color: "#e5e7eb", fontSize: 13 }}>Show in Featured Articles</Typography>}
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={form.highlighted}
+                      onChange={(e) => setForm((p) => ({ ...p, highlighted: e.target.checked }))}
+                      sx={{ color: "#9ca3af" }}
+                    />
+                  }
+                  label={<Typography sx={{ color: "#e5e7eb", fontSize: 13 }}>Show in Highlights</Typography>}
                 />
               </Stack>
             </CardContent>

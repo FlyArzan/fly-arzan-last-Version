@@ -1,19 +1,24 @@
 /**
- * Server-side SEO head injection.
+ * Server-side SEO injection for the client-rendered SPA.
  *
- * The app is a client-rendered SPA: without this, every route is served the
- * same static index.html, so crawlers (and Ahrefs, which doesn't run JS) see
- * the homepage <title>/description/canonical on all 23 pages. react-helmet does
- * set correct per-page tags, but only AFTER JavaScript executes in a browser —
- * invisible to non-JS crawlers.
+ * Without this, every route is served the same static index.html, so crawlers
+ * (and Ahrefs, which doesn't run JS) see the homepage title/description on all
+ * pages, no canonical, no H1, no body text, and no internal links — every page
+ * looks byte-identical. react-helmet does set correct tags and the app renders
+ * real content, but only AFTER JavaScript runs — invisible to non-JS crawlers.
  *
- * This module rewrites the delivered HTML's <title>, meta description,
- * canonical, and Open Graph / Twitter tags per route BEFORE sending it, so the
- * correct meta is in the raw HTML. react-helmet still runs client-side and
- * takes over for real users (with matching values), so there's no conflict.
+ * Two layers:
+ *   1. injectSeo()  — rewrites <title>, description, canonical and OG/Twitter
+ *      tags per route. Applied for EVERYONE (head-only, no visible effect).
+ *   2. renderSeoBody()/injectBody() — builds real crawlable body content (H1,
+ *      intro, article body, and a site-wide navigation link list) and injects
+ *      it into #root. Applied ONLY for crawlers (see isCrawler): React's
+ *      createRoot replaces #root on mount, so real users never see it and get
+ *      no flash of unstyled content. Same content reaches users via client
+ *      render, so this is legitimate (not cloaking).
  *
- * Static routes come from ROUTE_META. Dynamic article pages have their real
- * title/description fetched from the backend and cached in memory.
+ * Static routes come from ROUTE_META; article/category pages are fetched from
+ * the backend and cached in memory.
  */
 
 const SITE_ORIGIN = (process.env.SITE_ORIGIN || "https://flyarzan.com").replace(
@@ -119,6 +124,34 @@ const NOINDEX_PREFIXES = [
 
 const SITE_NAME = "FlyArzan";
 
+// Primary site navigation, injected into every crawled page so no page is an
+// orphan (every page links to these, and these link back) and no page is
+// flagged "no outgoing links". Mirrors the real header/footer navigation.
+const SITE_NAV = [
+  { href: "/", label: "Home" },
+  { href: "/Hotels", label: "Hotels" },
+  { href: "/Car", label: "Car Rental" },
+  { href: "/travel-guides", label: "Travel Guides" },
+  { href: "/visa-information", label: "Visa Information" },
+  { href: "/About", label: "About Us" },
+  { href: "/Contact", label: "Contact" },
+  { href: "/Faq", label: "FAQ" },
+  { href: "/Airport", label: "Airport Information" },
+  { href: "/COVID", label: "COVID-19 Travel Information" },
+  { href: "/PrivacyPolicy", label: "Privacy Policy" },
+  { href: "/TermsAndConditions", label: "Terms & Conditions" },
+  // Travel-guide categories.
+  { href: "/travel-guides/destination-guides", label: "Destination Guides" },
+  { href: "/travel-guides/airport-guides", label: "Airport Guides" },
+  { href: "/travel-guides/baggage-information", label: "Baggage Information" },
+  { href: "/travel-guides/travel-guidelines", label: "Travel Guidelines" },
+  { href: "/travel-guides/flight-booking-tips", label: "Flight Booking Tips" },
+  { href: "/travel-guides/visa-travel-documents", label: "Visa & Travel Documents" },
+  { href: "/travel-guides/travel-tips", label: "Travel Tips" },
+  { href: "/travel-guides/travel-news", label: "Travel News" },
+  { href: "/travel-guides/general-travel-advice", label: "General Travel Advice" },
+];
+
 // ---------------------------------------------------------------------------
 // Tiny in-memory TTL cache for dynamic (backend-fetched) route meta.
 // ---------------------------------------------------------------------------
@@ -189,6 +222,9 @@ export const resolveMeta = async (pathname) => {
           article?.shortSummary ||
           ROUTE_META["/travel-guides"].description,
         image: article?.featuredImage || undefined,
+        h1: article?.title || title,
+        intro: article?.shortSummary || article?.metaDescription || undefined,
+        content: article?.body || undefined,
       };
       setCached(pathname, meta);
       return meta;
@@ -197,13 +233,30 @@ export const resolveMeta = async (pathname) => {
     return ROUTE_META["/travel-guides"];
   }
 
-  // /travel-guides/:category  -> derive a clean title from the slug.
+  // /travel-guides/:category  -> clean title from the slug + list of its
+  // articles (so the category page has real content and links each article,
+  // de-orphaning them).
   if (segments[0] === "travel-guides" && segments.length === 2) {
-    const name = prettifySlug(segments[1]);
-    return {
+    const cached = getCached(pathname);
+    if (cached) return cached;
+    const categorySlug = segments[1];
+    const name = prettifySlug(categorySlug);
+    const list = await fetchJson(
+      `${resolveApiUrl()}/api/articles?category=${encodeURIComponent(categorySlug)}&limit=24`,
+    );
+    const links = (list?.articles || []).map((a) => ({
+      href: `/travel-guides/${a?.articleCategory?.[0]?.slug || categorySlug}/${a.slug}`,
+      label: a.title,
+    }));
+    const meta = {
       title: `${name} | Travel Guides | ${SITE_NAME}`,
       description: `${name} — travel tips, guides and useful information from ${SITE_NAME}.`,
+      h1: name,
+      intro: `Browse ${name.toLowerCase()} articles, tips and guides from ${SITE_NAME}.`,
+      links,
     };
+    setCached(pathname, meta);
+    return meta;
   }
 
   // /visa-information/:slug  -> derive from the slug (usually a country).
@@ -212,6 +265,8 @@ export const resolveMeta = async (pathname) => {
     return {
       title: `${name} Visa Requirements & Information | ${SITE_NAME}`,
       description: `Visa requirements, entry rules and travel documentation for ${name}, from ${SITE_NAME}.`,
+      h1: `${name} Visa Requirements`,
+      intro: `Visa requirements, entry rules and travel documentation for ${name}, from ${SITE_NAME}.`,
     };
   }
 
@@ -289,3 +344,78 @@ export const injectSeo = (html, meta, canonical) => {
 };
 
 export const canonicalFor = (pathname) => `${SITE_ORIGIN}${pathname}`;
+
+// ---------------------------------------------------------------------------
+// Body content injection (crawlers only — see isCrawler / server.mjs).
+// ---------------------------------------------------------------------------
+
+// Defensive: article body is admin-authored rich text (safe), but strip any
+// scripts/styles/inline handlers before placing it in the document.
+const stripUnsafeHtml = (html) =>
+  String(html || "")
+    .replace(/<script\b[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, "")
+    .replace(/\son\w+="[^"]*"/gi, "")
+    .replace(/\son\w+='[^']*'/gi, "");
+
+// Fall back to a clean H1 derived from the title: everything before the first
+// "|" separator (e.g. "Car Rental Deals Worldwide | FlyArzan" -> "Car Rental
+// Deals Worldwide").
+const h1FromTitle = (title) =>
+  String(title || SITE_NAME).split("|")[0].trim() || SITE_NAME;
+
+export const renderNav = () =>
+  `<nav aria-label="Site navigation"><ul>` +
+  SITE_NAV.map(
+    (l) => `<li><a href="${escapeAttr(l.href)}">${escapeText(l.label)}</a></li>`,
+  ).join("") +
+  `</ul></nav>`;
+
+/**
+ * Build crawlable body content for a route: H1 + intro + (article body or a
+ * list of links) + the site navigation. Returned as a single #seo-content
+ * block that React's createRoot wipes on mount (so real users never see it).
+ */
+export const renderSeoBody = (pathname, meta = {}) => {
+  const parts = [`<h1>${escapeText(meta.h1 || h1FromTitle(meta.title))}</h1>`];
+
+  const intro = meta.intro || meta.description;
+  if (intro) parts.push(`<p>${escapeText(intro)}</p>`);
+
+  if (meta.content) parts.push(`<article>${stripUnsafeHtml(meta.content)}</article>`);
+
+  if (Array.isArray(meta.links) && meta.links.length) {
+    parts.push(
+      `<ul>` +
+        meta.links
+          .map(
+            (l) =>
+              `<li><a href="${escapeAttr(l.href)}">${escapeText(l.label)}</a></li>`,
+          )
+          .join("") +
+        `</ul>`,
+    );
+  }
+
+  parts.push(renderNav());
+  return `<div id="seo-content">${parts.join("")}</div>`;
+};
+
+// Inject rendered body content into the empty #root. Exact-match replace; if the
+// marker isn't found (unexpected build output), returns the HTML unchanged.
+export const injectBody = (html, bodyHtml) => {
+  if (!bodyHtml) return html;
+  return html.replace(
+    '<div id="root"></div>',
+    `<div id="root">${bodyHtml}</div>`,
+  );
+};
+
+// Detect search-engine / SEO crawlers by User-Agent. Body content is injected
+// only for these; real browsers get the untouched shell (no flash of unstyled
+// content). The same content is available to users via client render, so this
+// is legitimate dynamic rendering, not cloaking.
+const CRAWLER_UA =
+  /(googlebot|bingbot|slurp|duckduckbot|baiduspider|yandex|sogou|exabot|facebot|facebookexternalhit|twitterbot|linkedinbot|embedly|slackbot|whatsapp|applebot|petalbot|ahrefsbot|ahrefssiteaudit|semrushbot|dotbot|mj12bot|rogerbot|screaming\sfrog|bot\b|crawler|spider)/i;
+
+export const isCrawler = (userAgent = "") => CRAWLER_UA.test(userAgent || "");

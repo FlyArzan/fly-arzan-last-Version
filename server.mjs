@@ -8,7 +8,14 @@ import {
   isKnownSpaPath,
   normalizePathname,
 } from "./spa-route-allowlist.mjs";
-import { resolveMeta, injectSeo, canonicalFor } from "./seo.mjs";
+import {
+  resolveMeta,
+  injectSeo,
+  canonicalFor,
+  renderSeoBody,
+  injectBody,
+  isCrawler,
+} from "./seo.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(__dirname, "dist");
@@ -101,10 +108,22 @@ app.use(async (req, res) => {
     const meta = await resolveMeta(normalized);
     // Unknown paths render as a client-side 404 — keep them out of the index.
     const finalMeta = status === 404 ? { ...meta, noindex: true } : meta;
-    const html = injectSeo(INDEX_HTML, finalMeta, canonicalFor(normalized));
+    let html = injectSeo(INDEX_HTML, finalMeta, canonicalFor(normalized));
+
+    // For crawlers only, also inject real body content (H1, intro, article
+    // body, internal links) into #root so non-JS crawlers see full, unique,
+    // linked content. Real browsers get the untouched shell (no flash) and
+    // render the same content via React. Skip for noindex routes.
+    if (!finalMeta.noindex && isCrawler(req.get("user-agent"))) {
+      html = injectBody(html, renderSeoBody(normalized, finalMeta));
+    }
+
     res
       .status(status)
       .setHeader("Content-Type", "text/html; charset=utf-8")
+      // Response body depends on the User-Agent (crawlers get injected content),
+      // so caches must key on it and never serve bot HTML to a real browser.
+      .setHeader("Vary", "User-Agent")
       .send(html);
   } catch {
     res.status(status).sendFile(indexHtmlPath);

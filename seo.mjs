@@ -131,6 +131,7 @@ const SITE_NAV = [
   { href: "/", label: "Home" },
   { href: "/Hotels", label: "Hotels" },
   { href: "/Car", label: "Car Rental" },
+  { href: "/search/flight", label: "Flight Search" },
   { href: "/travel-guides", label: "Travel Guides" },
   { href: "/visa-information", label: "Visa Information" },
   { href: "/About", label: "About Us" },
@@ -140,7 +141,8 @@ const SITE_NAV = [
   { href: "/COVID", label: "COVID-19 Travel Information" },
   { href: "/PrivacyPolicy", label: "Privacy Policy" },
   { href: "/TermsAndConditions", label: "Terms & Conditions" },
-  // Travel-guide categories.
+  // All travel-guide categories (must cover every category the sitemap lists,
+  // otherwise an unlinked category shows up as an orphan page in Ahrefs).
   { href: "/travel-guides/destination-guides", label: "Destination Guides" },
   { href: "/travel-guides/airport-guides", label: "Airport Guides" },
   { href: "/travel-guides/baggage-information", label: "Baggage Information" },
@@ -149,6 +151,9 @@ const SITE_NAV = [
   { href: "/travel-guides/visa-travel-documents", label: "Visa & Travel Documents" },
   { href: "/travel-guides/travel-tips", label: "Travel Tips" },
   { href: "/travel-guides/travel-news", label: "Travel News" },
+  { href: "/travel-guides/travel-blogs", label: "Travel Blogs" },
+  { href: "/travel-guides/travel-restrictions", label: "Travel Restrictions" },
+  { href: "/travel-guides/travel-feedback", label: "Travel Feedback" },
   { href: "/travel-guides/general-travel-advice", label: "General Travel Advice" },
 ];
 
@@ -197,6 +202,29 @@ const prettifySlug = (slug) =>
 // Resolve meta for a pathname. Returns { title, description, image?, noindex? }.
 // ---------------------------------------------------------------------------
 export const resolveMeta = async (pathname) => {
+  // /visa-information hub — static meta enriched with links to every visa
+  // country page, so those pages have an incoming internal link (otherwise
+  // they show up as orphan pages in Ahrefs, only reachable via the sitemap).
+  if (pathname === "/visa-information") {
+    const cached = getCached(pathname);
+    if (cached) return cached;
+    // No trailing slash before the query — the backend route is "/api/visa-info"
+    // exactly and 404s on "/api/visa-info/".
+    const list = await fetchJson(`${resolveApiUrl()}/api/visa-info?limit=100`);
+    const links = (list?.countries || []).map((cty) => ({
+      href: `/visa-information/${cty.countrySlug}`,
+      label: `${cty.countryName} Visa Requirements`,
+    }));
+    const meta = {
+      ...ROUTE_META["/visa-information"],
+      h1: "Visa Requirements & Information by Country",
+      intro: ROUTE_META["/visa-information"].description,
+      links,
+    };
+    setCached(pathname, meta);
+    return meta;
+  }
+
   // Exact static match first.
   if (ROUTE_META[pathname]) return ROUTE_META[pathname];
 
@@ -216,7 +244,11 @@ export const resolveMeta = async (pathname) => {
     const title = article?.metaTitle || article?.title;
     if (title) {
       const meta = {
-        title: `${title} | ${SITE_NAME}`,
+        // Use the admin-set metaTitle verbatim (they control its length);
+        // only append the brand when falling back to the raw article title.
+        // Appending "| FlyArzan" to an already-long metaTitle is what tripped
+        // Ahrefs' "title too long" flag.
+        title: article?.metaTitle ? article.metaTitle : `${title} | ${SITE_NAME}`,
         description:
           article?.metaDescription ||
           article?.shortSummary ||
@@ -250,9 +282,10 @@ export const resolveMeta = async (pathname) => {
     }));
     const meta = {
       title: `${name} | Travel Guides | ${SITE_NAME}`,
-      description: `${name} — travel tips, guides and useful information from ${SITE_NAME}.`,
+      // ~150 chars so it clears Ahrefs' "meta description too short" (min ~110).
+      description: `Explore ${name} on ${SITE_NAME}: practical travel tips, step-by-step guides and up-to-date advice to help you plan smarter and travel with confidence.`,
       h1: name,
-      intro: `Browse ${name.toLowerCase()} articles, tips and guides from ${SITE_NAME}.`,
+      intro: `Browse our ${name.toLowerCase()} articles, tips and guides — practical, up-to-date travel information from the ${SITE_NAME} editorial team.`,
       links,
     };
     setCached(pathname, meta);
@@ -264,9 +297,10 @@ export const resolveMeta = async (pathname) => {
     const name = prettifySlug(segments[1]);
     return {
       title: `${name} Visa Requirements & Information | ${SITE_NAME}`,
-      description: `Visa requirements, entry rules and travel documentation for ${name}, from ${SITE_NAME}.`,
+      // ~155 chars so it clears Ahrefs' "meta description too short".
+      description: `Check ${name} visa requirements with ${SITE_NAME}: find out who needs a visa, entry rules, required documents, processing times and official application guidance.`,
       h1: `${name} Visa Requirements`,
-      intro: `Visa requirements, entry rules and travel documentation for ${name}, from ${SITE_NAME}.`,
+      intro: `Everything you need to know about ${name} visa requirements — who needs a visa, entry rules, required documents and how to apply, from ${SITE_NAME}.`,
     };
   }
 

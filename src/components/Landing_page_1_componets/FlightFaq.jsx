@@ -5,6 +5,7 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useLandingFaq } from "@/hooks/useLandingFaq";
 import ClosedFaq from "../../assets/Images/ClosedFaq.png";
 import Openedfaq from "../../assets/Images/Openedfaq.png";
 
@@ -18,7 +19,9 @@ const FlightFaq = forwardRef((props, ref) => {
   const toggleFaq = (index) => {
     setOpenFaq(openFaq === index ? null : index);
   };
-  const faqs = [
+  // i18n copy — used for non-English visitors and when no CMS
+  // category is bound to this surface.
+  const translatedFaqs = [
     {
       question: t("Faqpage.faq1.question"),
       answer: t("Faqpage.faq1.answer"),
@@ -67,6 +70,9 @@ const FlightFaq = forwardRef((props, ref) => {
       });
     }
   };
+
+  // CMS-first: admin edits to the "flights" FAQ category show up here.
+  const { faqs } = useLandingFaq("flights", translatedFaqs);
 
   return (
     <section className="faq--flight--sec" id="flight-faq" ref={faqSectionRef}>

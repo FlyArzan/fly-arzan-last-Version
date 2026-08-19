@@ -31,9 +31,9 @@ import {
   timeToMinutes,
   formatDurationFromMinutes,
   processFlightOffer,
-  getAirlineLogoUrl,
   formatDateFromISO,
 } from "@/lib/flight-utils";
+import AirlineLogo from "@/components/ui/airline-logo";
 
 const FlightSearchResults = ({ flightOffersData, error, searchContext }) => {
   const navigate = useNavigate();
@@ -488,21 +488,12 @@ const FlightSearchResults = ({ flightOffersData, error, searchContext }) => {
                           <div className="tw:flex tw:items-center tw:justify-between tw:flex-col tw:gap-4 tw:md:gap-0 tw:md:flex-row">
                             {/* Airline Logo, Code */}
                             <div className="tw:flex tw:flex-col tw:justify-center tw:items-center tw:gap-0.5 tw:text-center">
-                              {getAirlineLogoUrl(firstFlight.airlineCode) ? (
-                                <img
-                                  src={getAirlineLogoUrl(
-                                    firstFlight.airlineCode,
-                                  )}
-                                  alt={`${firstFlight.airline || firstFlight.airlineCode} airline logo`}
-                                  className="tw:w-[120px] tw:-mt-[35px]"
-                                />
-                              ) : (
-                                <div className="tw:w-[120px] tw:h-[60px] tw:flex tw:items-center tw:justify-center tw:bg-gray-100 tw:rounded">
-                                  <span className="tw:text-sm tw:text-gray-500">
-                                    {firstFlight.airlineCode}
-                                  </span>
-                                </div>
-                              )}
+                              <AirlineLogo
+                                code={firstFlight.airlineCode}
+                                name={firstFlight.airline}
+                                className="tw:w-[120px] tw:-mt-[35px]"
+                                fallbackClassName="tw:w-[120px] tw:h-[60px]"
+                              />
                               <span className="tw:text-sm tw:text-secondary tw:-mt-[25px]">
                                 {firstFlight.airlineCode} -{" "}
                                 {firstFlight.flightNumber}

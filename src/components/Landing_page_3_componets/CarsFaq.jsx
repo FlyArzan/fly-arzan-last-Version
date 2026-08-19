@@ -7,6 +7,7 @@ import React, {
 import ClosedFaq from "../../assets/Images/ClosedFaq.png";
 import Openedfaq from "../../assets/Images/Openedfaq.png";
 import { useTranslation } from "react-i18next";
+import { useLandingFaq } from "@/hooks/useLandingFaq";
 
 const CarsFaq = forwardRef((props, ref) => {
   const { t } = useTranslation();
@@ -30,7 +31,9 @@ const CarsFaq = forwardRef((props, ref) => {
     }
   };
 
-  const faqs = [
+  // i18n copy — used for non-English visitors and when no CMS
+  // category is bound to this surface.
+  const translatedFaqs = [
     {
       question: t("Faqpage2.faq1.question"),
       answer: t("Faqpage2.faq1.answer"),
@@ -99,6 +102,9 @@ const CarsFaq = forwardRef((props, ref) => {
     },
     // Add more FAQs here
   ];
+
+  // CMS-first: admin edits to the "cars" FAQ category show up here.
+  const { faqs } = useLandingFaq("cars", translatedFaqs);
 
   return (
     <section className="faq--flight--sec" ref={faqSectionRef} id="car-faq">

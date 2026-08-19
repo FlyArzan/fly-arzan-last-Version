@@ -89,11 +89,86 @@ export const useSaveCmsPage = () => {
   });
 };
 
-export const usePaginatedAirports = (page = 0, limit = 10, search = "") => {
+export const usePaginatedAirports = (page = 0, limit = 10, search = "", letter = "") => {
   return useQuery({
-    queryKey: ["cms", "airports", page, limit, search],
-    queryFn: () => fetcher(`/admin/cms/airport_info/airports/paginated?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`),
+    queryKey: ["cms", "airports", page, limit, search, letter],
+    queryFn: () =>
+      fetcher(
+        `/admin/cms/airport_info/airports/paginated?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&letter=${encodeURIComponent(letter)}`,
+      ),
     staleTime: 1000 * 30,
     keepPreviousData: true,
+  });
+};
+
+// ============================================
+// PUBLIC AIRPORT DIRECTORY HOOKS
+// Back /Airport (hub) and /Airport/:iata (detail). These deliberately do NOT
+// go through `fetcher` — it sends `credentials: "include"`, and these endpoints
+// are public. The hub must not use `usePublicCmsPage("airport_info")` either:
+// that returns the entire blob, every airport with all its detail.
+// ============================================
+
+const publicFetcher = async (path) => {
+  const res = await fetch(`${API_BASE_URL}/api${path}`);
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  return res.json();
+};
+
+const publicFetcherWithNotFound = async (path) => {
+  const res = await fetch(`${API_BASE_URL}/api${path}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+  return res.json();
+};
+
+/**
+ * Server-paginated, A-Z sorted airport list for the directory hub.
+ * @returns {{ airports: [], total: number, page: number, limit: number }}
+ */
+export const usePublicAirports = ({
+  search = "",
+  letter = "",
+  page = 0,
+  limit = 12,
+} = {}) => {
+  return useQuery({
+    queryKey: ["airports", "public", "list", { search, letter, page, limit }],
+    queryFn: () =>
+      publicFetcher(
+        `/cms/public/airport_info/airports?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&letter=${encodeURIComponent(letter)}`,
+      ),
+    staleTime: 1000 * 60 * 5,
+    keepPreviousData: true,
+    retry: 1,
+  });
+};
+
+/**
+ * Hub page chrome: the CMS-editable title/hero plus which A-Z initials have
+ * airports. Deliberately NOT usePublicCmsPage("airport_info") — that returns
+ * every airport with all of its detail just to read two strings.
+ * @returns {{ title, hero, letters: string[], counts: object, total: number }}
+ */
+export const useAirportDirectoryMeta = () => {
+  return useQuery({
+    queryKey: ["airports", "public", "meta"],
+    queryFn: () => publicFetcher(`/cms/public/airport_info/meta`),
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
+};
+
+/** One airport by IATA code. Resolves to null (not an error) when unknown. */
+export const usePublicAirport = (iata) => {
+  return useQuery({
+    queryKey: ["airports", "public", "detail", iata],
+    queryFn: () =>
+      publicFetcherWithNotFound(
+        `/cms/public/airport_info/airports/${encodeURIComponent(String(iata).toUpperCase())}`,
+      ),
+    enabled: Boolean(iata),
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
   });
 };

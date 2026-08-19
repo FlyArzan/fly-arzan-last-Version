@@ -80,6 +80,10 @@ const proxySitemap = (backendPath) => async (req, res) => {
 // Article + visa-country sitemaps (dynamic, slug-based)
 app.get("/sitemap-articles.xml", proxySitemap("/api/articles/sitemap.xml"));
 app.get("/sitemap-visa.xml", proxySitemap("/api/visa-info/sitemap.xml"));
+app.get(
+  "/sitemap-airports.xml",
+  proxySitemap("/api/cms/public/airport_info/sitemap.xml"),
+);
 
 app.use(async (req, res) => {
   if (req.method !== "GET" && req.method !== "HEAD") {

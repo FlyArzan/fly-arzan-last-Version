@@ -202,6 +202,63 @@ const prettifySlug = (slug) =>
 // Resolve meta for a pathname. Returns { title, description, image?, noindex? }.
 // ---------------------------------------------------------------------------
 export const resolveMeta = async (pathname) => {
+  // /Airport hub — static meta enriched with a link to every airport page, for
+  // the same orphan-page reason as /visa-information below.
+  if (pathname === "/Airport") {
+    const cached = getCached(pathname);
+    if (cached) return cached;
+    const list = await fetchJson(
+      `${resolveApiUrl()}/api/cms/public/airport_info/airports?limit=100`,
+    );
+    const links = (list?.airports || [])
+      .filter((a) => a?.iataCode)
+      .map((a) => ({
+        href: `/Airport/${String(a.iataCode).toUpperCase()}`,
+        label: `${a.name}${a.iataCode ? ` (${String(a.iataCode).toUpperCase()})` : ""} Airport Guide`,
+      }));
+    const meta = {
+      ...ROUTE_META["/Airport"],
+      h1: "Airports Directory",
+      intro: ROUTE_META["/Airport"].description,
+      links,
+    };
+    setCached(pathname, meta);
+    return meta;
+  }
+
+  // /Airport/<IATA> -> real airport, fetched from the backend so each page gets
+  // its own title and description rather than the hub's.
+  const airportSegments = pathname.split("/").filter(Boolean);
+  if (airportSegments[0] === "Airport" && airportSegments.length === 2) {
+    const cached = getCached(pathname);
+    if (cached) return cached;
+    const code = String(airportSegments[1] || "").toUpperCase();
+    const airport = await fetchJson(
+      `${resolveApiUrl()}/api/cms/public/airport_info/airports/${encodeURIComponent(code)}`,
+    );
+    if (!airport) {
+      // Unknown code: don't let a soft page inherit the hub's meta.
+      const meta = {
+        title: "Airport not found | FlyArzan",
+        description: "This airport guide could not be found.",
+        noindex: true,
+      };
+      setCached(pathname, meta);
+      return meta;
+    }
+    const where = [airport.city, airport.country].filter(Boolean).join(", ");
+    const meta = {
+      title: `${airport.name}${code ? ` (${code})` : ""} — Terminals, Airlines & Baggage | FlyArzan`,
+      description:
+        (airport.introduction || "").slice(0, 300) ||
+        `${airport.name} airport guide: terminals, airlines, baggage rules and travel tips${where ? ` in ${where}` : ""}.`,
+      h1: airport.name,
+      intro: airport.introduction || "",
+    };
+    setCached(pathname, meta);
+    return meta;
+  }
+
   // /visa-information hub — static meta enriched with links to every visa
   // country page, so those pages have an incoming internal link (otherwise
   // they show up as orphan pages in Ahrefs, only reachable via the sitemap).

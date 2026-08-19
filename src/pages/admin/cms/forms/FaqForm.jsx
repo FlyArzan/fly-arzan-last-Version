@@ -15,6 +15,7 @@ import {
   AccordionSummary,
   AccordionDetails,
   Chip,
+  MenuItem,
 } from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
@@ -24,6 +25,7 @@ import {
   QuestionAnswer as QuestionIcon,
 } from "@mui/icons-material";
 import { useCmsPage, useSaveCmsPage } from "@/hooks/useCms";
+import { FAQ_SURFACES } from "@/hooks/useLandingFaq";
 
 const cardSx = {
   borderRadius: 2,
@@ -92,6 +94,17 @@ export default function FaqForm() {
     setContent((prev) => {
       const categories = [...(prev.categories || [])];
       categories[catIndex] = { ...categories[catIndex], name };
+      return { ...prev, categories };
+    });
+  };
+
+  // Binds a category to a landing-page FAQ section. Without this the flights /
+  // hotels / cars sections fall back to matching on category NAME, so renaming
+  // a category would quietly unbind it.
+  const updateCategorySurface = (catIndex, surface) => {
+    setContent((prev) => {
+      const categories = [...(prev.categories || [])];
+      categories[catIndex] = { ...categories[catIndex], surface };
       return { ...prev, categories };
     });
   };
@@ -348,6 +361,22 @@ export default function FaqForm() {
                     }
                     sx={textFieldSx}
                   />
+                  <TextField
+                    select
+                    label="Shows on"
+                    value={category.surface || ""}
+                    onChange={(e) =>
+                      updateCategorySurface(catIndex, e.target.value)
+                    }
+                    helperText="Also feeds this landing page's FAQ section"
+                    sx={{ ...textFieldSx, minWidth: 220 }}
+                  >
+                    {FAQ_SURFACES.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
                   <Chip
                     label={`${category.items?.length || 0} FAQs`}
                     size="small"

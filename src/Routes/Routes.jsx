@@ -27,7 +27,8 @@ const Login = lazy(() => import("../components/login/Login"));
 const Singup = lazy(() => import("../components/login/Singup"));
 const COVID = lazy(() => import("../header-footer/COVID"));
 const VisaRequirements = lazy(() => import("../header-footer/VisaRequirements"));
-const Airport = lazy(() => import("../header-footer/Airport"));
+const AirportsHub = lazy(() => import("../pages/AirportsHub"));
+const AirportPage = lazy(() => import("../pages/AirportPage"));
 
 // User dashboard pages
 const UserDashboard = lazy(() => import("../pages/user/UserDashboard"));
@@ -172,7 +173,8 @@ export const router = createBrowserRouter(
         { path: "/PrivacyPolicy", element: <PrivacyPolicy /> },
         { path: "/TermsAndConditions", element: <TermsAndConditions /> },
         { path: "/COVID", element: <COVID /> },
-        { path: "/Airport", element: <Airport /> },
+        { path: "/Airport", element: <AirportsHub /> },
+        { path: "/Airport/:iata", element: <AirportPage /> },
         { path: "/VisaRequirements", element: <Navigate to="/visa-information" replace /> },
 
         // Travel Content Hub

@@ -120,6 +120,9 @@ const Footer = () => {
                     <Link to="/visa-information">
                       <li>Visa Information</li>
                     </Link>
+                    <Link to="/Airport">
+                      <li>{t("footer.travelSupport.airports", "Airports")}</li>
+                    </Link>
                     <Link to="/travel-guides/airport-guides">
                       <li>Airport Guides</li>
                     </Link>
@@ -132,8 +135,9 @@ const Footer = () => {
                   <h3>{t("footer.newsletter.title")}</h3>
                   <div className="more-with-input-group">
                     <input
-                      onClick={(e) => setEmail(e.target.value)}
-                      type="text"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      type="email"
                       placeholder={t("footer.newsletter.placeholder")}
                     />
                     <button onClick={handleEmail}>

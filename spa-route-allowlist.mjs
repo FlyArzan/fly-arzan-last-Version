@@ -70,6 +70,8 @@ const ADMIN_ARTICLE_SEGMENT = /^\/admin\/content\/articles\/[^/]+$/;
 const ADMIN_VISA_SEGMENT = /^\/admin\/visa-db\/[^/]+$/;
 const TRAVEL_GUIDES_SEGMENT = /^\/travel-guides(\/[^/]+(\/[^/]+)?)?$/;
 const VISA_INFO_SEGMENT = /^\/visa-information\/[^/]+$/;
+// /Airport/<IATA> detail pages. Without this every airport page 404s in prod.
+const AIRPORT_SEGMENT = /^\/Airport\/[^/]+$/;
 
 /** @param {string} raw */
 export function normalizePathname(raw) {
@@ -116,5 +118,6 @@ export function isKnownSpaPath(normalizedPath) {
   if (ADMIN_VISA_SEGMENT.test(normalizedPath)) return true;
   if (TRAVEL_GUIDES_SEGMENT.test(normalizedPath)) return true;
   if (VISA_INFO_SEGMENT.test(normalizedPath)) return true;
+  if (AIRPORT_SEGMENT.test(normalizedPath)) return true;
   return false;
 }

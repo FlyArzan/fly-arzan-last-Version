@@ -1,10 +1,10 @@
 import { RiPlaneLine } from "react-icons/ri";
 import { memo } from "react";
 import {
-  getAirlineLogoUrl,
   formatDurationFromMinutes,
   formatDateFromISO,
 } from "@/lib/flight-utils";
+import AirlineLogo from "@/components/ui/airline-logo";
 import BaggageIcons from "./baggage-icons";
 import PropTypes from "prop-types";
 
@@ -64,19 +64,12 @@ const UnifiedFlightSegment = memo(
         <div className="tw:flex tw:items-center tw:justify-between tw:flex-col tw:gap-4 tw:md:gap-0">
           {/* Airline Logo & Details */}
           <div className="tw:flex tw:flex-col tw:justify-center tw:items-center tw:gap-0.5 tw:text-center">
-            {getAirlineLogoUrl(airlineCode) ? (
-              <img
-                src={getAirlineLogoUrl(airlineCode)}
-                alt={`${firstFlight.airline || airlineCode} airline logo`}
-                className="tw:w-[120px] tw:-mt-[35px] tw:mr-4"
-              />
-            ) : (
-              <div className="tw:w-[120px] tw:h-[60px] tw:flex tw:items-center tw:justify-center tw:bg-gray-100 tw:rounded">
-                <span className="tw:text-sm tw:text-gray-500">
-                  {airlineCode}
-                </span>
-              </div>
-            )}
+            <AirlineLogo
+              code={airlineCode}
+              name={firstFlight.airline}
+              className="tw:w-[120px] tw:-mt-[35px] tw:mr-4"
+              fallbackClassName="tw:w-[120px] tw:h-[60px]"
+            />
             <span className="tw:text-sm tw:text-secondary tw:mb-6 tw:-mt-[25px]">
               {firstFlight.airline || airlineCode}
             </span>

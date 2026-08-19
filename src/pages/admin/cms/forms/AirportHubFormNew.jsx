@@ -1,79 +1,104 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
-  Box,
-  Card,
-  CardHeader,
-  CardContent,
-  Stack,
-  TextField,
-  Typography,
-  Button,
   Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
+  InputAdornment,
+  Snackbar,
+  Stack,
+  Tab,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
-  TableRow,
   TablePagination,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Divider,
-  InputAdornment,
-  Snackbar,
+  TableRow,
+  Tabs,
+  TextField,
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import {
   Add as AddIcon,
-  Delete as DeleteIcon,
-  Save as SaveIcon,
-  Edit as EditIcon,
-  Search as SearchIcon,
   Close as CloseIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Save as SaveIcon,
+  Search as SearchIcon,
+  Warning as WarningIcon,
 } from "@mui/icons-material";
 import { useCmsPage, useSaveCmsPage, usePaginatedAirports } from "@/hooks/useCms";
+import BasicTab from "./airport/BasicTab";
+import ContentTab from "./airport/ContentTab";
+import BaggageTab from "./airport/BaggageTab";
+import AirlinesTab from "./airport/AirlinesTab";
+import { emptyAirport } from "./airport/shared";
 
+/**
+ * Airport Information Hub editor.
+ *
+ * Storage is one CMS JSON blob (cmsPage slug "airport_info"). `content` is
+ * schema-free server-side, so the baggage/terminals/airlines fields need no
+ * migration. This file owns identity, validation, persistence and the list;
+ * the four dialog panels live in ./airport/.
+ *
+ * Records are identified by IATA CODE, never by array index. The previous
+ * version recovered a row's index with findIndex(name + iataCode) against the
+ * full array while displaying a server-paginated slice; a miss returned -1, and
+ * `airports[-1] = draft` wrote a property JSON.stringify drops — silently
+ * discarding the edit behind a success toast.
+ */
+
+// Only the border needs stating: the background comes from adminTheme's
+// palette.background.paper, and inputs/tables/dialogs/menus are themed globally
+// — which is why this file no longer carries local textFieldSx/cardSx copies.
 const cardSx = {
   borderRadius: 2,
-  bgcolor: "#1A1D23",
   border: "1px solid rgba(255, 255, 255, 0.08)",
-  boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
 };
 
-const textFieldSx = {
-  "& .MuiOutlinedInput-root": {
-    bgcolor: "#0B0F16",
-    "& fieldset": { borderColor: "rgba(255,255,255,0.1)" },
-    "&:hover fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-    "&.Mui-focused fieldset": { borderColor: "#3B82F6", borderWidth: 1 },
-  },
-  "& .MuiInputLabel-root": {
-    color: "#9ca3af",
-    "&.Mui-focused": { color: "#3B82F6" },
-  },
-  "& input, & textarea": {
-    color: "#e5e7eb",
-    outline: "none !important",
-    boxShadow: "none !important",
-  },
-};
+const defaultContent = { hero: { title: "", subtitle: "" }, airports: [] };
 
-const defaultContent = {
-  hero: { title: "", subtitle: "" },
-  airports: [],
-};
+const codeOf = (airport) => String(airport?.iataCode || "").trim().toUpperCase();
 
-const emptyAirport = {
-  name: "",
-  iataCode: "",
-  city: "",
-  country: "",
-  flag: "",
-  introduction: "",
-  sections: [],
-  tips: [],
+/**
+ * Stable identity for one airport row.
+ *
+ * IATA is the real key — it is also the public URL (/Airport/DXB). Rows saved
+ * before IATA was required fall back to their name so they stay editable
+ * instead of being stranded and impossible to fix.
+ */
+const keyOf = (airport) =>
+  codeOf(airport) || `name:${String(airport?.name || "").trim().toLowerCase()}`;
+
+/** Fill in fields that predate this editor so the panels never read undefined. */
+const hydrateAirport = (airport) => ({
+  ...emptyAirport,
+  ...airport,
+  baggage: { ...emptyAirport.baggage, ...(airport?.baggage || {}) },
+  sections: airport?.sections || [],
+  tips: airport?.tips || [],
+  terminals: airport?.terminals || [],
+  airlines: airport?.airlines || [],
+});
+
+/** Baggage coverage at a glance, so gaps are auditable from the list. */
+const baggageState = (airport) => {
+  const baggage = airport?.baggage || {};
+  if (baggage.pdfUrl) return { label: "PDF", color: "success" };
+  if (baggage.summary || (baggage.allowances || []).length)
+    return { label: "Text only", color: "warning" };
+  return null;
 };
 
 export default function AirportHubForm() {
@@ -83,20 +108,24 @@ export default function AirportHubForm() {
 
   const [title, setTitle] = useState("Airport Information Hub");
   const [content, setContent] = useState(defaultContent);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingAirport, setEditingAirport] = useState(null);
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [draft, setDraft] = useState(null);
+  const [editingKey, setEditingKey] = useState(null); // null => adding
+  const [tab, setTab] = useState(0);
+  const [formError, setFormError] = useState("");
+  const [isSavingAirport, setIsSavingAirport] = useState(false);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
 
-  // Server-side pagination
   const { data: paginatedData, isLoading: isLoadingAirports } = usePaginatedAirports(
     page,
     rowsPerPage,
-    debouncedSearch
+    debouncedSearch,
   );
 
   useEffect(() => {
@@ -106,88 +135,111 @@ export default function AirportHubForm() {
     }
   }, [data]);
 
-  // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
-      setPage(0); // Reset to first page on search
+      setPage(0);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const updateHero = (field, value) => {
-    setContent((prev) => ({
-      ...prev,
-      hero: { ...prev.hero, [field]: value },
-    }));
-  };
-
-  // Get airports and total from server-side pagination
   const airports = paginatedData?.airports || [];
   const totalAirports = paginatedData?.total || 0;
+  // Memoised so the `|| []` fallback doesn't hand the memo below a new array
+  // on every render.
+  const allAirports = useMemo(() => content.airports || [], [content.airports]);
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
+  // Rows an editor still needs to fix: no IATA means no public page, and no
+  // stable key to edit against.
+  const missingCodeCount = useMemo(
+    () => allAirports.filter((a) => !codeOf(a)).length,
+    [allAirports],
+  );
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  const updateHero = (field, value) =>
+    setContent((prev) => ({ ...prev, hero: { ...prev.hero, [field]: value } }));
 
-  const openAddModal = () => {
-    setEditingAirport({ ...emptyAirport });
-    setEditingIndex(null);
+  // ---------------------------------------------------------------- dialog ---
+
+  const openDialog = (airport) => {
+    setDraft(airport ? hydrateAirport(airport) : { ...emptyAirport });
+    setEditingKey(airport ? keyOf(airport) : null);
+    setTab(0);
+    setFormError("");
     setModalOpen(true);
   };
 
-  const openEditModal = (airport, actualIndex) => {
-    setEditingAirport({ ...airport });
-    setEditingIndex(actualIndex);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
+  const closeDialog = () => {
     setModalOpen(false);
-    setEditingAirport(null);
-    setEditingIndex(null);
+    setDraft(null);
+    setEditingKey(null);
+    setFormError("");
   };
 
-  const [isSavingAirport, setIsSavingAirport] = useState(false);
+  const setField = (field, value) => setDraft((prev) => ({ ...prev, [field]: value }));
+
+  const patchBaggage = (patch) =>
+    setDraft((prev) => ({ ...prev, baggage: { ...(prev.baggage || {}), ...patch } }));
+
+  // ------------------------------------------------------------ persistence ---
+
+  const persist = async (airportsNext, message) => {
+    await saveMutation.mutateAsync({
+      slug,
+      payload: {
+        slug,
+        title,
+        content: { ...content, airports: airportsNext },
+        status: "published",
+      },
+    });
+    setContent((prev) => ({ ...prev, airports: airportsNext }));
+    setToast({ open: true, message, severity: "success" });
+  };
+
+  const validateDraft = () => {
+    if (!String(draft.name || "").trim()) return "Airport name is required.";
+    const code = codeOf(draft);
+    if (!/^[A-Z]{3}$/.test(code)) {
+      return "IATA code must be exactly 3 letters — it identifies the airport and forms its page URL (/Airport/DXB).";
+    }
+    if (allAirports.some((a) => codeOf(a) === code && keyOf(a) !== editingKey)) {
+      return `Another airport already uses the code ${code}.`;
+    }
+    return "";
+  };
 
   const saveAirport = async () => {
+    const problem = validateDraft();
+    if (problem) {
+      setFormError(problem);
+      setTab(0);
+      return;
+    }
+    setFormError("");
     setIsSavingAirport(true);
-    // Get the full current airports list from content
-    const currentAirports = content.airports || [];
-    let updatedAirports;
-    
-    if (editingIndex !== null) {
-      // Edit existing - editingIndex is the global index
-      updatedAirports = [...currentAirports];
-      updatedAirports[editingIndex] = editingAirport;
+
+    const cleaned = { ...draft, iataCode: codeOf(draft) };
+    let next;
+
+    if (editingKey) {
+      let replaced = false;
+      next = allAirports.map((a) => {
+        if (!replaced && keyOf(a) === editingKey) {
+          replaced = true;
+          return cleaned;
+        }
+        return a;
+      });
+      // If the row vanished under us, append rather than lose the editor's work.
+      if (!replaced) next = [...allAirports, cleaned];
     } else {
-      // Add new
-      updatedAirports = [...currentAirports, editingAirport];
+      next = [...allAirports, cleaned];
     }
 
-    // Save to backend immediately
     try {
-      await saveMutation.mutateAsync({
-        slug,
-        payload: {
-          slug,
-          title,
-          content: { ...content, airports: updatedAirports },
-          status: "published",
-        },
-      });
-      setContent((prev) => ({ ...prev, airports: updatedAirports }));
-      setToast({
-        open: true,
-        message: editingIndex !== null ? "Airport updated successfully!" : "Airport added successfully!",
-        severity: "success",
-      });
-      closeModal();
+      await persist(next, editingKey ? "Airport updated." : "Airport added.");
+      closeDialog();
     } catch {
       setToast({
         open: true,
@@ -199,98 +251,39 @@ export default function AirportHubForm() {
     }
   };
 
-  const deleteAirport = async (globalIndex) => {
-    if (window.confirm("Are you sure you want to delete this airport?")) {
-      // Get full airports list and remove by global index
-      const currentAirports = content.airports || [];
-      const updatedAirports = currentAirports.filter((_, i) => i !== globalIndex);
-      
-      // Save to backend immediately
-      try {
-        await saveMutation.mutateAsync({
-          slug,
-          payload: {
-            slug,
-            title,
-            content: { ...content, airports: updatedAirports },
-            status: "published",
-          },
-        });
-        setContent((prev) => ({ ...prev, airports: updatedAirports }));
-        setToast({
-          open: true,
-          message: "Airport deleted successfully!",
-          severity: "success",
-        });
-      } catch {
-        setToast({
-          open: true,
-          message: "Failed to delete airport. Please try again.",
-          severity: "error",
-        });
-      }
+  const deleteAirport = async (airport) => {
+    const label = airport.name || codeOf(airport) || "this airport";
+    if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+
+    const key = keyOf(airport);
+    const next = allAirports.filter((a) => keyOf(a) !== key);
+    if (next.length === allAirports.length) {
+      setToast({
+        open: true,
+        message: "Could not identify that airport — reload and try again.",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      await persist(next, "Airport deleted.");
+    } catch {
+      setToast({
+        open: true,
+        message: "Failed to delete airport. Please try again.",
+        severity: "error",
+      });
     }
   };
 
-  const updateEditingAirport = (field, value) => {
-    setEditingAirport((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const addSection = () => {
-    setEditingAirport((prev) => ({
-      ...prev,
-      sections: [...(prev.sections || []), { title: "", content: "" }],
-    }));
-  };
-
-  const updateSection = (index, field, value) => {
-    setEditingAirport((prev) => {
-      const sections = [...(prev.sections || [])];
-      sections[index] = { ...sections[index], [field]: value };
-      return { ...prev, sections };
-    });
-  };
-
-  const removeSection = (index) => {
-    setEditingAirport((prev) => ({
-      ...prev,
-      sections: prev.sections?.filter((_, i) => i !== index) || [],
-    }));
-  };
-
-  const addTip = () => {
-    setEditingAirport((prev) => ({
-      ...prev,
-      tips: [...(prev.tips || []), ""],
-    }));
-  };
-
-  const updateTip = (index, value) => {
-    setEditingAirport((prev) => {
-      const tips = [...(prev.tips || [])];
-      tips[index] = value;
-      return { ...prev, tips };
-    });
-  };
-
-  const removeTip = (index) => {
-    setEditingAirport((prev) => ({
-      ...prev,
-      tips: prev.tips?.filter((_, i) => i !== index) || [],
-    }));
-  };
-
-  const onSave = async () => {
+  const savePageSettings = async () => {
     try {
       await saveMutation.mutateAsync({
         slug,
         payload: { slug, title, content, status: "published" },
       });
-      setToast({
-        open: true,
-        message: "Page settings saved successfully!",
-        severity: "success",
-      });
+      setToast({ open: true, message: "Page settings saved.", severity: "success" });
     } catch {
       setToast({
         open: true,
@@ -300,10 +293,12 @@ export default function AirportHubForm() {
     }
   };
 
+  // ------------------------------------------------------------------ views ---
+
   if (isLoading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", p: 4 }}>
-        <Typography sx={{ color: "#9ca3af" }}>Loading page content...</Typography>
+      <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <Typography sx={{ color: "text.secondary" }}>Loading page content…</Typography>
       </Box>
     );
   }
@@ -312,145 +307,224 @@ export default function AirportHubForm() {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Header */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 2,
+          flexWrap: "wrap",
+        }}
+      >
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 600, color: "#FFFFFF", fontFamily: "Inter" }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: "#FFFFFF" }}>
             Airport Information Hub
           </Typography>
-          <Typography variant="body2" sx={{ color: "#71717A", mt: 0.5, fontFamily: "Inter" }}>
-            Manage information for {content.airports?.length || 0} airports
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
+            {allAirports.length} airport{allAirports.length === 1 ? "" : "s"} · published at /Airport
           </Typography>
         </Box>
         <Button
           variant="contained"
           startIcon={<SaveIcon />}
-          onClick={onSave}
+          onClick={savePageSettings}
           disabled={saveMutation.isPending}
-          sx={{ bgcolor: "#3B82F6", "&:hover": { bgcolor: "#2563EB" }, textTransform: "none", fontFamily: "Inter" }}
         >
-          {saveMutation.isPending ? "Saving..." : "Save Changes"}
+          {saveMutation.isPending ? "Saving…" : "Save page settings"}
         </Button>
       </Box>
 
-      {/* Alerts */}
-      {isError && <Alert severity="error">Failed to load page content. Please check your connection.</Alert>}
-      {isNewPage && !isError && <Alert severity="info">This page has not been created yet. Fill in the content and save to create it.</Alert>}
+      {isError && (
+        <Alert severity="error">
+          Failed to load page content. Please check your connection.
+        </Alert>
+      )}
+      {isNewPage && !isError && (
+        <Alert severity="info">
+          This page has not been created yet. Fill in the content and save to create it.
+        </Alert>
+      )}
+      {missingCodeCount > 0 && (
+        <Alert severity="warning">
+          {missingCodeCount} airport{missingCodeCount === 1 ? " has" : "s have"} no IATA
+          code, so {missingCodeCount === 1 ? "it has" : "they have"} no public page. Open
+          each one and add its 3-letter code.
+        </Alert>
+      )}
 
-      {/* Page Settings */}
+      {/* Page settings */}
       <Card sx={cardSx}>
         <CardHeader
-          title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Page Settings</Typography>}
-          sx={{ px: 2.5, pt: 2.25, pb: 1.5 }}
-        />
-        <CardContent sx={{ px: 2.5, pb: 2.5 }}>
-          <TextField fullWidth label="Page Title" value={title} onChange={(e) => setTitle(e.target.value)} sx={textFieldSx} />
-        </CardContent>
-      </Card>
-
-      {/* Hero Section */}
-      <Card sx={cardSx}>
-        <CardHeader
-          title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Hero Section</Typography>}
-          subheader={<Typography variant="caption" sx={{ color: "#71717A", fontFamily: "Inter" }}>The main banner at the top of the page</Typography>}
+          title={
+            <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>Page settings</Typography>
+          }
+          subheader={
+            <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              Heading and intro shown at the top of the public directory
+            </Typography>
+          }
           sx={{ px: 2.5, pt: 2.25, pb: 1.5 }}
         />
         <CardContent sx={{ px: 2.5, pb: 2.5 }}>
           <Stack spacing={2}>
-            <TextField fullWidth label="Title" value={content.hero?.title || ""} onChange={(e) => updateHero("title", e.target.value)} sx={textFieldSx} />
-            <TextField fullWidth label="Subtitle" value={content.hero?.subtitle || ""} onChange={(e) => updateHero("subtitle", e.target.value)} sx={textFieldSx} />
+            <TextField
+              fullWidth
+              label="Page title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Hero title"
+              value={content.hero?.title || ""}
+              onChange={(e) => updateHero("title", e.target.value)}
+            />
+            <TextField
+              fullWidth
+              label="Hero subtitle"
+              value={content.hero?.subtitle || ""}
+              onChange={(e) => updateHero("subtitle", e.target.value)}
+            />
           </Stack>
         </CardContent>
       </Card>
 
-      {/* Airports Table */}
+      {/* Airports list */}
       <Card sx={cardSx}>
         <CardHeader
-          title={<Typography sx={{ color: "#FFFFFF", fontWeight: 600, fontFamily: "Inter" }}>Airports ({totalAirports})</Typography>}
+          title={
+            <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>
+              Airports ({totalAirports})
+            </Typography>
+          }
           action={
             <Button
               variant="contained"
               size="small"
               startIcon={<AddIcon />}
-              onClick={openAddModal}
-              sx={{
-                bgcolor: "#3B82F6",
-                "&:hover": { bgcolor: "#2563EB" },
-                textTransform: "none",
-                fontWeight: 600,
-              }}
+              onClick={() => openDialog(null)}
+              sx={{ fontWeight: 600 }}
             >
-              Add Airport
+              Add airport
             </Button>
           }
           sx={{ px: 2.5, pt: 2.25, pb: 1.5 }}
         />
         <CardContent sx={{ px: 2.5, pb: 2.5 }}>
-          {/* Search */}
           <TextField
             fullWidth
             size="small"
-            placeholder="Search airports..."
+            placeholder="Search by name, code, city or country…"
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setPage(0);
-            }}
+            onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: "#9ca3af" }} />
+                  <SearchIcon sx={{ color: "text.secondary" }} />
                 </InputAdornment>
               ),
             }}
-            sx={{ ...textFieldSx, mb: 2 }}
+            sx={{ mb: 2 }}
           />
 
-          {/* Table */}
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ color: "#9ca3af", fontWeight: 600, borderColor: "rgba(255,255,255,0.08)" }}>Airport Name</TableCell>
-                  <TableCell sx={{ color: "#9ca3af", fontWeight: 600, borderColor: "rgba(255,255,255,0.08)" }}>Code</TableCell>
-                  <TableCell sx={{ color: "#9ca3af", fontWeight: 600, borderColor: "rgba(255,255,255,0.08)" }}>City</TableCell>
-                  <TableCell sx={{ color: "#9ca3af", fontWeight: 600, borderColor: "rgba(255,255,255,0.08)" }}>Country</TableCell>
-                  <TableCell align="right" sx={{ color: "#9ca3af", fontWeight: 600, borderColor: "rgba(255,255,255,0.08)" }}>Actions</TableCell>
+                  <TableCell>Airport name</TableCell>
+                  <TableCell>Code</TableCell>
+                  <TableCell>City</TableCell>
+                  <TableCell>Country</TableCell>
+                  <TableCell align="center">Terminals</TableCell>
+                  <TableCell align="center">Airlines</TableCell>
+                  <TableCell align="center">Baggage</TableCell>
+                  <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {isLoadingAirports ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ color: "#71717A", py: 4, borderColor: "rgba(255,255,255,0.08)" }}>
-                      Loading airports...
+                    <TableCell colSpan={8} align="center" sx={{ py: 4, color: "text.secondary" }}>
+                      Loading airports…
                     </TableCell>
                   </TableRow>
                 ) : airports.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ color: "#71717A", py: 4, borderColor: "rgba(255,255,255,0.08)" }}>
-                      {searchQuery ? "No airports found matching your search." : "No airports added yet. Click 'Add Airport' to get started."}
+                    <TableCell colSpan={8} align="center" sx={{ py: 4, color: "text.secondary" }}>
+                      {debouncedSearch
+                        ? "No airports match your search."
+                        : "No airports yet. Click “Add airport” to get started."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  airports.map((airport, index) => {
-                    // Find global index by matching airport data
-                    const globalIndex = (content.airports || []).findIndex(
-                      (a) => a.name === airport.name && a.iataCode === airport.iataCode
-                    );
+                  airports.map((airport) => {
+                    const code = codeOf(airport);
+                    const baggage = baggageState(airport);
                     return (
-                      <TableRow key={`${airport.iataCode}-${index}`} hover>
-                        <TableCell sx={{ color: "#e5e7eb", borderColor: "rgba(255,255,255,0.08)" }}>{airport.name || "-"}</TableCell>
-                        <TableCell sx={{ color: "#3B82F6", fontWeight: 600, borderColor: "rgba(255,255,255,0.08)" }}>{airport.iataCode || "-"}</TableCell>
-                        <TableCell sx={{ color: "#e5e7eb", borderColor: "rgba(255,255,255,0.08)" }}>{airport.city || "-"}</TableCell>
-                        <TableCell sx={{ color: "#e5e7eb", borderColor: "rgba(255,255,255,0.08)" }}>
-                          {airport.flag && <span style={{ marginRight: 6 }}>{airport.flag}</span>}
-                          {airport.country || "-"}
+                      <TableRow key={keyOf(airport)} hover>
+                        <TableCell sx={{ color: "text.primary" }}>
+                          {airport.name || "—"}
                         </TableCell>
-                        <TableCell align="right" sx={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                          <IconButton size="small" onClick={() => openEditModal(airport, globalIndex)} sx={{ color: "#3B82F6", mr: 1 }}>
+                        <TableCell>
+                          {code ? (
+                            <Typography
+                              component="span"
+                              sx={{ color: "primary.main", fontWeight: 600, fontSize: 13 }}
+                            >
+                              {code}
+                            </Typography>
+                          ) : (
+                            <Tooltip title="No public page without an IATA code">
+                              <Chip
+                                size="small"
+                                icon={<WarningIcon sx={{ fontSize: 14 }} />}
+                                label="Missing"
+                                color="error"
+                                variant="outlined"
+                              />
+                            </Tooltip>
+                          )}
+                        </TableCell>
+                        <TableCell sx={{ color: "text.primary" }}>{airport.city || "—"}</TableCell>
+                        <TableCell sx={{ color: "text.primary" }}>
+                          {airport.flag && <span style={{ marginRight: 6 }}>{airport.flag}</span>}
+                          {airport.country || "—"}
+                        </TableCell>
+                        <TableCell align="center" sx={{ color: "text.secondary" }}>
+                          {(airport.terminals || []).length || "—"}
+                        </TableCell>
+                        <TableCell align="center" sx={{ color: "text.secondary" }}>
+                          {(airport.airlines || []).length || "—"}
+                        </TableCell>
+                        <TableCell align="center">
+                          {baggage ? (
+                            <Chip
+                              size="small"
+                              label={baggage.label}
+                              color={baggage.color}
+                              variant="outlined"
+                            />
+                          ) : (
+                            <Typography component="span" sx={{ color: "text.secondary" }}>
+                              —
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton
+                            size="small"
+                            onClick={() => openDialog(airport)}
+                            sx={{ color: "primary.main", mr: 1 }}
+                            aria-label={`Edit ${airport.name || code}`}
+                          >
                             <EditIcon fontSize="small" />
                           </IconButton>
-                          <IconButton size="small" onClick={() => deleteAirport(globalIndex)} sx={{ color: "#ef4444" }}>
+                          <IconButton
+                            size="small"
+                            onClick={() => deleteAirport(airport)}
+                            sx={{ color: "#ef4444" }}
+                            aria-label={`Delete ${airport.name || code}`}
+                          >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </TableCell>
@@ -462,179 +536,85 @@ export default function AirportHubForm() {
             </Table>
           </TableContainer>
 
-          {/* Pagination */}
           {totalAirports > 0 && (
             <TablePagination
               component="div"
               count={totalAirports}
               page={page}
-              onPageChange={handleChangePage}
+              onPageChange={(_, next) => setPage(next)}
               rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              rowsPerPageOptions={[5, 10, 25, 50]}
-              sx={{
-                color: "#9ca3af",
-                ".MuiTablePagination-selectIcon": { color: "#9ca3af" },
-                ".MuiTablePagination-actions button": { color: "#9ca3af" },
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
               }}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+              sx={{ color: "text.secondary" }}
             />
           )}
         </CardContent>
       </Card>
 
-      {/* Add/Edit Modal */}
-      <Dialog open={modalOpen} onClose={closeModal} maxWidth="md" fullWidth PaperProps={{ sx: { bgcolor: "#1A1D23", color: "#e5e7eb" } }}>
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" sx={{ fontWeight: 600, fontFamily: "Inter" }}>
-            {editingIndex !== null ? "Edit Airport" : "Add New Airport"}
+      {/* Add / edit dialog — tabbed, because one flat form covering identity,
+          prose, baggage and an airline roster is unusable. */}
+      <Dialog open={modalOpen} onClose={closeDialog} maxWidth="md" fullWidth>
+        <DialogTitle
+          sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            {editingKey ? "Edit airport" : "Add new airport"}
           </Typography>
-          <IconButton size="small" onClick={closeModal} sx={{ color: "#9ca3af" }}>
+          <IconButton size="small" onClick={closeDialog} sx={{ color: "text.secondary" }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers sx={{ borderColor: "rgba(255,255,255,0.08)" }}>
-          {editingAirport && (
-            <Stack spacing={2.5}>
-              {/* Basic Info */}
-              <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                <TextField
-                  fullWidth
-                  label="Airport Name"
-                  placeholder="e.g., Dubai International Airport"
-                  value={editingAirport.name || ""}
-                  onChange={(e) => updateEditingAirport("name", e.target.value)}
-                  sx={textFieldSx}
-                />
-                <TextField
-                  label="IATA Code"
-                  placeholder="e.g., DXB"
-                  value={editingAirport.iataCode || ""}
-                  onChange={(e) => updateEditingAirport("iataCode", e.target.value.toUpperCase())}
-                  inputProps={{ style: { textTransform: "uppercase" }, maxLength: 3 }}
-                  sx={{ ...textFieldSx, minWidth: 150 }}
-                />
-              </Stack>
 
-              <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-                <TextField fullWidth label="City" placeholder="e.g., Dubai" value={editingAirport.city || ""} onChange={(e) => updateEditingAirport("city", e.target.value)} sx={textFieldSx} />
-                <TextField fullWidth label="Country" placeholder="e.g., United Arab Emirates" value={editingAirport.country || ""} onChange={(e) => updateEditingAirport("country", e.target.value)} sx={textFieldSx} />
-                <TextField label="Flag Emoji" placeholder="🇦🇪" value={editingAirport.flag || ""} onChange={(e) => updateEditingAirport("flag", e.target.value)} sx={{ ...textFieldSx, minWidth: 100 }} />
-              </Stack>
+        {draft && (
+          <>
+            <Tabs
+              value={tab}
+              onChange={(_, next) => setTab(next)}
+              sx={{ px: 3, borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <Tab label="Basic" />
+              <Tab label="Content" />
+              <Tab label={`Baggage${draft.baggage?.pdfUrl ? " • PDF" : ""}`} />
+              <Tab label={`Airlines (${(draft.airlines || []).length})`} />
+            </Tabs>
 
-              <TextField
-                fullWidth
-                multiline
-                minRows={3}
-                label="Introduction"
-                placeholder="General information about this airport..."
-                value={editingAirport.introduction || ""}
-                onChange={(e) => updateEditingAirport("introduction", e.target.value)}
-                sx={textFieldSx}
-              />
+            <DialogContent dividers sx={{ borderColor: "rgba(255,255,255,0.08)" }}>
+              {formError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {formError}
+                </Alert>
+              )}
+              {tab === 0 && <BasicTab draft={draft} setField={setField} />}
+              {tab === 1 && <ContentTab draft={draft} setField={setField} />}
+              {tab === 2 && (
+                <BaggageTab baggage={draft.baggage || {}} onPatch={patchBaggage} />
+              )}
+              {tab === 3 && <AirlinesTab draft={draft} setField={setField} />}
+            </DialogContent>
+          </>
+        )}
 
-              <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
-
-              {/* Sections */}
-              <Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                  <Typography variant="body2" sx={{ color: "#9ca3af", fontWeight: 600 }}>
-                    Information Sections
-                  </Typography>
-                  <Button size="small" startIcon={<AddIcon />} onClick={addSection} sx={{ color: "#3B82F6", textTransform: "none" }}>
-                    Add Section
-                  </Button>
-                </Box>
-                <Stack spacing={2}>
-                  {(editingAirport.sections || []).map((section, index) => (
-                    <Stack key={index} spacing={1} sx={{ p: 2, bgcolor: "rgba(255,255,255,0.02)", borderRadius: 1, border: "1px solid rgba(255,255,255,0.05)" }}>
-                      <Stack direction="row" spacing={1} alignItems="flex-start">
-                        <TextField
-                          fullWidth
-                          size="small"
-                          label="Section Title"
-                          placeholder="e.g., Terminals, Transportation"
-                          value={section.title || ""}
-                          onChange={(e) => updateSection(index, "title", e.target.value)}
-                          sx={textFieldSx}
-                        />
-                        <IconButton size="small" onClick={() => removeSection(index)} sx={{ color: "#ef4444" }}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Stack>
-                      <TextField
-                        fullWidth
-                        multiline
-                        minRows={2}
-                        size="small"
-                        label="Content"
-                        placeholder="Detailed information..."
-                        value={section.content || ""}
-                        onChange={(e) => updateSection(index, "content", e.target.value)}
-                        sx={textFieldSx}
-                      />
-                    </Stack>
-                  ))}
-                </Stack>
-              </Box>
-
-              <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
-
-              {/* Tips */}
-              <Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                  <Typography variant="body2" sx={{ color: "#9ca3af", fontWeight: 600 }}>
-                    Travel Tips
-                  </Typography>
-                  <Button size="small" startIcon={<AddIcon />} onClick={addTip} sx={{ color: "#3B82F6", textTransform: "none" }}>
-                    Add Tip
-                  </Button>
-                </Box>
-                <Stack spacing={1.5}>
-                  {(editingAirport.tips || []).map((tip, index) => (
-                    <Stack key={index} direction="row" spacing={1} alignItems="center">
-                      <Typography sx={{ color: "#3B82F6" }}>•</Typography>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        placeholder="e.g., Arrive 3 hours early for international flights"
-                        value={tip}
-                        onChange={(e) => updateTip(index, e.target.value)}
-                        sx={textFieldSx}
-                      />
-                      <IconButton size="small" onClick={() => removeTip(index)} sx={{ color: "#ef4444" }}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
-                  ))}
-                </Stack>
-              </Box>
-            </Stack>
-          )}
-        </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={closeModal} disabled={isSavingAirport} sx={{ color: "#9ca3af", textTransform: "none" }}>
+          <Button onClick={closeDialog} disabled={isSavingAirport} sx={{ color: "text.secondary" }}>
             Cancel
           </Button>
-          <Button 
-            onClick={saveAirport} 
-            variant="contained" 
-            disabled={isSavingAirport}
-            sx={{ bgcolor: "#3B82F6", "&:hover": { bgcolor: "#2563EB" }, textTransform: "none" }}
-          >
-            {isSavingAirport ? "Saving..." : (editingIndex !== null ? "Save Changes" : "Add Airport")}
+          <Button onClick={saveAirport} variant="contained" disabled={isSavingAirport}>
+            {isSavingAirport ? "Saving…" : editingKey ? "Save changes" : "Add airport"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Toast Notification */}
       <Snackbar
         open={toast.open}
         autoHideDuration={4000}
-        onClose={() => setToast({ ...toast, open: false })}
+        onClose={() => setToast((t) => ({ ...t, open: false }))}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <Alert
-          onClose={() => setToast({ ...toast, open: false })}
+          onClose={() => setToast((t) => ({ ...t, open: false }))}
           severity={toast.severity}
           sx={{ width: "100%" }}
         >

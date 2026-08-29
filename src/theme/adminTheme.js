@@ -70,11 +70,21 @@ const adminTheme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          backgroundColor: "#0B0F16",
-          "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255, 255, 255, 0.1)" },
+          backgroundColor: "#0B0F16 !important",
+          "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255, 255, 255, 0.08)" },
           "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255, 255, 255, 0.2)" },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: "#3B82F6", borderWidth: 1 },
         },
+      },
+    },
+    // Reinforces input text contrast: the editor forms rely solely on the theme
+    // for readability (they dropped their local textFieldSx), so pin the text
+    // colour here instead of letting it fall back to MUI's default. `!important`
+    // is required because Bootstrap's global CSS otherwise overrides these.
+    MuiInputBase: {
+      styleOverrides: {
+        root: { color: "#e5e7eb !important", backgroundColor: "#0B0F16 !important" },
+        input: { color: "#e5e7eb !important" },
       },
     },
     MuiInputLabel: {

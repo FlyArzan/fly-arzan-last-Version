@@ -21,7 +21,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Tabs,
   TextField,
@@ -37,89 +36,78 @@ import {
   Search as SearchIcon,
   Warning as WarningIcon,
 } from "@mui/icons-material";
-import { useCmsPage, useSaveCmsPage, usePaginatedAirports } from "@/hooks/useCms";
-import BasicTab from "./airport/BasicTab";
+import { useCmsPage, useSaveCmsPage } from "@/hooks/useCms";
+import AirlineBasicTab from "./airlines/AirlineBasicTab";
 import ContentTab from "./airport/ContentTab";
-import { emptyAirport } from "./airport/shared";
+import BaggageTab from "./airport/BaggageTab";
+import { emptyAirline } from "./airlines/shared";
 
 /**
- * Airport Information Hub editor.
+ * Airline Information Hub editor.
  *
- * Storage is one CMS JSON blob (cmsPage slug "airport_info"). `content` is
- * schema-free server-side, so the baggage/terminals/airlines fields need no
- * migration. This file owns identity, validation, persistence and the list;
- * the four dialog panels live in ./airport/.
+ * Storage is one CMS JSON blob (cmsPage slug "airlines"). `content` is
+ * schema-free server-side, so the fields need no migration — the same generic
+ * PUT /:slug upsert handles it. This file owns identity, validation,
+ * persistence and the list; the three dialog panels (Basic, Content, Baggage)
+ * live herebeside ../airport/: ContentTab and BaggageTab are airline-agnostic
+ * and are reused verbatim.
  *
- * Records are identified by IATA CODE, never by array index. The previous
- * version recovered a row's index with findIndex(name + iataCode) against the
- * full array while displaying a server-paginated slice; a miss returned -1, and
- * `airports[-1] = draft` wrote a property JSON.stringify drops — silently
- * discarding the edit behind a success toast.
+ * Records are identified by IATA CODE, never by array index — the same bug that
+ * bit the airport editor (index writes being dropped by JSON.stringify) is
+ * avoided by keying on iata.
  */
 
-// Only the border needs stating: the background comes from adminTheme's
-// palette.background.paper, and inputs/tables/dialogs/menus are themed globally
-// — which is why this file no longer carries local textFieldSx/cardSx copies.
 const cardSx = {
   borderRadius: 2,
   border: "1px solid rgba(255, 255, 255, 0.08)",
 };
 
-const defaultContent = { hero: { title: "", subtitle: "" }, airports: [] };
+const defaultContent = { hero: { title: "", subtitle: "" }, airlines: [] };
 
-const codeOf = (airport) => String(airport?.iataCode || "").trim().toUpperCase();
+const codeOf = (airline) => String(airline?.iata || "").trim().toUpperCase();
 
-/**
- * Stable identity for one airport row.
- *
- * IATA is the real key — it is also the public URL (/Airport/DXB). Rows saved
- * before IATA was required fall back to their name so they stay editable
- * instead of being stranded and impossible to fix.
- */
-const keyOf = (airport) =>
-  codeOf(airport) || `name:${String(airport?.name || "").trim().toLowerCase()}`;
+/** Stable identity: IATA is the key; fall back to name so a code-less row stays editable. */
+const keyOf = (airline) =>
+  codeOf(airline) || `name:${String(airline?.name || "").trim().toLowerCase()}`;
 
-/** Fill in fields that predate this editor so the panels never read undefined. */
-const hydrateAirport = (airport) => ({
-  ...emptyAirport,
-  ...airport,
-  baggage: { ...emptyAirport.baggage, ...(airport?.baggage || {}) },
-  sections: airport?.sections || [],
-  tips: airport?.tips || [],
-  terminals: airport?.terminals || [],
-  airlines: airport?.airlines || [],
+const hydrateAirline = (airline) => ({
+  ...emptyAirline,
+  ...airline,
+  baggage: { ...emptyAirline.baggage, ...(airline?.baggage || {}) },
+  sections: airline?.sections || [],
+  tips: airline?.tips || [],
 });
 
-export default function AirportHubForm() {
-  const slug = "airport_info";
+const baggageState = (airline) => {
+  const baggage = airline?.baggage || {};
+  if (baggage.pdfUrl) return { label: "PDF", color: "success" };
+  if (baggage.summary || (baggage.allowances || []).length)
+    return { label: "Text only", color: "warning" };
+  return null;
+};
+
+export default function AirlinesHubForm() {
+  const slug = "airlines";
   const { data, isLoading, isError } = useCmsPage(slug);
   const saveMutation = useSaveCmsPage();
 
-  const [title, setTitle] = useState("Airport Information Hub");
+  const [title, setTitle] = useState("Airline Information Hub");
   const [content, setContent] = useState(defaultContent);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [draft, setDraft] = useState(null);
-  const [editingKey, setEditingKey] = useState(null); // null => adding
+  const [editingKey, setEditingKey] = useState(null);
   const [tab, setTab] = useState(0);
   const [formError, setFormError] = useState("");
-  const [isSavingAirport, setIsSavingAirport] = useState(false);
+  const [isSavingAirline, setIsSavingAirline] = useState(false);
   const [toast, setToast] = useState({ open: false, message: "", severity: "success" });
-
-  const { data: paginatedData, isLoading: isLoadingAirports } = usePaginatedAirports(
-    page,
-    rowsPerPage,
-    debouncedSearch,
-  );
 
   useEffect(() => {
     if (data) {
-      setTitle(data.title || "Airport Information Hub");
+      setTitle(data.title || "Airline Information Hub");
       setContent({ ...defaultContent, ...(data.content || {}) });
     }
   }, [data]);
@@ -127,32 +115,41 @@ export default function AirportHubForm() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
-      setPage(0);
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const airports = paginatedData?.airports || [];
-  const totalAirports = paginatedData?.total || 0;
-  // Memoised so the `|| []` fallback doesn't hand the memo below a new array
-  // on every render.
-  const allAirports = useMemo(() => content.airports || [], [content.airports]);
+  const allAirlines = useMemo(() => content.airlines || [], [content.airlines]);
 
-  // Rows an editor still needs to fix: no IATA means no public page, and no
-  // stable key to edit against.
+  const airlines = useMemo(() => {
+    let rows = allAirlines.slice().sort((a, b) =>
+      String(a?.name || "").localeCompare(String(b?.name || "")),
+    );
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      rows = rows.filter(
+        (a) =>
+          String(a?.name || "").toLowerCase().includes(q) ||
+          String(a?.iata || "").toLowerCase().includes(q) ||
+          String(a?.icao || "").toLowerCase().includes(q),
+      );
+    }
+    return rows;
+  }, [allAirlines, debouncedSearch]);
+  const totalAirlines = airlines.length;
+
   const missingCodeCount = useMemo(
-    () => allAirports.filter((a) => !codeOf(a)).length,
-    [allAirports],
+    () => allAirlines.filter((a) => !codeOf(a)).length,
+    [allAirlines],
   );
 
   const updateHero = (field, value) =>
     setContent((prev) => ({ ...prev, hero: { ...prev.hero, [field]: value } }));
 
-  // ---------------------------------------------------------------- dialog ---
-
-  const openDialog = (airport) => {
-    setDraft(airport ? hydrateAirport(airport) : { ...emptyAirport });
-    setEditingKey(airport ? keyOf(airport) : null);
+  // ----------------------------------------------------------------- dialog ---
+  const openDialog = (airline) => {
+    setDraft(airline ? hydrateAirline(airline) : { ...emptyAirline });
+    setEditingKey(airline ? keyOf(airline) : null);
     setTab(0);
     setFormError("");
     setModalOpen(true);
@@ -167,35 +164,37 @@ export default function AirportHubForm() {
 
   const setField = (field, value) => setDraft((prev) => ({ ...prev, [field]: value }));
 
-  // ------------------------------------------------------------ persistence ---
+  const patchBaggage = (patch) =>
+    setDraft((prev) => ({ ...prev, baggage: { ...(prev.baggage || {}), ...patch } }));
 
-  const persist = async (airportsNext, message) => {
+  // ------------------------------------------------------------ persistence ---
+  const persist = async (airlinesNext, message) => {
     await saveMutation.mutateAsync({
       slug,
       payload: {
         slug,
         title,
-        content: { ...content, airports: airportsNext },
+        content: { ...content, airlines: airlinesNext },
         status: "published",
       },
     });
-    setContent((prev) => ({ ...prev, airports: airportsNext }));
+    setContent((prev) => ({ ...prev, airlines: airlinesNext }));
     setToast({ open: true, message, severity: "success" });
   };
 
   const validateDraft = () => {
-    if (!String(draft.name || "").trim()) return "Airport name is required.";
+    if (!String(draft.name || "").trim()) return "Airline name is required.";
     const code = codeOf(draft);
-    if (!/^[A-Z]{3}$/.test(code)) {
-      return "IATA code must be exactly 3 letters — it identifies the airport and forms its page URL (/Airport/DXB).";
+    if (!/^[A-Z]{2,3}$/.test(code)) {
+      return "IATA code must be 2–3 letters — it identifies the airline and forms its page URL (/Airlines/EK).";
     }
-    if (allAirports.some((a) => codeOf(a) === code && keyOf(a) !== editingKey)) {
-      return `Another airport already uses the code ${code}.`;
+    if (allAirlines.some((a) => codeOf(a) === code && keyOf(a) !== editingKey)) {
+      return `Another airline already uses the code ${code}.`;
     }
     return "";
   };
 
-  const saveAirport = async () => {
+  const saveAirline = async () => {
     const problem = validateDraft();
     if (problem) {
       setFormError(problem);
@@ -203,61 +202,60 @@ export default function AirportHubForm() {
       return;
     }
     setFormError("");
-    setIsSavingAirport(true);
+    setIsSavingAirline(true);
 
-    const cleaned = { ...draft, iataCode: codeOf(draft) };
+    const cleaned = { ...draft, iata: codeOf(draft) };
     let next;
 
     if (editingKey) {
       let replaced = false;
-      next = allAirports.map((a) => {
+      next = allAirlines.map((a) => {
         if (!replaced && keyOf(a) === editingKey) {
           replaced = true;
           return cleaned;
         }
         return a;
       });
-      // If the row vanished under us, append rather than lose the editor's work.
-      if (!replaced) next = [...allAirports, cleaned];
+      if (!replaced) next = [...allAirlines, cleaned];
     } else {
-      next = [...allAirports, cleaned];
+      next = [...allAirlines, cleaned];
     }
 
     try {
-      await persist(next, editingKey ? "Airport updated." : "Airport added.");
+      await persist(next, editingKey ? "Airline updated." : "Airline added.");
       closeDialog();
     } catch {
       setToast({
         open: true,
-        message: "Failed to save airport. Please try again.",
+        message: "Failed to save airline. Please try again.",
         severity: "error",
       });
     } finally {
-      setIsSavingAirport(false);
+      setIsSavingAirline(false);
     }
   };
 
-  const deleteAirport = async (airport) => {
-    const label = airport.name || codeOf(airport) || "this airport";
+  const deleteAirline = async (airline) => {
+    const label = airline.name || codeOf(airline) || "this airline";
     if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
 
-    const key = keyOf(airport);
-    const next = allAirports.filter((a) => keyOf(a) !== key);
-    if (next.length === allAirports.length) {
+    const key = keyOf(airline);
+    const next = allAirlines.filter((a) => keyOf(a) !== key);
+    if (next.length === allAirlines.length) {
       setToast({
         open: true,
-        message: "Could not identify that airport — reload and try again.",
+        message: "Could not identify that airline — reload and try again.",
         severity: "error",
       });
       return;
     }
 
     try {
-      await persist(next, "Airport deleted.");
+      await persist(next, "Airline deleted.");
     } catch {
       setToast({
         open: true,
-        message: "Failed to delete airport. Please try again.",
+        message: "Failed to delete airline. Please try again.",
         severity: "error",
       });
     }
@@ -280,7 +278,6 @@ export default function AirportHubForm() {
   };
 
   // ------------------------------------------------------------------ views ---
-
   if (isLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
@@ -304,10 +301,10 @@ export default function AirportHubForm() {
       >
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 600, color: "#FFFFFF" }}>
-            Airport Information Hub
+            Airline Information Hub
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
-            {allAirports.length} airport{allAirports.length === 1 ? "" : "s"} · published at /Airport
+            {allAirlines.length} airline{allAirlines.length === 1 ? "" : "s"} · published at /Airlines
           </Typography>
         </Box>
         <Button
@@ -332,9 +329,9 @@ export default function AirportHubForm() {
       )}
       {missingCodeCount > 0 && (
         <Alert severity="warning">
-          {missingCodeCount} airport{missingCodeCount === 1 ? " has" : "s have"} no IATA
-          code, so {missingCodeCount === 1 ? "it has" : "they have"} no public page. Open
-          each one and add its 3-letter code.
+          {missingCodeCount} airline{missingCodeCount === 1 ? " has" : "s have"} no IATA code, so{" "}
+          {missingCodeCount === 1 ? "it has" : "they have"} no public page. Open each one and add
+          its IATA code.
         </Alert>
       )}
 
@@ -346,7 +343,7 @@ export default function AirportHubForm() {
           }
           subheader={
             <Typography variant="caption" sx={{ color: "text.secondary" }}>
-              Heading and intro shown at the top of the public directory
+              Heading shown at the top of the public airline directory
             </Typography>
           }
           sx={{ px: 2.5, pt: 2.25, pb: 1.5 }}
@@ -375,12 +372,12 @@ export default function AirportHubForm() {
         </CardContent>
       </Card>
 
-      {/* Airports list */}
+      {/* Airlines list */}
       <Card sx={cardSx}>
         <CardHeader
           title={
             <Typography sx={{ color: "#FFFFFF", fontWeight: 600 }}>
-              Airports ({totalAirports})
+              Airlines ({totalAirlines})
             </Typography>
           }
           action={
@@ -391,7 +388,7 @@ export default function AirportHubForm() {
               onClick={() => openDialog(null)}
               sx={{ fontWeight: 600 }}
             >
-              Add airport
+              Add airline
             </Button>
           }
           sx={{ px: 2.5, pt: 2.25, pb: 1.5 }}
@@ -400,7 +397,7 @@ export default function AirportHubForm() {
           <TextField
             fullWidth
             size="small"
-            placeholder="Search by name, code, city or country…"
+            placeholder="Search by name, IATA or ICAO code…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
@@ -417,36 +414,35 @@ export default function AirportHubForm() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Airport name</TableCell>
-                  <TableCell>Code</TableCell>
-                  <TableCell>City</TableCell>
+                  <TableCell>Airline name</TableCell>
+                  <TableCell>IATA</TableCell>
+                  <TableCell>ICAO</TableCell>
                   <TableCell>Country</TableCell>
-                <TableCell align="center">Terminals</TableCell>
-                <TableCell align="right">Actions</TableCell>
+                  <TableCell align="center">Baggage</TableCell>
+                  <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {isLoadingAirports ? (
+                {airlines.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4, color: "text.secondary" }}>
-                      Loading airports…
-                    </TableCell>
-                  </TableRow>
-                ) : airports.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ py: 4, color: "text.secondary" }}>
+                    <TableCell
+                      colSpan={6}
+                      align="center"
+                      sx={{ py: 4, color: "text.secondary" }}
+                    >
                       {debouncedSearch
-                        ? "No airports match your search."
-                        : "No airports yet. Click “Add airport” to get started."}
+                        ? "No airlines match your search."
+                        : "No airlines yet. Click “Add airline” to get started."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  airports.map((airport) => {
-                    const code = codeOf(airport);
+                  airlines.map((airline) => {
+                    const code = codeOf(airline);
+                    const baggage = baggageState(airline);
                     return (
-                      <TableRow key={keyOf(airport)} hover>
+                      <TableRow key={keyOf(airline)} hover>
                         <TableCell sx={{ color: "text.primary" }}>
-                          {airport.name || "—"}
+                          {airline.name || "—"}
                         </TableCell>
                         <TableCell>
                           {code ? (
@@ -468,28 +464,38 @@ export default function AirportHubForm() {
                             </Tooltip>
                           )}
                         </TableCell>
-                        <TableCell sx={{ color: "text.primary" }}>{airport.city || "—"}</TableCell>
+                        <TableCell sx={{ color: "text.primary" }}>{airline.icao || "—"}</TableCell>
                         <TableCell sx={{ color: "text.primary" }}>
-                          {airport.flag && <span style={{ marginRight: 6 }}>{airport.flag}</span>}
-                          {airport.country || "—"}
+                          {airline.country || airline.countryCode || "—"}
                         </TableCell>
-                        <TableCell align="center" sx={{ color: "text.secondary" }}>
-                          {(airport.terminals || []).length || "—"}
+                        <TableCell align="center">
+                          {baggage ? (
+                            <Chip
+                              size="small"
+                              label={baggage.label}
+                              color={baggage.color}
+                              variant="outlined"
+                            />
+                          ) : (
+                            <Typography component="span" sx={{ color: "text.secondary" }}>
+                              —
+                            </Typography>
+                          )}
                         </TableCell>
                         <TableCell align="right">
                           <IconButton
                             size="small"
-                            onClick={() => openDialog(airport)}
+                            onClick={() => openDialog(airline)}
                             sx={{ color: "primary.main", mr: 1 }}
-                            aria-label={`Edit ${airport.name || code}`}
+                            aria-label={`Edit ${airline.name || code}`}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
                           <IconButton
                             size="small"
-                            onClick={() => deleteAirport(airport)}
+                            onClick={() => deleteAirline(airline)}
                             sx={{ color: "#ef4444" }}
-                            aria-label={`Delete ${airport.name || code}`}
+                            aria-label={`Delete ${airline.name || code}`}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
@@ -501,33 +507,16 @@ export default function AirportHubForm() {
               </TableBody>
             </Table>
           </TableContainer>
-
-          {totalAirports > 0 && (
-            <TablePagination
-              component="div"
-              count={totalAirports}
-              page={page}
-              onPageChange={(_, next) => setPage(next)}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(parseInt(e.target.value, 10));
-                setPage(0);
-              }}
-              rowsPerPageOptions={[5, 10, 25, 50]}
-              sx={{ color: "text.secondary" }}
-            />
-          )}
         </CardContent>
       </Card>
 
-      {/* Add / edit dialog — tabbed, because one flat form covering identity,
-          prose, baggage and an airline roster is unusable. */}
+      {/* Add / edit dialog */}
       <Dialog open={modalOpen} onClose={closeDialog} maxWidth="md" fullWidth>
         <DialogTitle
           sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {editingKey ? "Edit airport" : "Add new airport"}
+            {editingKey ? "Edit airline" : "Add new airline"}
           </Typography>
           <IconButton size="small" onClick={closeDialog} sx={{ color: "text.secondary" }}>
             <CloseIcon />
@@ -543,6 +532,7 @@ export default function AirportHubForm() {
             >
               <Tab label="Basic" />
               <Tab label="Content" />
+              <Tab label={`Baggage${draft.baggage?.pdfUrl ? " • PDF" : ""}`} />
             </Tabs>
 
             <DialogContent dividers sx={{ borderColor: "rgba(255,255,255,0.08)" }}>
@@ -551,18 +541,29 @@ export default function AirportHubForm() {
                   {formError}
                 </Alert>
               )}
-              {tab === 0 && <BasicTab draft={draft} setField={setField} />}
+              {tab === 0 && <AirlineBasicTab draft={draft} setField={setField} />}
               {tab === 1 && <ContentTab draft={draft} setField={setField} />}
+              {tab === 2 && (
+                <BaggageTab baggage={draft.baggage || {}} onPatch={patchBaggage} />
+              )}
             </DialogContent>
           </>
         )}
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button onClick={closeDialog} disabled={isSavingAirport} sx={{ color: "text.secondary" }}>
+          <Button
+            onClick={closeDialog}
+            disabled={isSavingAirline}
+            sx={{ color: "text.secondary" }}
+          >
             Cancel
           </Button>
-          <Button onClick={saveAirport} variant="contained" disabled={isSavingAirport}>
-            {isSavingAirport ? "Saving…" : editingKey ? "Save changes" : "Add airport"}
+          <Button
+            onClick={saveAirline}
+            variant="contained"
+            disabled={isSavingAirline}
+          >
+            {isSavingAirline ? "Saving…" : editingKey ? "Save changes" : "Add airline"}
           </Button>
         </DialogActions>
       </Dialog>

@@ -123,6 +123,9 @@ const Footer = () => {
                     <Link to="/Airport">
                       <li>{t("footer.travelSupport.airports", "Airports")}</li>
                     </Link>
+                    <Link to="/Airlines">
+                      <li>{t("footer.travelSupport.airlines", "Airlines")}</li>
+                    </Link>
                     <Link to="/travel-guides/airport-guides">
                       <li>Airport Guides</li>
                     </Link>

@@ -30,6 +30,7 @@ const KNOWN_PATHS = new Set([
   "/auth/callback",
   "/COVID",
   "/Airport",
+  "/Airlines",
   "/VisaRequirements",
   "/admin",
   "/admin/dashboard",
@@ -44,6 +45,7 @@ const KNOWN_PATHS = new Set([
   "/admin/cms/contact",
   "/admin/cms/covid-19",
   "/admin/cms/airport",
+  "/admin/cms/airlines",
   "/admin/monitoring/health",
   "/admin/monitoring/alerts",
   "/admin/monitoring/logs",
@@ -72,6 +74,8 @@ const TRAVEL_GUIDES_SEGMENT = /^\/travel-guides(\/[^/]+(\/[^/]+)?)?$/;
 const VISA_INFO_SEGMENT = /^\/visa-information\/[^/]+$/;
 // /Airport/<IATA> detail pages. Without this every airport page 404s in prod.
 const AIRPORT_SEGMENT = /^\/Airport\/[^/]+$/;
+// /Airlines/<IATA> detail pages.
+const AIRLINE_SEGMENT = /^\/Airlines\/[^/]+$/;
 
 /** @param {string} raw */
 export function normalizePathname(raw) {
@@ -119,5 +123,6 @@ export function isKnownSpaPath(normalizedPath) {
   if (TRAVEL_GUIDES_SEGMENT.test(normalizedPath)) return true;
   if (VISA_INFO_SEGMENT.test(normalizedPath)) return true;
   if (AIRPORT_SEGMENT.test(normalizedPath)) return true;
+  if (AIRLINE_SEGMENT.test(normalizedPath)) return true;
   return false;
 }

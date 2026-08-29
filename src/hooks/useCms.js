@@ -84,7 +84,8 @@ export const useSaveCmsPage = () => {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["cms", data.slug] });
       qc.invalidateQueries({ queryKey: ["cms", "list"] });
-      qc.invalidateQueries({ queryKey: ["cms", "airports"] });
+      qc.invalidateQueries({ queryKey: ["airports", "public"] });
+      qc.invalidateQueries({ queryKey: ["airlines", "public"] });
     },
   });
 };
@@ -97,7 +98,7 @@ export const usePaginatedAirports = (page = 0, limit = 10, search = "", letter =
         `/admin/cms/airport_info/airports/paginated?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&letter=${encodeURIComponent(letter)}`,
       ),
     staleTime: 1000 * 30,
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -139,7 +140,7 @@ export const usePublicAirports = ({
         `/cms/public/airport_info/airports?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&letter=${encodeURIComponent(letter)}`,
       ),
     staleTime: 1000 * 60 * 5,
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
     retry: 1,
   });
 };
@@ -166,6 +167,62 @@ export const usePublicAirport = (iata) => {
     queryFn: () =>
       publicFetcherWithNotFound(
         `/cms/public/airport_info/airports/${encodeURIComponent(String(iata).toUpperCase())}`,
+      ),
+    enabled: Boolean(iata),
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+};
+
+// ============================================
+// PUBLIC AIRLINE DIRECTORY HOOKS
+// Mirrors the airport hooks above exactly; backed by the published CMS page
+// with slug "airlines".
+// ============================================
+
+/**
+ * Server-paginated, A-Z sorted airline list for the directory hub.
+ * @returns {{ airlines: [], total: number, page: number, limit: number }}
+ */
+export const usePublicAirlines = ({
+  search = "",
+  letter = "",
+  page = 0,
+  limit = 12,
+} = {}) => {
+  return useQuery({
+    queryKey: ["airlines", "public", "list", { search, letter, page, limit }],
+    queryFn: () =>
+      publicFetcher(
+        `/cms/public/airlines?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}&letter=${encodeURIComponent(letter)}`,
+      ),
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (previousData) => previousData,
+    retry: 1,
+  });
+};
+
+/**
+ * Hub page chrome: the CMS-editable title/hero plus which A-Z initials have
+ * airlines (so the rail can disable empty letters).
+ * @returns {{ title, hero, letters: string[], counts: object, total: number }}
+ */
+export const useAirlineDirectoryMeta = () => {
+  return useQuery({
+    queryKey: ["airlines", "public", "meta"],
+    queryFn: () => publicFetcher(`/cms/public/airlines/meta`),
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
+};
+
+/** One airline by IATA code. Resolves to null (not an error) when unknown. */
+export const usePublicAirline = (iata) => {
+  return useQuery({
+    queryKey: ["airlines", "public", "detail", iata],
+    queryFn: () =>
+      publicFetcherWithNotFound(
+        `/cms/public/airlines/${encodeURIComponent(String(iata).toUpperCase())}`,
       ),
     enabled: Boolean(iata),
     staleTime: 1000 * 60 * 5,

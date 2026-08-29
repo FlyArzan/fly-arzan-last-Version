@@ -26,9 +26,10 @@ const AuthCallback = lazy(() => import("../pages/AuthCallback"));
 const Login = lazy(() => import("../components/login/Login"));
 const Singup = lazy(() => import("../components/login/Singup"));
 const COVID = lazy(() => import("../header-footer/COVID"));
-const VisaRequirements = lazy(() => import("../header-footer/VisaRequirements"));
 const AirportsHub = lazy(() => import("../pages/AirportsHub"));
 const AirportPage = lazy(() => import("../pages/AirportPage"));
+const AirlinesHub = lazy(() => import("../pages/AirlinesHub"));
+const AirlinesPage = lazy(() => import("../pages/AirlinesPage"));
 
 // User dashboard pages
 const UserDashboard = lazy(() => import("../pages/user/UserDashboard"));
@@ -70,6 +71,7 @@ const AdminCmsTerms = lazy(() => import("../pages/admin/cms/terms-conditions"));
 const AdminCmsContact = lazy(() => import("../pages/admin/cms/contact"));
 const AdminCmsCovid = lazy(() => import("../pages/admin/cms/covid-19"));
 const AdminCmsAirport = lazy(() => import("../pages/admin/cms/airport"));
+const AdminCmsAirlines = lazy(() => import("../pages/admin/cms/airlines"));
 
 // Admin analytics pages
 const EngagementMetrics = lazy(() => import("../pages/admin/analytics/engagement"));
@@ -139,6 +141,7 @@ export const router = createBrowserRouter(
             { path: "visa-db/:id", element: <AdminVisaForm /> },
             { path: "cms/covid-19", element: <AdminCmsCovid /> },
             { path: "cms/airport", element: <AdminCmsAirport /> },
+            { path: "cms/airlines", element: <AdminCmsAirlines /> },
             { path: "monitoring/health", element: <APIHealth /> },
             { path: "monitoring/alerts", element: <SystemAlerts /> },
             { path: "monitoring/logs", element: <SystemLogs /> },
@@ -175,6 +178,8 @@ export const router = createBrowserRouter(
         { path: "/COVID", element: <COVID /> },
         { path: "/Airport", element: <AirportsHub /> },
         { path: "/Airport/:iata", element: <AirportPage /> },
+        { path: "/Airlines", element: <AirlinesHub /> },
+        { path: "/Airlines/:iata", element: <AirlinesPage /> },
         { path: "/VisaRequirements", element: <Navigate to="/visa-information" replace /> },
 
         // Travel Content Hub

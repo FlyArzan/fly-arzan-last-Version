@@ -12,83 +12,71 @@ import {
 } from "lucide-react";
 import Header from "../header-footer/Header";
 import Footer from "../header-footer/Footer";
-import { usePublicAirports, useAirportDirectoryMeta } from "../hooks/useCms";
+import AirlineLogo from "@/components/ui/airline-logo";
+import { usePublicAirlines, useAirlineDirectoryMeta } from "../hooks/useCms";
 
-const PAGE_URL = "https://flyarzan.com/Airport";
+const PAGE_URL = "https://flyarzan.com/Airlines";
 const OG_IMAGE =
   "https://flyarzan.com/Pics/Airline%20wing/Air%20line%20wings%2011.jpg";
-const PAGE_TITLE =
-  "Airports Directory — Terminals, Airlines & Baggage | FlyArzan";
+const PAGE_TITLE = "Airline Directory — Airlines Worldwide | FlyArzan";
 const PAGE_DESCRIPTION =
-  "Browse airports worldwide. Find terminal details, the airlines that fly from each airport, baggage rules and travel tips. Search by airport name, city or IATA code.";
+  "Browse airlines worldwide. Find carrier details, baggage rules, contact websites and the destinations they serve. Search by airline name, IATA or ICAO code.";
 
-// Airports shown per page on the directory grid.
+// Airlines shown per page on the directory grid.
 const PER_PAGE = 12;
 // Cap on the crawlable index below the grid (matches the backend's limit clamp).
 const INDEX_LIMIT = 100;
 
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
-// The hub endpoint returns list rows only — sections/tips/baggage/airlines are
-// stripped server-side and fetched per airport on the detail page.
-const airportRowShape = PropTypes.shape({
+const airlineRowShape = PropTypes.shape({
   name: PropTypes.string,
-  iataCode: PropTypes.string,
-  city: PropTypes.string,
+  iata: PropTypes.string,
+  icao: PropTypes.string,
+  website: PropTypes.string,
   country: PropTypes.string,
+  countryCode: PropTypes.string,
   flag: PropTypes.string,
 });
 
-/**
- * IATA badge standing in for a logo.
- *
- * There are no airport logos anywhere in this project — public/logos holds 905
- * *airline* logos keyed by 2-letter carrier code, and the airport records carry
- * only a flag emoji. The 3-letter IATA code is the strongest identifier we
- * actually have, so it becomes the visual anchor.
- */
-const AirportBadge = ({ iataCode, flag }) => (
-  <div className="tw:w-14 tw:h-14 tw:shrink-0 tw:rounded-xl tw:bg-primary/10 tw:flex tw:flex-col tw:items-center tw:justify-center">
-    {iataCode ? (
-      <span className="tw:text-sm tw:font-bold tw:text-dark-purple tw:tracking-wide">
-        {iataCode.toUpperCase()}
-      </span>
-    ) : (
-      <Plane className="tw:w-5 tw:h-5 tw:text-primary" aria-hidden="true" />
-    )}
-    {flag && (
-      <span className="tw:text-xs tw:leading-none tw:mt-0.5!">{flag}</span>
-    )}
-  </div>
-);
-
-AirportBadge.propTypes = {
-  iataCode: PropTypes.string,
-  flag: PropTypes.string,
-};
-
-const AirportCard = ({ airport }) => (
+const AirlineCard = ({ airline }) => (
   <Link
-    to={`/Airport/${encodeURIComponent(String(airport.iataCode).toUpperCase())}`}
-    className="tw:flex tw:items-center tw:gap-4! tw:bg-white tw:rounded-2xl tw:p-4! tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group"
+    to={`/Airlines/${encodeURIComponent(String(airline.iata || "").toUpperCase())}`}
+    className="tw:flex tw:flex-col tw:bg-white tw:rounded-2xl tw:overflow-hidden tw:border tw:border-gray-100 tw:shadow-sm tw:hover:shadow-md tw:hover:border-primary/40 tw:transition-all tw:group"
   >
-    <AirportBadge iataCode={airport.iataCode} flag={airport.flag} />
-    <div className="tw:flex-1 tw:min-w-0">
+    {/* Logo plate — logos are 905 committed PNGs keyed by 2-letter IATA code. */}
+    <div className="tw:h-28 tw:flex tw:items-center tw:justify-center tw:px-6! tw:border-b tw:border-gray-100 tw:overflow-hidden">
+      <AirlineLogo
+        code={airline.iata}
+        name={airline.name}
+        fallback="plane"
+        className="tw:w-[150px] tw:h-auto tw:shrink-0"
+        fallbackClassName="tw:w-full tw:h-16"
+      />
+    </div>
+    <div className="tw:p-4! tw:pt-3!">
       <p className="tw:font-semibold tw:text-dark-purple tw:text-base tw:group-hover:text-primary tw:transition-colors tw:truncate">
-        {airport.name}
+        {airline.name || airline.iata}
       </p>
-      <p className="tw:text-sm tw:text-gray-500 tw:mt-0.5! tw:truncate">
-        {airport.city}
-        {airport.city && airport.country && ", "}
-        {airport.country}
+      {airline.iata && (
+        <p className="tw:text-sm tw:text-gray-400 tw:mt-0.5! tw:mb-1!">
+          {airline.iata.toUpperCase()}
+        </p>
+      )}
+      <p className="tw:text-sm tw:text-gray-500 tw:truncate">
+        {airline.country
+          ? `${airline.country}${airline.countryCode ? ` (${airline.countryCode})` : ""}`
+          : airline.countryCode || ""}
       </p>
     </div>
-    <ArrowRight className="tw:w-4 tw:h-4 tw:text-gray-300 tw:group-hover:text-primary tw:transition-colors tw:flex-shrink-0" />
+    <div className="tw:mt-auto tw:p-3! tw:pt-0! tw:flex tw:items-center tw:justify-end">
+      <ArrowRight className="tw:w-4 tw:h-4 tw:text-gray-300 tw:group-hover:text-primary tw:transition-colors tw:flex-shrink-0" />
+    </div>
   </Link>
 );
 
-AirportCard.propTypes = {
-  airport: airportRowShape.isRequired,
+AirlineCard.propTypes = {
+  airline: airlineRowShape.isRequired,
 };
 
 // Single numbered page button for the directory pagination.
@@ -112,13 +100,13 @@ PageButton.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-const AirportsHub = () => {
+const AirlinesHub = () => {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState(""); // debounced term sent to the server
   const [letter, setLetter] = useState("");
   const [page, setPage] = useState(0);
 
-  const { data: meta } = useAirportDirectoryMeta();
+  const { data: meta } = useAirlineDirectoryMeta();
 
   // Debounce the search box into the server query (300ms) and reset to page 1.
   useEffect(() => {
@@ -129,7 +117,7 @@ const AirportsHub = () => {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const { data, isFetching, isError } = usePublicAirports({
+  const { data, isFetching, isError } = usePublicAirlines({
     search,
     letter,
     page,
@@ -137,19 +125,19 @@ const AirportsHub = () => {
   });
 
   // Full catalogue (no search, no letter) for the crawlable index below the
-  // grid. The paginated grid hides later-page airports from crawlers; this
-  // guarantees every airport page is internally linked from the hub, so none
-  // become orphan pages — the same guard the visa hub uses.
-  const { data: allData } = usePublicAirports({ page: 0, limit: INDEX_LIMIT });
+  // grid. The paginated grid hides later-page airlines from crawlers; this
+  // guarantees every airline page is internally linked from the hub, so none
+  // become orphan pages — the same guard the airport and visa hubs use.
+  const { data: allData } = usePublicAirlines({ page: 0, limit: INDEX_LIMIT });
 
-  const airports = data?.airports || [];
+  const airlines = data?.airlines || [];
   const total = data?.total || 0;
   const totalPages = Math.ceil(total / PER_PAGE);
-  const allAirports = allData?.airports || [];
+  const allAirlines = allData?.airlines || [];
   const allTotal = allData?.total || 0;
 
   const counts = meta?.counts || {};
-  const heroTitle = meta?.hero?.title || meta?.title || "Airports";
+  const heroTitle = meta?.hero?.title || meta?.title || "Airlines";
   const heroSubtitle = meta?.hero?.subtitle || PAGE_DESCRIPTION;
 
   const pageWindow = useMemo(() => {
@@ -189,7 +177,7 @@ const AirportsHub = () => {
         name: "Home",
         item: "https://flyarzan.com/",
       },
-      { "@type": "ListItem", position: 2, name: "Airports", item: PAGE_URL },
+      { "@type": "ListItem", position: 2, name: "Airlines", item: PAGE_URL },
     ],
   };
 
@@ -218,7 +206,7 @@ const AirportsHub = () => {
                 Home
               </Link>
               <ChevronRight className="tw:w-3.5 tw:h-3.5" />
-              <span className="tw:text-white tw:font-medium">Airports</span>
+              <span className="tw:text-white tw:font-medium">Airlines</span>
             </nav>
             <div className="tw:h-9 tw:bg-white/20 tw:rounded-lg tw:mb-3! tw:w-3/4 tw:animate-pulse" />
             <div className="tw:h-5 tw:bg-white/10 tw:rounded tw:mb-7! tw:w-1/2 tw:animate-pulse" />
@@ -275,7 +263,7 @@ const AirportsHub = () => {
 
       <Header />
 
-      {/* Hero — deep navy panel per the airline-directory reference. Top
+      {/* Hero — deep navy panel per the airport-directory reference. Top
           padding clears the fixed header. */}
       <section className="tw:bg-dark-purple tw:text-white tw:pt-24! tw:md:pt-28! tw:pb-10! tw:px-4! tw:sm:px-6!">
         <div className="container">
@@ -284,7 +272,7 @@ const AirportsHub = () => {
               Home
             </Link>
             <ChevronRight className="tw:w-3.5 tw:h-3.5" />
-            <span className="tw:text-white tw:font-medium">Airports</span>
+            <span className="tw:text-white tw:font-medium">Airlines</span>
           </nav>
 
           <h1 className="tw:text-2xl tw:md:text-4xl tw:font-bold! tw:text-white tw:mb-3! tw:leading-tight">
@@ -300,8 +288,8 @@ const AirportsHub = () => {
               type="search"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search airport name, city or IATA code…"
-              aria-label="Search airports"
+              placeholder="Search airline name, IATA or ICAO code…"
+              aria-label="Search airlines"
               className="tw:w-full tw:h-12 tw:pl-11! tw:pr-10! tw:rounded-xl tw:bg-white tw:text-gray-900! tw:text-sm tw:outline-none tw:border tw:border-transparent tw:focus:border-primary tw:shadow-lg"
             />
             {searchInput && (
@@ -318,11 +306,11 @@ const AirportsHub = () => {
       </section>
 
       <main className="container tw:py-10! tw:px-4! tw:sm:px-6!">
-        {/* A–Z rail — letters with no airports render disabled rather than
+        {/* A–Z rail — letters with no airlines render disabled rather than
             leading to an empty page. */}
         <nav
           className="tw:flex tw:flex-wrap tw:gap-1.5! tw:mb-8!"
-          aria-label="Browse airports alphabetically"
+          aria-label="Browse airlines alphabetically"
         >
           <button
             onClick={() => selectLetter("")}
@@ -346,8 +334,8 @@ const AirportsHub = () => {
                 aria-current={active ? "true" : undefined}
                 title={
                   count
-                    ? `${count} airport${count === 1 ? "" : "s"}`
-                    : "No airports"
+                    ? `${count} airline${count === 1 ? "" : "s"}`
+                    : "No airlines"
                 }
                 className={`tw:h-9 tw:min-w-9 tw:rounded-lg tw:text-sm tw:font-medium tw:transition-colors tw:disabled:opacity-30 tw:disabled:cursor-not-allowed ${
                   active
@@ -367,8 +355,8 @@ const AirportsHub = () => {
             {search
               ? `Results for "${search}"`
               : letter
-                ? `Airports starting with ${letter}`
-                : "All Airports"}
+                ? `Airlines starting with ${letter}`
+                : "All Airlines"}
             {total > 0 && (
               <span className="tw:text-sm tw:font-normal tw:text-gray-400 tw:ml-2!">
                 ({total})
@@ -388,11 +376,11 @@ const AirportsHub = () => {
         {isError ? (
           <div className="tw:text-center tw:py-16!">
             <p className="tw:text-gray-500">
-              Airport information is unavailable right now. Please try again
+              Airline information is unavailable right now. Please try again
               later.
             </p>
           </div>
-        ) : isFetching && airports.length === 0 ? (
+        ) : isFetching && airlines.length === 0 ? (
           <div className="tw:grid tw:grid-cols-1 tw:sm:grid-cols-2 tw:lg:grid-cols-3 tw:gap-4!">
             {[...Array(6)].map((_, i) => (
               <div
@@ -401,18 +389,18 @@ const AirportsHub = () => {
               />
             ))}
           </div>
-        ) : airports.length === 0 ? (
+        ) : airlines.length === 0 ? (
           <div className="tw:text-center tw:py-16!">
             <Plane className="tw:w-10 tw:h-10 tw:text-gray-300 tw:mx-auto! tw:mb-3!" />
             <p className="tw:text-base tw:font-semibold tw:text-dark-purple tw:mb-1!">
               {search || letter
-                ? "No airports found"
-                : "No airports available yet"}
+                ? "No airlines found"
+                : "No airlines available yet"}
             </p>
             <p className="tw:text-sm tw:text-gray-500">
               {search || letter
-                ? "Try a different airport name, city or IATA code."
-                : "Airport guides are being added — check back soon."}
+                ? "Try a different airline name, IATA or ICAO code."
+                : "Airline guides are being added — check back soon."}
             </p>
           </div>
         ) : (
@@ -422,10 +410,10 @@ const AirportsHub = () => {
                 isFetching ? "tw:opacity-60" : "tw:opacity-100"
               }`}
             >
-              {airports.map((airport) => (
-                <AirportCard
-                  key={airport.iataCode || airport.name}
-                  airport={airport}
+              {airlines.map((airline) => (
+                <AirlineCard
+                  key={airline.iata || airline.name}
+                  airline={airline}
                 />
               ))}
             </div>
@@ -491,25 +479,25 @@ const AirportsHub = () => {
           </>
         )}
 
-        {/* All airports — always-rendered, crawlable index so every airport page
+        {/* All airlines — always-rendered, crawlable index so every airline page
             is internally linked from the hub regardless of the grid's paging. */}
-        {allAirports.length > 0 && allTotal > PER_PAGE && (
+        {allAirlines.length > 0 && allTotal > PER_PAGE && (
           <section className="tw:mt-14! tw:pt-10! tw:border-t tw:border-gray-100">
             <h2 className="tw:text-lg tw:font-bold! tw:text-dark-purple tw:mb-2!">
-              All Airport Guides
+              All Airlines
             </h2>
             <p className="tw:text-sm tw:text-gray-400 tw:mb-5!">
-              Browse every airport we cover.
+              Browse every airline we cover.
             </p>
             <ul className="tw:grid tw:grid-cols-2 tw:sm:grid-cols-3 tw:lg:grid-cols-4 tw:gap-x-6! tw:gap-y-2.5!">
-              {allAirports.map((airport) => (
-                <li key={airport.iataCode || airport.name}>
+              {allAirlines.map((airline) => (
+                <li key={airline.iata || airline.name}>
                   <Link
-                    to={`/Airport/${encodeURIComponent(String(airport.iataCode).toUpperCase())}`}
+                    to={`/Airlines/${encodeURIComponent(String(airline.iata || "").toUpperCase())}`}
                     className="tw:text-sm tw:text-gray-600! tw:hover:text-primary! tw:transition-colors"
                   >
-                    {airport.name}
-                    {airport.iataCode && ` (${airport.iataCode})`}
+                    {airline.name}
+                    {airline.iata && ` (${airline.iata.toUpperCase()})`}
                   </Link>
                 </li>
               ))}
@@ -523,4 +511,4 @@ const AirportsHub = () => {
   );
 };
 
-export default AirportsHub;
+export default AirlinesHub;

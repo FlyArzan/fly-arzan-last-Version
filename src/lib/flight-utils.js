@@ -69,6 +69,19 @@ export const getAirlineLogoUrl = (carrierCode) => {
 };
 
 
+// Helper to convert a 2-letter country code into a flag emoji, used by the
+// airline detail hero (airport records store the emoji directly; airline records
+// store countryCode, so we derive it at render time to avoid extra authoring).
+export const getFlagEmoji = (countryCode) => {
+  if (!countryCode || countryCode.length !== 2) return null;
+  const [a, b] = countryCode.toUpperCase().split("");
+  const aOffset = a.charCodeAt(0) - 65 + 127397;
+  const bOffset = b.charCodeAt(0) - 65 + 127397;
+  if (aOffset < 127464 || aOffset > 127538) return null; // outside A-Z region
+  if (bOffset < 127464 || bOffset > 127538) return null;
+  return String.fromCodePoint(aOffset) + String.fromCodePoint(bOffset);
+};
+
 // Helper to parse duration from ISO format (PT4H25M) or minutes
 export const parseDuration = (duration) => {
   if (typeof duration === "number") return duration;
